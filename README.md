@@ -1,5 +1,5 @@
 # NextPass
-NextPass is an Android client for Passwords (https://git.mdns.eu/nextcloud/passwords), a simple yet feature-rich password manager for Nextcloud.
+NextPass is an Android client for Passwords (https://git.mdns.eu/nextcloud/passwords), a simple yet feature-rich password manager for Nextcloud. It's still in development and will receive further updates.
 
 
 # Build and run
