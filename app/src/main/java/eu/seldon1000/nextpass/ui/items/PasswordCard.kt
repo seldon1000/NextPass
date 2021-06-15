@@ -1,0 +1,191 @@
+package eu.seldon1000.nextpass.ui.items
+
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import eu.seldon1000.nextpass.R
+import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.Password
+import eu.seldon1000.nextpass.ui.MainViewModel
+
+@ExperimentalMaterialApi
+@ExperimentalAnimationApi
+@Composable
+fun PasswordCard(password: Password) {
+    val context = LocalContext.current
+
+    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+
+    val currentScreen by MainViewModel.currentScreen.collectAsState()
+    val folderMode by MainViewModel.folderMode.collectAsState()
+    val currentFolder by MainViewModel.currentFolder.collectAsState()
+
+    var expanded by remember { mutableStateOf(value = false) }
+
+    Card(
+        onClick = { expanded = true },
+        elevation = 4.dp,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(modifier = Modifier.padding(all = 8.dp)) {
+                Favicon(data = password, size = 44.dp)
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(weight = 1f)
+            ) {
+                Text(
+                    text = password.label,
+                    fontWeight = FontWeight.SemiBold,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+                Text(
+                    text = password.username,
+                    fontSize = 14.sp,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    color = Color.Gray
+                )
+            }
+            if (!folderMode && password.folder != storedFolders[0].id)
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_round_drive_file_move_24),
+                    contentDescription = "security_status",
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            Status(password = password)
+            FavoriteIcon(index = password.index, password = password)
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            offset = DpOffset(x = 150.dp, y = 0.dp),
+            modifier = Modifier.width(width = 200.dp)
+        ) {
+            DropdownMenuItem(onClick = {
+                MainViewModel.setPrimaryClip(
+                    label = context.getString(R.string.username),
+                    clip = password.username
+                )
+
+                expanded = false
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_round_person_24),
+                    contentDescription = "copy_username"
+                )
+                Text(
+                    text = context.getString(R.string.copy_username),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+            DropdownMenuItem(onClick = {
+                MainViewModel.setPrimaryClip(
+                    label = context.getString(R.string.password),
+                    clip = password.password
+                )
+
+                expanded = false
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_round_password_24),
+                    contentDescription = "copy_password"
+                )
+                Text(
+                    text = context.getString(R.string.copy_password),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+            DropdownMenuItem(onClick = {
+                MainViewModel.navigate(route = "password_details/${password.index}")
+
+                expanded = false
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_round_info_24),
+                    contentDescription = "password_details"
+                )
+                Text(
+                    text = context.getString(R.string.details),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+            if (password.folder != storedFolders[currentFolder].id || currentScreen != "passwords")
+                DropdownMenuItem(onClick = {
+                    MainViewModel.setFolderMode(mode = true)
+                    MainViewModel.setCurrentFolder(folder = storedFolders.indexOfFirst { password.folder == it.id })
+                    if (currentScreen != "passwords") MainViewModel.navigate(route = "passwords")
+
+                    expanded = false
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_round_drive_file_move_24),
+                        contentDescription = "go_to_folder"
+                    )
+                    Text(
+                        text = "Go to folder",
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+            DropdownMenuItem(onClick = {
+                MainViewModel.showDialog(
+                    title = context.getString(R.string.delete_password),
+                    body = context.getString(R.string.delete_password_body)
+                ) {
+                    NextcloudApiProvider.deletePasswordRequest(index = password.index)
+                    MainViewModel.showSnackbar(message = context.getString(R.string.password_deleted))
+                }
+
+                expanded = false
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_round_delete_forever_24),
+                    contentDescription = "delete_password",
+                    tint = Color.Red
+                )
+                Text(
+                    text = context.getString(R.string.delete),
+                    color = Color.Red,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun Status(password: Password) {
+    val painter = when (password.status) {
+        0 -> painterResource(id = R.drawable.ic_security_good_24)
+        2 -> painterResource(id = R.drawable.ic_security_bad_24)
+        else -> painterResource(id = R.drawable.ic_security_weak_24)
+    }
+
+    Icon(
+        painter = painter,
+        contentDescription = "security_status",
+        tint = if (password.status == 0) Color.Green else if (password.status == 1) Color.Yellow else Color.Red,
+        modifier = Modifier.padding(start = 8.dp)
+    )
+}
