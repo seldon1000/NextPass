@@ -82,12 +82,13 @@ fun About() {
                         )
                     }
                     Text(
-                        text = context.getString(R.string.app_version),
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = context.getString(R.string.version_date),
+                        text = context.getString(
+                            R.string.app_version,
+                            context.packageManager.getPackageInfo(
+                                context.packageName,
+                                0
+                            ).versionName
+                        ),
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
@@ -168,7 +169,14 @@ fun About() {
                                 modifier = Modifier.padding(start = 16.dp)
                             )
                         }
-                    ) {}
+                    ) {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://github.com/seldon1000/NextPass/issues/new")
+                            )
+                        )
+                    }
                     GenericColumnItem(
                         title = context.getString(R.string.send_email),
                         body = context.getString(R.string.send_email_body),

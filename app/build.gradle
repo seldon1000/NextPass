@@ -39,7 +39,12 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
-        kotlinCompilerVersion '1.5.10'
+    }
+    lintOptions {
+        quiet true
+        abortOnError false
+        ignoreWarnings true
+        checkReleaseBuilds false
     }
 }
 
