@@ -74,11 +74,13 @@ fun About() {
                     Card(
                         shape = RoundedCornerShape(size = 16.dp),
                         elevation = 0.dp,
-                        onClick = { MainViewModel.showSnackbar(message = greetings.random()) }) {
+                        onClick = { MainViewModel.showSnackbar(message = greetings.random()) },
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    ) {
                         Image(
-                            painter = painterResource(id = R.drawable.ic_launcher),
+                            painter = painterResource(id = R.drawable.ic_app_icon),
                             contentDescription = "app_icon",
-                            modifier = Modifier.size(size = 176.dp)
+                            modifier = Modifier.size(size = 144.dp)
                         )
                     }
                     Text(
