@@ -207,7 +207,14 @@ fun About() {
                                 modifier = Modifier.padding(start = 16.dp, top = 16.dp)
                             )
                         }
-                    ) {}
+                    ) {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://github.com/seldon1000/NextPass/blob/master/THANKS.md")
+                            )
+                        )
+                    }
                 }
             }
         }

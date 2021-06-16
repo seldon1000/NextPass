@@ -100,11 +100,11 @@ fun MyAlertDialog() {
             onDismissRequest = { MainViewModel.dismissDialog() },
             confirmButton = {
                 if (dialogTitle != "Missing info!" && dialogTitle != "Something went wrong!")
-                    Button(
-                        {
-                            dialogAction.invoke()
-                            MainViewModel.dismissDialog()
-                        }
+                    Button(onClick =
+                    {
+                        dialogAction()
+                        MainViewModel.dismissDialog()
+                    }
                     ) {
                         Text(text = context.getString(R.string.confirm))
                     }
