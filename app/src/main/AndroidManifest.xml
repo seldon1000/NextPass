@@ -22,7 +22,8 @@
             android:theme="@style/Theme.NextPass.NoActionBar"
             android:screenOrientation="portrait"
             android:configChanges="orientation"
-            tools:ignore="LockedOrientationActivity">
+            tools:ignore="LockedOrientationActivity"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
