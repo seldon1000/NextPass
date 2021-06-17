@@ -132,6 +132,7 @@ fun NewFolder() {
                         value = label,
                         onValueChange = { label = it },
                         label = { Text(text = context.getString(R.string.label)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         isError = label.isEmpty(),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                         modifier = Modifier

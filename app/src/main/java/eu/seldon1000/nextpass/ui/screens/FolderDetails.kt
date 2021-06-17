@@ -130,6 +130,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                         onValueChange = {},
                         enabled = false,
                         label = { Text(text = context.getString(R.string.label)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         isError = label.isEmpty(),
                         trailingIcon = {
                             CopyButton(
@@ -146,6 +147,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                         onValueChange = {},
                         enabled = false,
                         label = { Text(text = context.getString(R.string.parent)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         trailingIcon = {
                             CopyButton(
                                 label = context.getString(R.string.parent),

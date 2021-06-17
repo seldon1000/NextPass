@@ -249,6 +249,7 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                         onValueChange = { url = it },
                         enabled = edit,
                         label = { Text(text = context.getString(R.string.url)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         trailingIcon = {
                             Row {
                                 IconButton(onClick = {
@@ -273,6 +274,7 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                         onValueChange = { label = it },
                         enabled = edit,
                         label = { Text(text = context.getString(R.string.label)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         isError = label.isEmpty(),
                         trailingIcon = {
                             CopyButton(label = context.getString(R.string.label), clip = label)
@@ -287,6 +289,7 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                         onValueChange = { username = it },
                         enabled = edit,
                         label = { Text(text = context.getString(R.string.username)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         trailingIcon = {
                             CopyButton(
                                 label = context.getString(R.string.username),
@@ -302,6 +305,7 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                         onValueChange = { password = it },
                         enabled = edit,
                         label = { Text(text = context.getString(R.string.password)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         isError = password.isEmpty(),
                         singleLine = true,
                         visualTransformation = if (showed) VisualTransformation.None else PasswordVisualTransformation(),
@@ -342,6 +346,7 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                         onValueChange = { notes = it },
                         enabled = edit,
                         label = { Text(text = context.getString(R.string.notes)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         trailingIcon = {
                             CopyButton(label = context.getString(R.string.notes), clip = notes)
                         },
@@ -356,6 +361,7 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                                 value = customField["value"]!!,
                                 onValueChange = { customField["value"] = it },
                                 label = { Text(text = customField["label"]!!) },
+                                shape = RoundedCornerShape(size = 8.dp),
                                 enabled = edit,
                                 visualTransformation = if (customField["type"] == "secret")
                                     PasswordVisualTransformation() else VisualTransformation.None,
@@ -400,6 +406,7 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                             value = customField["label"]!!,
                             onValueChange = { customField["label"] = it },
                             label = { Text(text = context.getString(R.string.custom_field)) },
+                            shape = RoundedCornerShape(size = 8.dp),
                             isError = customField["label"]!!.isEmpty(),
                             trailingIcon = {
                                 Row {

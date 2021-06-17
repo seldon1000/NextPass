@@ -178,6 +178,7 @@ fun NewPassword() {
                         value = url,
                         onValueChange = { url = it },
                         label = { Text(text = LocalContext.current.getString(R.string.url)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
@@ -186,6 +187,7 @@ fun NewPassword() {
                         value = label,
                         onValueChange = { label = it },
                         label = { Text(text = context.getString(R.string.label)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         isError = label.isEmpty(),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                         modifier = Modifier
@@ -196,6 +198,7 @@ fun NewPassword() {
                         value = username,
                         onValueChange = { username = it },
                         label = { Text(text = context.getString(R.string.username)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
@@ -204,6 +207,7 @@ fun NewPassword() {
                         value = password,
                         onValueChange = { password = it },
                         label = { Text(text = context.getString(R.string.password)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         isError = password.isEmpty(),
                         visualTransformation = if (showed) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -238,6 +242,7 @@ fun NewPassword() {
                         value = notes,
                         onValueChange = { notes = it },
                         label = { Text(text = context.getString(R.string.notes)) },
+                        shape = RoundedCornerShape(size = 8.dp),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -249,6 +254,7 @@ fun NewPassword() {
                                 value = customField["value"]!!,
                                 onValueChange = { customField["value"] = it },
                                 label = { Text(text = customField["label"]!!) },
+                                shape = RoundedCornerShape(size = 8.dp),
                                 visualTransformation = if (customField["type"]!! == "secret") PasswordVisualTransformation() else VisualTransformation.None,
                                 trailingIcon = {
                                     Row {
@@ -280,6 +286,7 @@ fun NewPassword() {
                             value = customField["label"]!!,
                             onValueChange = { customField["label"] = it },
                             label = { Text(text = context.getString(R.string.custom_field)) },
+                            shape = RoundedCornerShape(size = 8.dp),
                             isError = customField["label"]!!.isEmpty(),
                             trailingIcon = {
                                 Row {
