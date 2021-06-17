@@ -181,8 +181,8 @@ object MainViewModel : ViewModel() {
 
     fun showSnackbar(message: String) {
         viewModelScope.launch {
-            snackbarHostState?.currentSnackbarData?.dismiss()
-            snackbarHostState?.showSnackbar(message = message)
+            snackbarHostState!!.currentSnackbarData?.dismiss()
+            snackbarHostState!!.showSnackbar(message = message)
         }
     }
 
