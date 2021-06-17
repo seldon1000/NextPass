@@ -76,7 +76,8 @@ fun NewPassword() {
             if (label.isNotEmpty() && password.isNotEmpty()) {
                 MainViewModel.showDialog(
                     title = context.getString(R.string.create_password),
-                    body = context.getString(R.string.create_password_body)
+                    body = context.getString(R.string.create_password_body),
+                    confirm = true
                 ) {
                     val md = MessageDigest.getInstance("SHA-1")
                         .digest(password.toByteArray())
@@ -122,7 +123,7 @@ fun NewPassword() {
                     MainViewModel.setRefreshing(refreshing = true)
                     NextcloudApiProvider.createPasswordRequest(params = params)
                     MainViewModel.popBackStack()
-                    MainViewModel.showSnackbar(message = context.getString(R.string.new_folder_snack))
+                    MainViewModel.showSnackbar(message = context.getString(R.string.new_password_snack))
                 }
 
             } else MainViewModel.showDialog(
@@ -242,8 +243,8 @@ fun NewPassword() {
                                 IconButton(onClick = { showed = !showed }) {
                                     Icon(
                                         painter = painterResource(
-                                            id = if (showed) R.drawable.ic_round_visibility_off_24
-                                            else R.drawable.ic_round_visibility_24
+                                            id = if (showed) R.drawable.ic_round_visibility_24
+                                            else R.drawable.ic_round_visibility_off_24
                                         ),
                                         contentDescription = "show_password"
                                     )

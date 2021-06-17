@@ -124,7 +124,6 @@ fun About() {
                     GenericColumnItem(
                         title = "Nicolas Mariniello (seldon1000)",
                         body = context.getString(R.string.main_developer_body),
-
                         icon = {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_code_24),
@@ -143,7 +142,6 @@ fun About() {
                     GenericColumnItem(
                         title = "Nextcloud",
                         body = context.getString(R.string.nextcloud_body),
-
                         icon = {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_nextcloud_icon),

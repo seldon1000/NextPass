@@ -85,9 +85,9 @@ fun CentralScreenControl() {
                     route = "password_details/{password_data}",
                     listOf(navArgument(name = "password_data") { type = NavType.IntType })
                 ) { navBackStackEntry ->
-                    val index = navBackStackEntry.arguments?.getInt("password_data")!!
-
-                    PasswordDetails(index = index, passwordData = storedPasswords[index])
+                    PasswordDetails(
+                        passwordData = storedPasswords[navBackStackEntry.arguments?.getInt("password_data")!!]
+                    )
                 }
                 composable(
                     route = "folder_details/{folder_data}",
@@ -110,20 +110,19 @@ fun MyAlertDialog() {
     val dialogTitle by MainViewModel.dialogTitle.collectAsState()
     val dialogText by MainViewModel.dialogText.collectAsState()
     val dialogAction by MainViewModel.dialogAction.collectAsState()
+    val dialogConfirm by MainViewModel.dialogConfirm.collectAsState()
 
     if (openDialog) {
         AlertDialog(
             onDismissRequest = { MainViewModel.dismissDialog() },
             confirmButton = {
-                if (dialogTitle != "Missing info!" && dialogTitle != "Something went wrong!")
+                if (dialogConfirm)
                     Button(onClick =
                     {
                         dialogAction()
                         MainViewModel.dismissDialog()
                     }
-                    ) {
-                        Text(text = context.getString(R.string.confirm))
-                    }
+                    ) { Text(text = context.getString(R.string.confirm)) }
             },
             dismissButton = {
                 TextButton(

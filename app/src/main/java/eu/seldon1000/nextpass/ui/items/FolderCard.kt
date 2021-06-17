@@ -154,7 +154,8 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
                 DropdownMenuItem({
                     MainViewModel.showDialog(
                         title = context.getString(R.string.delete_folder),
-                        body = context.getString(R.string.delete_folder_body)
+                        body = context.getString(R.string.delete_folder_body),
+                        confirm = true
                     ) {
                         NextcloudApiProvider.deleteFolderRequest(index = folder.index)
                         MainViewModel.showSnackbar(message = context.getString(R.string.folder_deleted_snack))

@@ -55,7 +55,7 @@ import org.json.JSONArray
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun PasswordDetails(index: Int, passwordData: Password) {
+fun PasswordDetails(passwordData: Password) {
     val context = LocalContext.current
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
@@ -114,13 +114,14 @@ fun PasswordDetails(index: Int, passwordData: Password) {
 
                     MainViewModel.showDialog(
                         title = context.getString(R.string.update_password),
-                        body = context.getString(R.string.update_password_body)
+                        body = context.getString(R.string.update_password_body),
+                        confirm = true
                     ) {
                         edit = false
 
                         MainViewModel.setRefreshing(refreshing = true)
                         NextcloudApiProvider.updatePasswordRequest(
-                            index = index,
+                            index = passwordData.index,
                             params = params
                         )
                         MainViewModel.showSnackbar(message = context.getString(R.string.update_password_snack))
@@ -257,7 +258,7 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                             DropdownFolderList(
                                 enabled = edit,
                                 folder = storedFolders.indexOfFirst { passwordData.folder == it.id })
-                            FavoriteIcon(index = index, password = passwordData)
+                            FavoriteIcon(index = passwordData.index, password = passwordData)
                         }
                     }
                     OutlinedTextField(
@@ -341,8 +342,8 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                                 IconButton(onClick = { showed = !showed }) {
                                     Icon(
                                         painter = painterResource(
-                                            id = if (showed) R.drawable.ic_round_visibility_off_24
-                                            else R.drawable.ic_round_visibility_24
+                                            id = if (showed) R.drawable.ic_round_visibility_24
+                                            else R.drawable.ic_round_visibility_off_24
                                         ),
                                         contentDescription = "show_password"
                                     )
@@ -461,9 +462,10 @@ fun PasswordDetails(index: Int, passwordData: Password) {
                         TextButton(onClick = {
                             MainViewModel.showDialog(
                                 title = context.getString(R.string.delete_password),
-                                body = context.getString(R.string.delete_password_body)
+                                body = context.getString(R.string.delete_password_body),
+                                confirm = true
                             ) {
-                                NextcloudApiProvider.deletePasswordRequest(index = index)
+                                NextcloudApiProvider.deletePasswordRequest(index = passwordData.index)
                                 MainViewModel.popBackStack()
                             }
                         }

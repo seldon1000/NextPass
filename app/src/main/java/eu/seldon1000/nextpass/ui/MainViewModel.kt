@@ -68,6 +68,9 @@ object MainViewModel : ViewModel() {
     private val dialogActionState = MutableStateFlow {}
     val dialogAction = dialogActionState
 
+    private val dialogConfirmState = MutableStateFlow(value = false)
+    val dialogConfirm = dialogConfirmState
+
     fun setNavController(controller: NavController) {
         navController = controller
         context = navController!!.context
@@ -150,9 +153,10 @@ object MainViewModel : ViewModel() {
         }
     }
 
-    fun showDialog(title: String, body: String, action: () -> Unit) {
+    fun showDialog(title: String, body: String, confirm: Boolean = false, action: () -> Unit) {
         dialogTitleState.value = title
         dialogTextState.value = body
+        dialogConfirmState.value = confirm
         dialogActionState.value = action
 
         openDialogState.value = true

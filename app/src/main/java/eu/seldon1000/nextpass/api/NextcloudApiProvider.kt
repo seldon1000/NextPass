@@ -113,7 +113,8 @@ object NextcloudApiProvider : ViewModel() {
     fun attemptLogout() {
         MainViewModel.showDialog(
             title = globalContext.getString(R.string.logout),
-            body = globalContext.getString(R.string.logout_body)
+            body = globalContext.getString(R.string.logout_body),
+            confirm = true
         ) {
             storedPasswordsState.value.clear()
             AccountImporter.clearAllAuthTokens(globalContext)
@@ -132,7 +133,8 @@ object NextcloudApiProvider : ViewModel() {
         } catch (e: NextcloudFilesAppNotInstalledException) {
             MainViewModel.showDialog(
                 title = globalContext.getString(R.string.missing_nextcloud),
-                body = globalContext.getString(R.string.missing_nextcloud_body)
+                body = globalContext.getString(R.string.missing_nextcloud_body),
+                confirm = true
             ) {
                 globalContext.startActivity(
                     Intent(

@@ -58,7 +58,8 @@ fun NewFolder() {
             if (label.isNotEmpty()) {
                 MainViewModel.showDialog(
                     title = context.getString(R.string.create_folder),
-                    body = context.getString(R.string.create_folder_body)
+                    body = context.getString(R.string.create_folder_body),
+                    confirm = true
                 ) {
                     val params = mutableMapOf(
                         "label" to label,
