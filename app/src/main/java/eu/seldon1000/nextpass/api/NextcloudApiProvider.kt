@@ -74,16 +74,22 @@ object NextcloudApiProvider : ViewModel() {
     private val connectedCallback: NextcloudAPI.ApiConnectedListener = object :
         NextcloudAPI.ApiConnectedListener {
         override fun onConnected() {
-            MainViewModel.showSnackbar(
-                message = globalContext.getString(
-                    R.string.connected_snack,
-                    currentAccount?.userId
+            if (MainViewModel.unlocked.value) {
+                MainViewModel.showSnackbar(
+                    message = globalContext.getString(
+                        R.string.connected_snack,
+                        currentAccount?.userId
+                    )
                 )
-            )
+            }
         }
 
         override fun onError(e: Exception) {
         }
+    }
+
+    fun getUserId(): String? {
+        return currentAccount?.userId
     }
 
     fun getAccountName(): String? {
@@ -105,7 +111,8 @@ object NextcloudApiProvider : ViewModel() {
 
             refreshServerList()
 
-            MainViewModel.navigate(route = "passwords")
+            if (MainViewModel.unlocked.value) MainViewModel.navigate(route = "passwords")
+            else MainViewModel.navigate(route = "access_pin")
         } catch (e: Exception) {
         }
     }

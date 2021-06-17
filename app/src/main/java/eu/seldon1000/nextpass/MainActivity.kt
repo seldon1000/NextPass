@@ -26,7 +26,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.navigation.compose.rememberNavController
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.CentralScreenControl
@@ -40,15 +39,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         NextcloudApiProvider.setContext(this)
-
+        MainViewModel.setContext(con = this)
         MainViewModel.setClipboardManager(manager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager)
 
         setContent {
-            val coroutineScope = rememberCoroutineScope()
-
-            MainViewModel.setNavController(controller = rememberNavController())
-
-            coroutineScope.launch { NextcloudApiProvider.attemptLogin() }
+            rememberCoroutineScope().launch { NextcloudApiProvider.attemptLogin() }
 
             NextPassTheme {
                 Surface(color = MaterialTheme.colors.background) {
@@ -68,10 +63,21 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    override fun onPause() {
+        MainViewModel.setLock(lock = !MainViewModel.pinProtected.value)
+
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+
+        MainViewModel.setLock(lock = !MainViewModel.pinProtected.value)
+        NextcloudApiProvider.stopNextcloudApi()
+
+        super.onDestroy()
+    }
+
     override fun onBackPressed() {
-        if (!MainViewModel.popBackStack()) {
-            NextcloudApiProvider.stopNextcloudApi()
-            finish()
-        }
+        if (!MainViewModel.popBackStack()) finish()
     }
 }

@@ -35,6 +35,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.seldon1000.nextpass.R
@@ -47,6 +48,9 @@ import eu.seldon1000.nextpass.ui.screens.*
 @Composable
 fun CentralScreenControl() {
     val context = LocalContext.current
+
+    val navController = rememberNavController()
+    MainViewModel.setNavController(controller = navController)
 
     val scaffoldState = rememberScaffoldState()
     MainViewModel.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
@@ -65,14 +69,16 @@ fun CentralScreenControl() {
         SwipeRefresh(
             state = refreshState,
             onRefresh = { NextcloudApiProvider.refreshServerList() },
-            swipeEnabled = currentScreen != "welcome" &&
+            swipeEnabled = currentScreen != "access_pin" &&
+                    currentScreen != "welcome" &&
                     currentScreen != "settings" &&
                     currentScreen != "about"
         ) {
-            NavHost(navController = MainViewModel.getNavController(), startDestination = "welcome")
+            NavHost(navController = navController, startDestination = "welcome")
             {
                 (context as Activity).window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
+                composable(route = "access_pin") { AccessPin() }
                 composable(route = "welcome") { WelcomeScreen() }
                 composable(route = "search") { Search() }
                 composable(route = "passwords") { PasswordList() }
@@ -93,9 +99,13 @@ fun CentralScreenControl() {
                     route = "folder_details/{folder_data}",
                     listOf(navArgument(name = "folder_data") { type = NavType.IntType })
                 ) { navBackStackEntry ->
-                    val index = navBackStackEntry.arguments?.getInt("folder_data")!!
-
-                    FolderDetails(folder = storedFolders[index])
+                    FolderDetails(folder = storedFolders[navBackStackEntry.arguments?.getInt("folder_data")!!])
+                }
+                composable(
+                    route = "pin/{change}",
+                    listOf(navArgument(name = "change") { type = NavType.BoolType })
+                ) { navBackStackEntry ->
+                    ChangePin(change = navBackStackEntry.arguments?.getBoolean("change")!!)
                 }
             }
         }
