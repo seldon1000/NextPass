@@ -91,11 +91,11 @@ fun Search() {
                 items(items = resultFolders) { folder -> FolderCard(folder = folder) }
                 items(items = resultPasswords) { password -> PasswordCard(password = password) }
             }
-            if (resultPasswords.isNotEmpty() && searchedText.isNotEmpty()) item {
+            item {
                 CountMessage(
-                    message = context.getString(
+                    message = if (searchedText.isNotEmpty()) context.getString(
                         R.string.results_number, resultFolders.size + resultPasswords.size
-                    )
+                    ) else context.getString(R.string.search_message)
                 )
             }
         }

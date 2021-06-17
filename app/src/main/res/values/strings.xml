@@ -12,6 +12,7 @@
     <string name="confirm">Confirm</string>
     <string name="dismiss">Dismiss</string>
     <string name="delete">Delete</string>
+    <string name="search_message">What are you looking for?</string>
     <string name="missing_nextcloud">Missing Nextcloud Files app!</string>
     <string name="missing_nextcloud_body">NextPass needs the Nextcloud Files app to be installed and updated.\n\nDo you want to install it now?</string>
     <string name="passwords_body">NextPass works on top of Passwords app for Nextcloud. Click here to check it out.</string>
