@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import coil.transform.RoundedCornersTransformation
 import com.google.accompanist.coil.rememberCoilPainter
@@ -24,7 +23,6 @@ fun Favicon(data: Any, size: Dp) {
         },
         alignment = Alignment.Center,
         contentDescription = "favicon",
-        contentScale = ContentScale.Fit,
         modifier = Modifier.size(size = size)
     )
 }
