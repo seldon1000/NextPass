@@ -129,6 +129,8 @@ object NextcloudApiProvider : ViewModel() {
             nextcloudApi = null
 
             MainViewModel.setRefreshing(refreshing = false)
+            MainViewModel.disablePin()
+            MainViewModel.setUnlock(unlock = true)
             MainViewModel.navigate(route = "welcome")
             MainViewModel.showSnackbar(message = globalContext.getString(R.string.disconnected_snack))
         }
@@ -166,6 +168,9 @@ object NextcloudApiProvider : ViewModel() {
                 globalContext as Activity
             ) { account ->
                 SingleAccountHelper.setCurrentAccount(globalContext, account.name)
+
+                MainViewModel.disablePin()
+                MainViewModel.setUnlock(unlock = true)
 
                 attemptLogin()
             }

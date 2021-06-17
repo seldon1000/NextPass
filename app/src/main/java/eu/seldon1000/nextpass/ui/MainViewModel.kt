@@ -108,8 +108,8 @@ object MainViewModel : ViewModel() {
         pinProtectedState.value = false
     }
 
-    fun setLock(lock: Boolean) {
-        unlockedState.value = lock
+    fun setUnlock(unlock: Boolean) {
+        unlockedState.value = unlock
     }
 
     fun setClipboardManager(manager: ClipboardManager) {

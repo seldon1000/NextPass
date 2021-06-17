@@ -175,8 +175,10 @@ fun Settings() {
                 title = context.getString(R.string.lock_now),
                 body = context.getString(R.string.lock_now_tip)
             ) {
-                MainViewModel.setLock(lock = false)
-                MainViewModel.navigate(route = "access_pin")
+                if (protected) {
+                    MainViewModel.setUnlock(unlock = false)
+                    MainViewModel.navigate(route = "access_pin")
+                }
             }
             Box(modifier = Modifier.size(size = paddingValues.calculateBottomPadding() + 48.dp))
         }

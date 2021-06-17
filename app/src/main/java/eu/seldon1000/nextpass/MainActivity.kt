@@ -64,14 +64,14 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onPause() {
-        MainViewModel.setLock(lock = !MainViewModel.pinProtected.value)
+        MainViewModel.setUnlock(unlock = !MainViewModel.pinProtected.value)
 
         super.onPause()
     }
 
     override fun onDestroy() {
 
-        MainViewModel.setLock(lock = !MainViewModel.pinProtected.value)
+        MainViewModel.setUnlock(unlock = !MainViewModel.pinProtected.value)
         NextcloudApiProvider.stopNextcloudApi()
 
         super.onDestroy()

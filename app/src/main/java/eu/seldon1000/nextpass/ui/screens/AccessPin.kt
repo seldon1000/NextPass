@@ -23,6 +23,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -76,7 +77,7 @@ fun AccessPin() {
             )
             FloatingActionButton(onClick = {
                 if (MainViewModel.checkPin(pin = pin)) {
-                    MainViewModel.setLock(lock = true)
+                    MainViewModel.setUnlock(unlock = true)
                     MainViewModel.navigate(route = "passwords")
                     MainViewModel.showSnackbar(
                         message = context.getString(
@@ -93,7 +94,8 @@ fun AccessPin() {
             }, modifier = Modifier.padding(bottom = 64.dp)) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_done_24),
-                    contentDescription = "access"
+                    contentDescription = "access",
+                    tint = Color.White
                 )
             }
         }

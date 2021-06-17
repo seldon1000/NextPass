@@ -18,10 +18,7 @@ package eu.seldon1000.nextpass.ui.screens
 
 import android.app.Activity
 import android.view.WindowManager
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -204,8 +201,8 @@ fun ChangePin(change: Boolean) {
                     }
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 72.dp, vertical = 192.dp),
+                    .width(width = 200.dp)
+                    .padding(top = 192.dp),
             )
         }
     }
