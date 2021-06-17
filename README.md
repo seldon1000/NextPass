@@ -7,7 +7,7 @@ NextPass is an Android client for Passwords (https://git.mdns.eu/nextcloud/passw
 
 # Build and run
 NextPass is built entirely using Jetpack Compose toolkit, hence Android Studio Arctic Fox (currently Beta branch) or Bumblebee (currently Canary branch, recommended, used to develop version 1.0) and Kotlin >=1.4.32 are **required** to build the app without issues.
-Just import the project from Version Control, let Gradle do its (endless) magic and then build&run.<br />Nextcloud app is required by NextPass to work and communicate with the Nextcloud server: you can install it yourself from  the official GitHub repo, Play Store or FDroid, or you can just open NextPass and you will be redirected to Nextcloud's Play Store page at some point.<br />Note that Passwords (https://apps.nextcloud.com/apps/passwords) needs to be installed.
+Just import the project from Version Control, let Gradle do its (endless) magic and then build&run.<br />Nextcloud app is required by NextPass to work and communicate with the Nextcloud server: you can install it yourself from  the official GitHub repo, Play Store or FDroid, or you can just open NextPass and you will be redirected to Nextcloud's Play Store page at some point.<br />Note that Passwords (https://apps.nextcloud.com/apps/passwords) needs to be installed on your server.
 
 
 # Requirements
