@@ -15,6 +15,9 @@
     <string name="confirm_new_pin">Confirm new PIN</string>
     <string name="create_new_pin">Create new PIN</string>
     <string name="insert_current_pin">Insert current PIN</string>
+    <string name="cancel">Cancel</string>
+    <string name="access_nextpass">Access NextPass</string>
+    <string name="access_nextpass_body">Touch your fingerprint sensor to authenticate.</string>
     <string name="random_password">Random password</string>
     <string name="authenticate">Authenticate</string>
     <string name="search_message">What are you looking for?</string>

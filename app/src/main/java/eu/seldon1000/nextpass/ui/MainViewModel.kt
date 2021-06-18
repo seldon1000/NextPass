@@ -209,9 +209,9 @@ object MainViewModel : ViewModel() {
 
     fun showBiometricPrompt() {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Access NextPass")
-            .setSubtitle("Touch your fingerprint sensor to authenticate.")
-            .setNegativeButtonText("Cancel")
+            .setTitle(context!!.getString(R.string.access_nextpass))
+            .setSubtitle(context!!.getString(R.string.access_nextpass_body))
+            .setNegativeButtonText(context!!.getString(R.string.cancel))
             .build()
 
         val biometricPrompt = BiometricPrompt(
