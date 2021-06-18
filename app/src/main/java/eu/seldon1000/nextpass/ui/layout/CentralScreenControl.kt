@@ -72,7 +72,8 @@ fun CentralScreenControl() {
             swipeEnabled = currentScreen != "access_pin" &&
                     currentScreen != "welcome" &&
                     currentScreen != "settings" &&
-                    currentScreen != "about"
+                    currentScreen != "about" &&
+                    currentScreen != "pin"
         ) {
             NavHost(navController = navController, startDestination = "welcome")
             {
