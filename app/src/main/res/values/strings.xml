@@ -16,7 +16,7 @@
     <string name="create_new_pin">Create new PIN</string>
     <string name="insert_current_pin">Insert current PIN</string>
     <string name="random_password">Random password</string>
-    <string name="insert_pin">Insert PIN</string>
+    <string name="authenticate">Authenticate</string>
     <string name="search_message">What are you looking for?</string>
     <string name="missing_nextcloud">Missing Nextcloud Files app!</string>
     <string name="missing_nextcloud_body">NextPass needs the Nextcloud Files app to be installed and updated.\n\nDo you want to install it now?</string>
@@ -48,7 +48,7 @@
     <string name="biometric_protection">Biometric protection</string>
     <string name="biometric_protection_tip">Protect the app using biometric fingerprint protection. PIN protection must be activate as fallback.</string>
     <string name="enable_pin">Enable PIN first</string>
-    <string name="enable_pin_body">Biometric protection is cool, but it can fail. You must enable PIN protection as a fallback.</string>
+    <string name="enable_pin_body">Biometric protection is cool, but it can fail. Please, enable PIN protection as a fallback.</string>
     <string name="url">URL</string>
     <string name="lock_now">Lock now</string>
     <string name="lock_now_tip">The app will automatically lock itself after a while without usage. Click here to lock it immediately.</string>

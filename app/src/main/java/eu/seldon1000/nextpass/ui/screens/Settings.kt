@@ -177,6 +177,7 @@ fun Settings() {
             ) {
                 if (protected) {
                     MainViewModel.setUnlock(unlock = false)
+                    NextcloudApiProvider.stopNextcloudApi()
                     MainViewModel.navigate(route = "access_pin")
                 }
             }

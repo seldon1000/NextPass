@@ -19,8 +19,9 @@ package eu.seldon1000.nextpass.ui
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
+import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -32,7 +33,7 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("StaticFieldLeak")
 object MainViewModel : ViewModel() {
-    private var context: Context? = null
+    private var context: FragmentActivity? = null
 
     private var navController: NavController? = null
 
@@ -76,7 +77,7 @@ object MainViewModel : ViewModel() {
     private val dialogConfirmState = MutableStateFlow(value = false)
     val dialogConfirm = dialogConfirmState
 
-    fun setContext(con: Context) {
+    fun setContext(con: FragmentActivity) {
         context = con
 
         if (context!!.getSharedPreferences("PIN", 0).contains("PIN")) {
@@ -197,5 +198,45 @@ object MainViewModel : ViewModel() {
 
     fun dismissDialog() {
         openDialogState.value = false
+    }
+
+    private val biometricsIgnoredErrors = listOf(
+        BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+        BiometricPrompt.ERROR_CANCELED,
+        BiometricPrompt.ERROR_USER_CANCELED,
+        BiometricPrompt.ERROR_NO_BIOMETRICS
+    )
+
+    fun showBiometricPrompt() {
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Access NextPass")
+            .setSubtitle("Touch your fingerprint sensor to authenticate.")
+            .setNegativeButtonText("Cancel")
+            .build()
+
+        val biometricPrompt = BiometricPrompt(
+            context!!,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(
+                    errorCode: Int,
+                    errString: CharSequence
+                ) {
+                    if (errorCode !in biometricsIgnoredErrors) {
+
+                    }
+                }
+
+                override fun onAuthenticationSucceeded(
+                    result: BiometricPrompt.AuthenticationResult
+                ) {
+                    unlockedState.value = true
+                    NextcloudApiProvider.attemptLogin()
+                }
+
+                override fun onAuthenticationFailed() {}
+            }
+        )
+
+        biometricPrompt.authenticate(promptInfo)
     }
 }

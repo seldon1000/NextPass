@@ -19,20 +19,20 @@ package eu.seldon1000.nextpass
 import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.fragment.app.FragmentActivity
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.CentralScreenControl
 import eu.seldon1000.nextpass.ui.theme.NextPassTheme
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     @ExperimentalMaterialApi
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +43,8 @@ class MainActivity : ComponentActivity() {
         MainViewModel.setClipboardManager(manager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager)
 
         setContent {
-            rememberCoroutineScope().launch { NextcloudApiProvider.attemptLogin() }
+            if (MainViewModel.unlocked.value) rememberCoroutineScope().launch { NextcloudApiProvider.attemptLogin() }
+            else rememberCoroutineScope().launch { MainViewModel.navigate(route = "access_pin") }
 
             NextPassTheme {
                 Surface(color = MaterialTheme.colors.background) {

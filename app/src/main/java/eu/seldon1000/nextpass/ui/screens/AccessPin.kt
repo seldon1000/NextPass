@@ -34,6 +34,7 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.Header
+import eu.seldon1000.nextpass.ui.theme.Orange500
 
 @Composable
 fun AccessPin() {
@@ -47,7 +48,7 @@ fun AccessPin() {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
-        Header(expanded = false, title = context.getString(R.string.insert_pin)) {}
+        Header(expanded = false, title = context.getString(R.string.authenticate)) {}
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -74,29 +75,38 @@ fun AccessPin() {
                 },
                 modifier = Modifier.width(width = 200.dp)
             )
-            FloatingActionButton(onClick = {
-                if (MainViewModel.checkPin(pin = pin)) {
-                    MainViewModel.setUnlock(unlock = true)
-                    MainViewModel.navigate(route = "passwords")
-                    MainViewModel.showSnackbar(
-                        message = context.getString(
-                            R.string.connected_snack,
-                            NextcloudApiProvider.getUserId()
-                        )
+            Row {
+                FloatingActionButton(
+                    onClick = { MainViewModel.showBiometricPrompt() },
+                    backgroundColor = Orange500,
+                    modifier = Modifier.padding(bottom = 64.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_round_fingerprint_24),
+                        contentDescription = "access",
+                        tint = Color.White
                     )
-                } else {
-                    MainViewModel.showDialog(
-                        title = context.getString(R.string.wrong_pin),
-                        body = context.getString(R.string.wrong_pin_body)
-                    ) {}
                 }
-            }, modifier = Modifier.padding(bottom = 64.dp)) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_round_done_24),
-                    contentDescription = "access",
-                    tint = Color.White
-                )
+                Box(modifier = Modifier.size(size = 16.dp))
+                FloatingActionButton(onClick = {
+                    if (MainViewModel.checkPin(pin = pin)) {
+                        MainViewModel.setUnlock(unlock = true)
+                        NextcloudApiProvider.attemptLogin()
+                    } else {
+                        MainViewModel.showDialog(
+                            title = context.getString(R.string.wrong_pin),
+                            body = context.getString(R.string.wrong_pin_body)
+                        ) {}
+                    }
+                }, modifier = Modifier.padding(bottom = 64.dp)) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_round_done_24),
+                        contentDescription = "access",
+                        tint = Color.White
+                    )
+                }
             }
+
         }
     }
 }
