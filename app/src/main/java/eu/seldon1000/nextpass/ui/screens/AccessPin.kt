@@ -57,7 +57,6 @@ fun AccessPin() {
                 value = pin,
                 onValueChange = { pin = it },
                 label = { Text(text = "PIN") },
-                isError = pin.length < 4,
                 shape = RoundedCornerShape(size = 8.dp),
                 singleLine = true,
                 visualTransformation = if (showed) VisualTransformation.None else PasswordVisualTransformation(),
