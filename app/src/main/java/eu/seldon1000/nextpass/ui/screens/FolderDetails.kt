@@ -41,6 +41,7 @@ import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.CopyButton
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
+import eu.seldon1000.nextpass.ui.items.FavoriteIcon
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
@@ -126,19 +127,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                                 enabled = false,
                                 folder = MainViewModel.currentFolder.value
                             )
-                            IconButton(
-                                onClick = {},
-                                enabled = false
-                            ) {
-                                Icon(
-                                    painter = if (folder.favorite)
-                                        painterResource(id = R.drawable.ic_round_star_yellow_24)
-                                    else
-                                        painterResource(id = R.drawable.ic_round_star_border_24),
-                                    contentDescription = "favorite",
-                                    tint = if (folder.favorite) Color.Yellow else Color.White
-                                )
-                            }
+                            FavoriteIcon(favorite = folder.favorite) {} /*TODO: add updateFolderRequest, needs PATCH support from SSO*/
                         }
                     }
                     OutlinedTextField(

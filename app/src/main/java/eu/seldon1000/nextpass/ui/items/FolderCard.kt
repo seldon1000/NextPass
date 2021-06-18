@@ -77,19 +77,7 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
                     .fillMaxHeight()
                     .weight(weight = 1f)
             )
-            IconButton(
-                onClick = {}, /*TODO: make folder favorite and not, depends on PATCH method */
-                enabled = false
-            ) {
-                Icon(
-                    painter = if (folder.favorite)
-                        painterResource(id = R.drawable.ic_round_star_yellow_24)
-                    else
-                        painterResource(id = R.drawable.ic_round_star_border_24),
-                    contentDescription = "is_favorite",
-                    tint = if (folder.favorite) Color.Yellow else Color.White
-                )
-            }
+            FavoriteIcon(favorite = folder.favorite) {} /*TODO: add updateFolderRequest, needs PATCH support from SSO*/
         }
         if (icon == null) {
             DropdownMenu(

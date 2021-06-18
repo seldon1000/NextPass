@@ -258,7 +258,14 @@ fun PasswordDetails(passwordData: Password) {
                             DropdownFolderList(
                                 enabled = edit,
                                 folder = storedFolders.indexOfFirst { passwordData.folder == it.id })
-                            FavoriteIcon(index = passwordData.index, password = passwordData)
+                            FavoriteIcon(favorite = passwordData.favorite) {
+                                MainViewModel.setRefreshing(refreshing = true)
+
+                                NextcloudApiProvider.updatePasswordRequest(
+                                    index = passwordData.index,
+                                    params = if (!passwordData.favorite) mutableMapOf("favorite" to "true") else mutableMapOf()
+                                )
+                            }
                         }
                     }
                     OutlinedTextField(

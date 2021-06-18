@@ -91,7 +91,14 @@ fun PasswordCard(password: Password) {
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
             Status(password = password)
-            FavoriteIcon(index = password.index, password = password)
+            FavoriteIcon(favorite = password.favorite) {
+                MainViewModel.setRefreshing(refreshing = true)
+
+                NextcloudApiProvider.updatePasswordRequest(
+                    index = password.index,
+                    params = if (!password.favorite) mutableMapOf("favorite" to "true") else mutableMapOf()
+                )
+            }
         }
         DropdownMenu(
             expanded = expanded,
