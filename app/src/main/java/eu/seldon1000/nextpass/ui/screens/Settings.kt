@@ -47,6 +47,7 @@ fun Settings() {
     val context = LocalContext.current
 
     val protected by MainViewModel.pinProtected.collectAsState()
+    val fingerProtected by MainViewModel.fingerProtected.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -159,18 +160,17 @@ fun Settings() {
                 body = context.getString(R.string.biometric_protection_tip),
                 switch = {
                     Checkbox(
-                        checked = false,
+                        checked = fingerProtected && protected,
                         onCheckedChange = {
-                            if (protected) else MainViewModel.showDialog(
-                                title = context.getString(R.string.enable_pin),
-                                body = context.getString(R.string.enable_pin_body)
-                            ) {}
+                            if (protected && !fingerProtected) MainViewModel.enableFinger()
+                            else if (fingerProtected) MainViewModel.disableFinger()
                         },
-                        enabled = false,
+                        enabled = protected,
+                        colors = CheckboxDefaults.colors(checkedColor = Orange500),
                         modifier = Modifier.padding(end = 16.dp)
                     )
                 }
-            ) { MainViewModel.showSnackbar(message = "Work in progress...") }
+            ) {}
             GenericColumnItem(
                 title = context.getString(R.string.lock_now),
                 body = context.getString(R.string.lock_now_tip)

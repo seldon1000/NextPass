@@ -49,9 +49,7 @@
     <string name="pin_not_enabled">PIN protection is not enabled</string>
     <string name="pin_not_enabled_body">Do you want to activate it now?</string>
     <string name="biometric_protection">Biometric protection</string>
-    <string name="biometric_protection_tip">Protect the app using biometric fingerprint protection. PIN protection must be activate as fallback.</string>
-    <string name="enable_pin">Enable PIN first</string>
-    <string name="enable_pin_body">Biometric protection is cool, but it can fail. Please, enable PIN protection as a fallback.</string>
+    <string name="biometric_protection_tip">Protect the app using biometric fingerprint protection. PIN protection must be enabled as fallback.</string>
     <string name="url">URL</string>
     <string name="lock_now">Lock now</string>
     <string name="lock_now_tip">The app will automatically lock itself after a while without usage. Click here to lock it immediately.</string>
