@@ -40,7 +40,7 @@ import eu.seldon1000.nextpass.ui.theme.Orange500
 fun AccessPin() {
     val context = LocalContext.current
 
-    val fingerProtected by MainViewModel.fingerProtected.collectAsState()
+    val fingerProtected by MainViewModel.biometricProtected.collectAsState()
 
     if (fingerProtected) MainViewModel.showBiometricPrompt()
 

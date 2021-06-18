@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import androidx.biometric.BiometricManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -47,7 +48,7 @@ fun Settings() {
     val context = LocalContext.current
 
     val protected by MainViewModel.pinProtected.collectAsState()
-    val fingerProtected by MainViewModel.fingerProtected.collectAsState()
+    val biometricProtected by MainViewModel.biometricProtected.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -160,12 +161,14 @@ fun Settings() {
                 body = context.getString(R.string.biometric_protection_tip),
                 switch = {
                     Checkbox(
-                        checked = fingerProtected && protected,
+                        checked = biometricProtected && protected,
                         onCheckedChange = {
-                            if (protected && !fingerProtected) MainViewModel.enableFinger()
-                            else if (fingerProtected) MainViewModel.disableFinger()
+                            if (protected && !biometricProtected) MainViewModel.enableFinger()
+                            else if (biometricProtected) MainViewModel.disableFinger()
                         },
-                        enabled = protected,
+                        enabled = protected && BiometricManager.from(context).canAuthenticate(
+                            BiometricManager.Authenticators.BIOMETRIC_WEAK
+                        ) == BiometricManager.BIOMETRIC_SUCCESS,
                         colors = CheckboxDefaults.colors(checkedColor = Orange500),
                         modifier = Modifier.padding(end = 16.dp)
                     )

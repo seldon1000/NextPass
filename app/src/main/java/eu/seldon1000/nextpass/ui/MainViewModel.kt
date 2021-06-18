@@ -47,8 +47,8 @@ object MainViewModel : ViewModel() {
     private val pinProtectedState = MutableStateFlow(value = false)
     val pinProtected = pinProtectedState
 
-    private val fingerProtectedState = MutableStateFlow(value = false)
-    val fingerProtected = fingerProtectedState
+    private val biometricProtectedState = MutableStateFlow(value = false)
+    val biometricProtected = biometricProtectedState
 
     private val currentScreenState = MutableStateFlow(value = "passwords")
     val currentScreen = currentScreenState
@@ -88,7 +88,7 @@ object MainViewModel : ViewModel() {
             pinProtectedState.value = true
 
             if (context!!.getSharedPreferences("finger", 0).contains("finger"))
-                fingerProtectedState.value = true
+                biometricProtectedState.value = true
         }
     }
 
@@ -112,20 +112,20 @@ object MainViewModel : ViewModel() {
     fun enableFinger() {
         context!!.getSharedPreferences("finger", 0).edit().putString("finger", "yes").apply()
 
-        fingerProtectedState.value = true
+        biometricProtectedState.value = true
     }
 
     fun disablePin() {
         context!!.getSharedPreferences("PIN", 0).edit().remove("PIN").apply()
 
-        fingerProtectedState.value = false
+        biometricProtectedState.value = false
         pinProtectedState.value = false
     }
 
     fun disableFinger() {
         context!!.getSharedPreferences("finger", 0).edit().remove("finger").apply()
 
-        fingerProtectedState.value = false
+        biometricProtectedState.value = false
     }
 
     fun setUnlock(unlock: Boolean) {
