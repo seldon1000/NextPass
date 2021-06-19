@@ -181,7 +181,7 @@ fun Settings() {
                 if (protected) {
                     MainViewModel.setUnlock(unlock = false)
                     NextcloudApiProvider.stopNextcloudApi()
-                    MainViewModel.navigate(route = "access_pin/false")
+                    MainViewModel.navigate(route = "access_pin")
                 }
             }
             Box(modifier = Modifier.size(size = paddingValues.calculateBottomPadding() + 48.dp))

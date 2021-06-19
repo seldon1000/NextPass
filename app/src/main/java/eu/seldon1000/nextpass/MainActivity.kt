@@ -65,14 +65,14 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onPause() {
-        MainViewModel.setUnlock(unlock = false)
+        MainViewModel.setUnlock(unlock = !MainViewModel.pinProtected.value)
 
         super.onPause()
     }
 
     override fun onDestroy() {
 
-        MainViewModel.setUnlock(unlock = false)
+        MainViewModel.setUnlock(unlock = !MainViewModel.pinProtected.value)
         NextcloudApiProvider.stopNextcloudApi()
 
         super.onDestroy()
