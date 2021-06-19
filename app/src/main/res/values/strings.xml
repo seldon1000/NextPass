@@ -27,6 +27,8 @@
     <string name="send_email">Send us an email</string>
     <string name="send_email_body">Click here to quickly send us an email. We\'ll get back to you as soon as possible.</string>
     <string name="passwords">Passwords</string>
+    <string name="lock_timeout">Lock timeout</string>
+    <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock.</string>
     <string name="special_thanks">Special thanks and mentions</string>
     <string name="special_thanks_body">NextPass was made possible thanks to the work of many people and some amazing tools. Click here to learn more about them.</string>
     <string name="parent">Parent ID</string>
@@ -47,12 +49,12 @@
     <string name="pin_protection">PIN protection</string>
     <string name="pin_protection_tip">Protect the app using a PIN code, at least 4-digit long. Click here modify the current pin.</string>
     <string name="pin_not_enabled">PIN protection is not enabled</string>
-    <string name="pin_not_enabled_body">Do you want to activate it now?</string>
+    <string name="pin_not_enabled_body">Do you want to enable it now?</string>
     <string name="biometric_protection">Biometric authentication</string>
     <string name="biometric_protection_tip">Protect the app using biometric authentication (if supported by the device). PIN protection must be enabled as fallback.</string>
     <string name="url">URL</string>
     <string name="lock_now">Lock now</string>
-    <string name="lock_now_tip">The app will automatically lock itself after a while without usage. Click here to lock it immediately.</string>
+    <string name="lock_now_tip">The app will automatically lock itself when you\'re not using it, according to the setting above. Click here to lock it immediately.</string>
     <string name="label">Label</string>
     <string name="change_pin">Change PIN?</string>
     <string name="change_pin_body">PIN will be changed. Are you sure you want to proceed?</string>

@@ -50,6 +50,9 @@ object MainViewModel : ViewModel() {
     private val biometricProtectedState = MutableStateFlow(value = false)
     val biometricProtected = biometricProtectedState
 
+    private val lockTimeoutState = MutableStateFlow(value = 0.toLong())
+    val lockTimeout = lockTimeoutState
+
     private val currentScreenState = MutableStateFlow(value = "passwords")
     val currentScreen = currentScreenState
 
@@ -86,6 +89,8 @@ object MainViewModel : ViewModel() {
         if (context!!.getSharedPreferences("PIN", 0).contains("PIN")) {
             unlockedState.value = false
             pinProtectedState.value = true
+            lockTimeoutState.value =
+                context!!.getSharedPreferences("timeout", 0).getLong("timeout", 0)
 
             if (context!!.getSharedPreferences("finger", 0).contains("finger"))
                 biometricProtectedState.value = true
@@ -109,24 +114,32 @@ object MainViewModel : ViewModel() {
         pinProtectedState.value = true
     }
 
-    fun enableFinger() {
-        context!!.getSharedPreferences("finger", 0).edit().putString("finger", "yes").apply()
+    fun disablePin() {
+        context!!.getSharedPreferences("PIN", 0).edit().remove("PIN").apply()
+        context!!.getSharedPreferences("timeout", 0).edit().remove("timeout").apply()
+
+        biometricProtectedState.value = false
+        pinProtectedState.value = false
+        lockTimeoutState.value = (-1).toLong()
+        unlock()
+    }
+
+    fun enableBiometric() {
+        context!!.getSharedPreferences("biometric", 0).edit().putString("biometric", "yes").apply()
 
         biometricProtectedState.value = true
     }
 
-    fun disablePin() {
-        context!!.getSharedPreferences("PIN", 0).edit().remove("PIN").apply()
+    fun disableBiometric() {
+        context!!.getSharedPreferences("biometric", 0).edit().remove("biometric").apply()
 
         biometricProtectedState.value = false
-        pinProtectedState.value = false
-        unlock()
     }
 
-    fun disableFinger() {
-        context!!.getSharedPreferences("finger", 0).edit().remove("finger").apply()
+    fun setLockTimeout(timeout: Long) {
+        context!!.getSharedPreferences("timeout", 0).edit().putLong("timeout", timeout).apply()
 
-        biometricProtectedState.value = false
+        lockTimeoutState.value = timeout
     }
 
     fun lock() {

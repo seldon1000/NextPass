@@ -19,12 +19,10 @@ package eu.seldon1000.nextpass.ui.screens
 import androidx.biometric.BiometricManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -43,16 +41,19 @@ import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 import eu.seldon1000.nextpass.ui.theme.Orange500
 import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @Composable
 fun Settings() {
     val context = LocalContext.current
 
+    val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+
     val protected by MainViewModel.pinProtected.collectAsState()
     val biometricProtected by MainViewModel.biometricProtected.collectAsState()
+    val lockTimeout by MainViewModel.lockTimeout.collectAsState()
 
-    val coroutineScope = rememberCoroutineScope()
-
-    val scrollState = rememberScrollState()
+    var expanded by remember { mutableStateOf(value = false) }
 
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = { MainViewModel.navigate(route = "about") }) {
@@ -138,7 +139,7 @@ fun Settings() {
             GenericColumnItem(
                 title = context.getString(R.string.pin_protection),
                 body = context.getString(R.string.pin_protection_tip),
-                switch = {
+                item = {
                     Checkbox(
                         checked = protected,
                         onCheckedChange = { MainViewModel.navigate(route = "pin/false") },
@@ -159,12 +160,12 @@ fun Settings() {
             GenericColumnItem(
                 title = context.getString(R.string.biometric_protection),
                 body = context.getString(R.string.biometric_protection_tip),
-                switch = {
+                item = {
                     Checkbox(
                         checked = biometricProtected && protected,
                         onCheckedChange = {
-                            if (protected && !biometricProtected) MainViewModel.enableFinger()
-                            else if (biometricProtected) MainViewModel.disableFinger()
+                            if (protected && !biometricProtected) MainViewModel.enableBiometric()
+                            else if (biometricProtected) MainViewModel.disableBiometric()
                         },
                         enabled = protected && BiometricManager.from(context).canAuthenticate(
                             BiometricManager.Authenticators.BIOMETRIC_WEAK
@@ -172,6 +173,86 @@ fun Settings() {
                         colors = CheckboxDefaults.colors(checkedColor = Orange500),
                         modifier = Modifier.padding(end = 16.dp)
                     )
+                }
+            ) {}
+            GenericColumnItem(
+                title = context.getString(R.string.lock_timeout),
+                body = context.getString(R.string.lock_timeout_tip),
+                item = {
+                    Card(
+                        onClick = { expanded = true },
+                        enabled = protected,
+                        shape = RoundedCornerShape(size = 8.dp),
+                        modifier = Modifier.padding(end = 16.dp)
+                    ) {
+                        Row(modifier = Modifier.padding(all = 8.dp)) {
+                            Text(
+                                text = when {
+                                    lockTimeout.toInt() == 0 -> "Immediately"
+                                    lockTimeout.toInt() == -1 -> "On device"
+                                    else -> when {
+                                        lockTimeout < 3600000 -> "${lockTimeout / 60000}m"
+                                        else -> "${lockTimeout / 3600000}h"
+                                    }
+                                },
+                                modifier = Modifier.padding(start = 8.dp, end = 16.dp)
+                            )
+                            Icon(
+                                painter = painterResource(
+                                    id = if (expanded) R.drawable.ic_round_arrow_drop_up_24
+                                    else R.drawable.ic_round_arrow_drop_down_24
+                                ),
+                                contentDescription = "expand_folder_list"
+                            )
+                        }
+                    }
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        DropdownMenuItem(onClick = {
+                            MainViewModel.setLockTimeout(timeout = 0)
+                            expanded = false
+                        }) {
+                            Text(text = "Immediately")
+                        }
+                        DropdownMenuItem(onClick = {
+                            MainViewModel.setLockTimeout(timeout = 60000)
+                            expanded = false
+                        }) {
+                            Text(text = "1m")
+                        }
+                        DropdownMenuItem(onClick = {
+                            MainViewModel.setLockTimeout(timeout = 300000)
+                            expanded = false
+                        }) {
+                            Text(text = "5m")
+                        }
+                        DropdownMenuItem(onClick = {
+                            MainViewModel.setLockTimeout(timeout = 600000)
+                            expanded = false
+                        }) {
+                            Text(text = "10m")
+                        }
+                        DropdownMenuItem(onClick = {
+                            MainViewModel.setLockTimeout(timeout = 1800000)
+                            expanded = false
+                        }) {
+                            Text(text = "30m")
+                        }
+                        DropdownMenuItem(onClick = {
+                            MainViewModel.setLockTimeout(timeout = 3600000)
+                            expanded = false
+                        }) {
+                            Text(text = "1h")
+                        }
+                        DropdownMenuItem(onClick = {
+                            MainViewModel.setLockTimeout(timeout = 86400000)
+                            expanded = false
+                        }) {
+                            Text(text = "24h")
+                        }
+                        DropdownMenuItem(onClick = { MainViewModel.setLockTimeout(timeout = -1) }) {
+                            Text(text = "On device")
+                        }
+                    }
                 }
             ) {}
             GenericColumnItem(

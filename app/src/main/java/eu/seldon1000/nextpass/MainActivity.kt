@@ -26,15 +26,16 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.viewModelScope
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.CentralScreenControl
 import eu.seldon1000.nextpass.ui.theme.NextPassTheme
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+
 
 class MainActivity : FragmentActivity() {
+    private val coroutineScope = MainScope()
+
     @ExperimentalMaterialApi
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,16 +67,25 @@ class MainActivity : FragmentActivity() {
         )
     }
 
-    override fun onPause() {
-        MainViewModel.lock()
+    override fun onResume() {
+        super.onResume()
 
-        super.onPause()
+        coroutineScope.cancel()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        coroutineScope.launch {
+            delay(MainViewModel.lockTimeout.value)
+            MainViewModel.lock()
+        }
     }
 
     override fun onDestroy() {
-        MainViewModel.lock()
-
         super.onDestroy()
+
+        MainViewModel.lock()
     }
 
     override fun onBackPressed() {
