@@ -20,6 +20,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
@@ -50,6 +51,8 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 fun PasswordList() {
     val context = LocalContext.current
 
+    val lazyListState = rememberLazyListState()
+
     val folderMode by MainViewModel.folderMode.collectAsState()
     val currentFolder by MainViewModel.currentFolder.collectAsState()
 
@@ -58,13 +61,14 @@ fun PasswordList() {
 
     MyScaffoldLayout(
         fab = { DefaultFab() },
-        bottomBar = { DefaultBottomBar() }) { paddingValues ->
+        bottomBar = { DefaultBottomBar(lazyListState = lazyListState) }) { paddingValues ->
         LazyColumn(
             contentPadding = PaddingValues(
                 start = 16.dp,
                 end = 16.dp,
                 bottom = paddingValues.calculateBottomPadding() + 28.dp
             ),
+            state = lazyListState,
             modifier = Modifier.fillMaxSize()
         ) {
             item {

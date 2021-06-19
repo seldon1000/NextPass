@@ -18,9 +18,9 @@ package eu.seldon1000.nextpass.ui.screens
 
 import androidx.biometric.BiometricManager
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -47,7 +47,7 @@ fun Settings() {
     val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
+    val lazyListState = rememberLazyListState()
 
     val protected by MainViewModel.pinProtected.collectAsState()
     val biometricProtected by MainViewModel.biometricProtected.collectAsState()
@@ -63,18 +63,23 @@ fun Settings() {
                 tint = Color.White
             )
         }
-    }, bottomBar = { DefaultBottomBar() }) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(state = scrollState, enabled = true)
+    }, bottomBar = { DefaultBottomBar(lazyListState = lazyListState) }) { paddingValues ->
+        LazyColumn(
+            contentPadding = PaddingValues(
+                bottom = paddingValues.calculateBottomPadding() + 48.dp
+            ),
+            state = lazyListState,
+            modifier = Modifier.fillMaxSize()
         ) {
-            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Header(expanded = true, title = context.getString(R.string.settings)) {}
+            item {
+                Box(modifier = Modifier.padding(start = 16.dp)) {
+                    Header(
+                        expanded = true,
+                        title = context.getString(R.string.settings)
+                    ) {}
+                }
             }
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            item {
                 Text(
                     text = "Account",
                     fontSize = 12.sp,
@@ -96,9 +101,7 @@ fun Settings() {
                 }
                 Row(
                     horizontalArrangement = Arrangement.End,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     TextButton(
                         onClick = { NextcloudApiProvider.attemptLogout() },
@@ -106,165 +109,207 @@ fun Settings() {
                     ) {
                         Text(text = context.getString(R.string.logout))
                     }
-                    TextButton(onClick = { NextcloudApiProvider.pickNewAccount() }) {
+                    TextButton(
+                        onClick = { NextcloudApiProvider.pickNewAccount() },
+                        modifier = Modifier.padding(end = 16.dp)
+                    ) {
                         Text(text = context.getString(R.string.switch_account))
                     }
                 }
             }
-            Text(
-                text = context.getString(R.string.random_password),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = NextcloudBlue,
-                modifier = Modifier.padding(start = 16.dp)
-            )
-            GenericColumnItem(
-                title = context.getString(R.string.random_password),
-                body = context.getString(R.string.random_password_tip)
-            ) {
-                coroutineScope.launch {
-                    MainViewModel.setPrimaryClip(
-                        label = context.getString(R.string.generated_password),
-                        clip = NextcloudApiProvider.generatePassword()
-                    )
+            item {
+                Text(
+                    text = context.getString(R.string.random_password),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = NextcloudBlue,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+            item {
+                GenericColumnItem(
+                    title = context.getString(R.string.random_password),
+                    body = context.getString(R.string.random_password_tip)
+                ) {
+                    coroutineScope.launch {
+                        MainViewModel.setPrimaryClip(
+                            label = context.getString(R.string.generated_password),
+                            clip = NextcloudApiProvider.generatePassword()
+                        )
+                    }
                 }
             }
-            Text(
-                text = context.getString(R.string.security),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = NextcloudBlue,
-                modifier = Modifier.padding(start = 16.dp)
-            )
-            GenericColumnItem(
-                title = context.getString(R.string.pin_protection),
-                body = context.getString(R.string.pin_protection_tip),
-                item = {
-                    Checkbox(
-                        checked = protected,
-                        onCheckedChange = { MainViewModel.navigate(route = "pin/false") },
-                        colors = CheckboxDefaults.colors(checkedColor = Orange500),
-                        modifier = Modifier.padding(end = 16.dp)
-                    )
-                }
-            ) {
-                if (protected)
-                    MainViewModel.navigate(route = "pin/true")
-                else
-                    MainViewModel.showDialog(
-                        title = context.getString(R.string.pin_not_enabled),
-                        body = context.getString(R.string.pin_not_enabled_body),
-                        confirm = true
-                    ) { MainViewModel.navigate(route = "pin/false") }
+            item {
+                Text(
+                    text = context.getString(R.string.security),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = NextcloudBlue,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
             }
-            GenericColumnItem(
-                title = context.getString(R.string.biometric_protection),
-                body = context.getString(R.string.biometric_protection_tip),
-                item = {
-                    Checkbox(
-                        checked = biometricProtected && protected,
-                        onCheckedChange = {
-                            if (protected && !biometricProtected) MainViewModel.enableBiometric()
-                            else if (biometricProtected) MainViewModel.disableBiometric()
-                        },
-                        enabled = protected && BiometricManager.from(context).canAuthenticate(
-                            BiometricManager.Authenticators.BIOMETRIC_WEAK
-                        ) == BiometricManager.BIOMETRIC_SUCCESS,
-                        colors = CheckboxDefaults.colors(checkedColor = Orange500),
-                        modifier = Modifier.padding(end = 16.dp)
-                    )
+            item {
+                GenericColumnItem(
+                    title = context.getString(R.string.pin_protection),
+                    body = context.getString(R.string.pin_protection_tip),
+                    item = {
+                        Checkbox(
+                            checked = protected,
+                            onCheckedChange = { MainViewModel.navigate(route = "pin/false") },
+                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    }
+                ) {
+                    if (protected)
+                        MainViewModel.navigate(route = "pin/true")
+                    else
+                        MainViewModel.showDialog(
+                            title = context.getString(R.string.pin_not_enabled),
+                            body = context.getString(R.string.pin_not_enabled_body),
+                            confirm = true
+                        ) { MainViewModel.navigate(route = "pin/false") }
                 }
-            ) {}
-            GenericColumnItem(
-                title = context.getString(R.string.lock_timeout),
-                body = context.getString(R.string.lock_timeout_tip),
-                item = {
-                    Card(
-                        onClick = { expanded = true },
-                        enabled = protected,
-                        shape = RoundedCornerShape(size = 8.dp),
-                        modifier = Modifier.padding(end = 16.dp)
-                    ) {
-                        Row(modifier = Modifier.padding(all = 8.dp)) {
-                            Text(
-                                text = when {
-                                    lockTimeout.toInt() == 0 -> "Immediately"
-                                    lockTimeout.toInt() == -1 -> "On device"
-                                    else -> when {
-                                        lockTimeout < 3600000 -> "${lockTimeout / 60000}m"
-                                        else -> "${lockTimeout / 3600000}h"
-                                    }
-                                },
-                                modifier = Modifier.padding(start = 8.dp, end = 16.dp)
-                            )
-                            Icon(
-                                painter = painterResource(
-                                    id = if (expanded) R.drawable.ic_round_arrow_drop_up_24
-                                    else R.drawable.ic_round_arrow_drop_down_24
-                                ),
-                                contentDescription = "expand_folder_list"
-                            )
-                        }
-                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 0)
-                                expanded = false
-                            }) {
-                                Text(text = "Immediately")
+            }
+            item {
+                GenericColumnItem(
+                    title = context.getString(R.string.biometric_protection),
+                    body = context.getString(R.string.biometric_protection_tip),
+                    item = {
+                        Checkbox(
+                            checked = biometricProtected && protected,
+                            onCheckedChange = {
+                                if (protected && !biometricProtected) MainViewModel.enableBiometric()
+                                else if (biometricProtected) MainViewModel.disableBiometric()
+                            },
+                            enabled = protected && BiometricManager.from(context).canAuthenticate(
+                                BiometricManager.Authenticators.BIOMETRIC_WEAK
+                            ) == BiometricManager.BIOMETRIC_SUCCESS,
+                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    }
+                ) {}
+            }
+            item {
+                GenericColumnItem(
+                    title = context.getString(R.string.lock_timeout),
+                    body = context.getString(R.string.lock_timeout_tip),
+                    item = {
+                        Card(
+                            onClick = { expanded = true },
+                            enabled = protected,
+                            shape = RoundedCornerShape(size = 8.dp),
+                            modifier = Modifier.padding(end = 16.dp)
+                        ) {
+                            Row(modifier = Modifier.padding(all = 8.dp)) {
+                                Text(
+                                    text = when {
+                                        lockTimeout.toInt() == 0 -> "Immediately"
+                                        lockTimeout.toInt() == -1 -> "On device"
+                                        else -> when {
+                                            lockTimeout < 3600000 -> "${lockTimeout / 60000}m"
+                                            else -> "${lockTimeout / 3600000}h"
+                                        }
+                                    },
+                                    modifier = Modifier.padding(start = 8.dp, end = 16.dp)
+                                )
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (expanded) R.drawable.ic_round_arrow_drop_up_24
+                                        else R.drawable.ic_round_arrow_drop_down_24
+                                    ),
+                                    contentDescription = "expand_folder_list"
+                                )
                             }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 60000)
-                                expanded = false
-                            }) {
-                                Text(text = "1m")
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 300000)
-                                expanded = false
-                            }) {
-                                Text(text = "5m")
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 600000)
-                                expanded = false
-                            }) {
-                                Text(text = "10m")
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 1800000)
-                                expanded = false
-                            }) {
-                                Text(text = "30m")
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 3600000)
-                                expanded = false
-                            }) {
-                                Text(text = "1h")
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 86400000)
-                                expanded = false
-                            }) {
-                                Text(text = "24h")
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = -1)
-                                expanded = false
-                            }) {
-                                Text(text = "On device")
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }) {
+                                DropdownMenuItem(onClick = {
+                                    MainViewModel.setLockTimeout(timeout = 0)
+                                    expanded = false
+                                }, enabled = lockTimeout != 0.toLong()) {
+                                    Text(
+                                        text = "Immediately",
+                                        color = if (lockTimeout == 0.toLong()) Color.Gray else Color.White
+                                    )
+                                }
+                                DropdownMenuItem(onClick = {
+                                    MainViewModel.setLockTimeout(timeout = 60000)
+                                    expanded = false
+                                }, enabled = lockTimeout != 60000.toLong()) {
+                                    Text(
+                                        text = "1m",
+                                        color = if (lockTimeout == 60000.toLong()) Color.Gray else Color.White
+                                    )
+                                }
+                                DropdownMenuItem(onClick = {
+                                    MainViewModel.setLockTimeout(timeout = 300000)
+                                    expanded = false
+                                }, enabled = lockTimeout != 300000.toLong()) {
+                                    Text(
+                                        text = "5m",
+                                        color = if (lockTimeout == 300000.toLong()) Color.Gray else Color.White
+                                    )
+                                }
+                                DropdownMenuItem(onClick = {
+                                    MainViewModel.setLockTimeout(timeout = 600000)
+                                    expanded = false
+                                }, enabled = lockTimeout != 600000.toLong()) {
+                                    Text(
+                                        text = "10m",
+                                        color = if (lockTimeout == 600000.toLong()) Color.Gray else Color.White
+                                    )
+                                }
+                                DropdownMenuItem(onClick = {
+                                    MainViewModel.setLockTimeout(timeout = 1800000)
+                                    expanded = false
+                                }, enabled = lockTimeout != 1800000.toLong()) {
+                                    Text(
+                                        text = "30m",
+                                        color = if (lockTimeout == 1800000.toLong()) Color.Gray else Color.White
+                                    )
+                                }
+                                DropdownMenuItem(onClick = {
+                                    MainViewModel.setLockTimeout(timeout = 3600000)
+                                    expanded = false
+                                }, enabled = lockTimeout != 3600000.toLong()) {
+                                    Text(
+                                        text = "1h",
+                                        color = if (lockTimeout == 3600000.toLong()) Color.Gray else Color.White
+                                    )
+                                }
+                                DropdownMenuItem(onClick = {
+                                    MainViewModel.setLockTimeout(timeout = 86400000)
+                                    expanded = false
+                                }, enabled = lockTimeout != 86400000.toLong()) {
+                                    Text(
+                                        text = "24h",
+                                        color = if (lockTimeout == 86400000.toLong()) Color.Gray else Color.White
+                                    )
+                                }
+                                DropdownMenuItem(onClick = {
+                                    MainViewModel.setLockTimeout(timeout = -1)
+                                    expanded = false
+                                }, enabled = lockTimeout != (-1).toLong()) {
+                                    Text(
+                                        text = "On device",
+                                        color = if (lockTimeout == (-1).toLong()) Color.Gray else Color.White
+                                    )
+                                }
                             }
                         }
                     }
-                }
-            ) {}
-            GenericColumnItem(
-                title = context.getString(R.string.lock_now),
-                body = context.getString(R.string.lock_now_tip)
-            ) {
-                if (protected) MainViewModel.lock(shouldRaiseBiometric = false)
+                ) {}
             }
-            Box(modifier = Modifier.size(size = paddingValues.calculateBottomPadding() + 48.dp))
+            item {
+                GenericColumnItem(
+                    title = context.getString(R.string.lock_now),
+                    body = context.getString(R.string.lock_now_tip)
+                ) {
+                    if (protected) MainViewModel.lock(shouldRaiseBiometric = false)
+                }
+            }
         }
     }
 }
