@@ -92,7 +92,7 @@ object MainViewModel : ViewModel() {
             lockTimeoutState.value =
                 context!!.getSharedPreferences("timeout", 0).getLong("timeout", 0)
 
-            if (context!!.getSharedPreferences("finger", 0).contains("finger"))
+            if (context!!.getSharedPreferences("biometric", 0).contains("biometric"))
                 biometricProtectedState.value = true
         }
     }
@@ -146,12 +146,12 @@ object MainViewModel : ViewModel() {
         lockTimeoutState.value = timeout
     }
 
-    fun lock() {
-        if (pinProtectedState.value && unlockedState.value) {
+    fun lock(shouldRaiseBiometric: Boolean = true) {
+        if (pinProtectedState.value) {
             unlockedState.value = false
 
             setRefreshing(refreshing = false)
-            navigate(route = "access_pin/false")
+            navigate(route = "access_pin/$shouldRaiseBiometric")
             NextcloudApiProvider.stopNextcloudApi()
         }
     }
