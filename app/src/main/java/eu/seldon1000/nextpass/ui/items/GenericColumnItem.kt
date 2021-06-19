@@ -35,7 +35,7 @@ fun GenericColumnItem(
     title: String,
     body: String,
     icon: @Composable (() -> Unit)? = null,
-    switch: @Composable (() -> Unit)? = null,
+    item: @Composable (() -> Unit)? = null,
     action: () -> Unit
 ) {
     Row(
@@ -59,6 +59,6 @@ fun GenericColumnItem(
                 color = Color.Gray
             )
         }
-        switch?.invoke()
+        item?.invoke()
     }
 }
