@@ -79,7 +79,11 @@ fun CentralScreenControl() {
             {
                 (context as Activity).window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
-                composable(route = "access_pin") { AccessPin() }
+                composable(route = "access_pin/{shouldRaiseBiometric}",
+                    listOf(navArgument(name = "shouldRaiseBiometric") { type = NavType.BoolType })
+                ) { navBackStackEntry ->
+                    AccessPin(shouldRaiseBiometric = navBackStackEntry.arguments?.getBoolean("shouldRaiseBiometric")!!)
+                }
                 composable(route = "welcome") { WelcomeScreen() }
                 composable(route = "search") { Search() }
                 composable(route = "passwords") { PasswordList() }

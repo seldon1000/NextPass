@@ -37,12 +37,12 @@ import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.theme.Orange500
 
 @Composable
-fun AccessPin() {
+fun AccessPin(shouldRaiseBiometric: Boolean) {
     val context = LocalContext.current
 
     val fingerProtected by MainViewModel.biometricProtected.collectAsState()
 
-    if (fingerProtected) MainViewModel.showBiometricPrompt()
+    if (fingerProtected && shouldRaiseBiometric) MainViewModel.showBiometricPrompt()
 
     var pin by remember { mutableStateOf(value = "") }
 
