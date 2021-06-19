@@ -163,8 +163,6 @@ object NextcloudApiProvider : ViewModel() {
             ) { account ->
                 SingleAccountHelper.setCurrentAccount(globalContext, account.name)
 
-                MainViewModel.disablePin()
-
                 attemptLogin()
             }
         } catch (e: AccountImportCancelledException) {
