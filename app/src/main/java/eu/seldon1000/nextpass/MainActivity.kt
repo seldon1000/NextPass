@@ -26,10 +26,12 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.viewModelScope
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.CentralScreenControl
 import eu.seldon1000.nextpass.ui.theme.NextPassTheme
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class MainActivity : FragmentActivity() {
@@ -71,8 +73,9 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
-
         MainViewModel.setUnlock(unlock = false)
+        MainViewModel.setRefreshing(refreshing = false)
+        NextcloudApiProvider.viewModelScope.cancel()
         NextcloudApiProvider.stopNextcloudApi()
 
         super.onDestroy()
