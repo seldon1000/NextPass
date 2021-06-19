@@ -205,52 +205,55 @@ fun Settings() {
                                 contentDescription = "expand_folder_list"
                             )
                         }
-                    }
-                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        DropdownMenuItem(onClick = {
-                            MainViewModel.setLockTimeout(timeout = 0)
-                            expanded = false
-                        }) {
-                            Text(text = "Immediately")
-                        }
-                        DropdownMenuItem(onClick = {
-                            MainViewModel.setLockTimeout(timeout = 60000)
-                            expanded = false
-                        }) {
-                            Text(text = "1m")
-                        }
-                        DropdownMenuItem(onClick = {
-                            MainViewModel.setLockTimeout(timeout = 300000)
-                            expanded = false
-                        }) {
-                            Text(text = "5m")
-                        }
-                        DropdownMenuItem(onClick = {
-                            MainViewModel.setLockTimeout(timeout = 600000)
-                            expanded = false
-                        }) {
-                            Text(text = "10m")
-                        }
-                        DropdownMenuItem(onClick = {
-                            MainViewModel.setLockTimeout(timeout = 1800000)
-                            expanded = false
-                        }) {
-                            Text(text = "30m")
-                        }
-                        DropdownMenuItem(onClick = {
-                            MainViewModel.setLockTimeout(timeout = 3600000)
-                            expanded = false
-                        }) {
-                            Text(text = "1h")
-                        }
-                        DropdownMenuItem(onClick = {
-                            MainViewModel.setLockTimeout(timeout = 86400000)
-                            expanded = false
-                        }) {
-                            Text(text = "24h")
-                        }
-                        DropdownMenuItem(onClick = { MainViewModel.setLockTimeout(timeout = -1) }) {
-                            Text(text = "On device")
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            DropdownMenuItem(onClick = {
+                                MainViewModel.setLockTimeout(timeout = 0)
+                                expanded = false
+                            }) {
+                                Text(text = "Immediately")
+                            }
+                            DropdownMenuItem(onClick = {
+                                MainViewModel.setLockTimeout(timeout = 60000)
+                                expanded = false
+                            }) {
+                                Text(text = "1m")
+                            }
+                            DropdownMenuItem(onClick = {
+                                MainViewModel.setLockTimeout(timeout = 300000)
+                                expanded = false
+                            }) {
+                                Text(text = "5m")
+                            }
+                            DropdownMenuItem(onClick = {
+                                MainViewModel.setLockTimeout(timeout = 600000)
+                                expanded = false
+                            }) {
+                                Text(text = "10m")
+                            }
+                            DropdownMenuItem(onClick = {
+                                MainViewModel.setLockTimeout(timeout = 1800000)
+                                expanded = false
+                            }) {
+                                Text(text = "30m")
+                            }
+                            DropdownMenuItem(onClick = {
+                                MainViewModel.setLockTimeout(timeout = 3600000)
+                                expanded = false
+                            }) {
+                                Text(text = "1h")
+                            }
+                            DropdownMenuItem(onClick = {
+                                MainViewModel.setLockTimeout(timeout = 86400000)
+                                expanded = false
+                            }) {
+                                Text(text = "24h")
+                            }
+                            DropdownMenuItem(onClick = {
+                                MainViewModel.setLockTimeout(timeout = -1)
+                                expanded = false
+                            }) {
+                                Text(text = "On device")
+                            }
                         }
                     }
                 }

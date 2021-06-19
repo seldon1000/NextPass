@@ -147,7 +147,7 @@ object MainViewModel : ViewModel() {
     }
 
     fun lock() {
-        if (pinProtectedState.value) {
+        if (pinProtectedState.value && unlockedState.value) {
             unlockedState.value = false
 
             setRefreshing(refreshing = false)
