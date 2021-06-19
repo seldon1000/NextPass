@@ -70,17 +70,21 @@ class MainActivity : FragmentActivity() {
     override fun onRestart() {
         super.onRestart()
 
-        coroutineScope.cancel()
+        coroutineScope.coroutineContext.cancelChildren()
     }
 
     override fun onStop() {
         super.onStop()
 
         coroutineScope.launch {
-            if (MainViewModel.lockTimeout.value == (-1).toLong()) return@launch
-
-            delay(MainViewModel.lockTimeout.value)
-            MainViewModel.lock()
+            if (!MainViewModel.unlocked.value) MainViewModel.lock()
+            else if (MainViewModel.lockTimeout.value == (-1).toLong()){
+                return@launch
+            }
+            else {
+                delay(MainViewModel.lockTimeout.value)
+                MainViewModel.lock()
+            }
         }
     }
 

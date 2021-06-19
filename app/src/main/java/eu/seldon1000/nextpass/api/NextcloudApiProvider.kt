@@ -37,11 +37,8 @@ import com.nextcloud.android.sso.helper.SingleAccountHelper
 import com.nextcloud.android.sso.model.SingleSignOnAccount
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -476,7 +473,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun stopNextcloudApi() {
-        viewModelScope.cancel()
+        viewModelScope.coroutineContext.cancelChildren()
         nextcloudApi?.stop()
     }
 }

@@ -114,7 +114,7 @@ object MainViewModel : ViewModel() {
         if (!pinProtectedState.value) {
             pinProtectedState.value = true
 
-            setLockTimeout(timeout = 0)
+            setLockTimeout(timeout = lockTimeoutState.value)
         }
     }
 
