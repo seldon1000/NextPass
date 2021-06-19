@@ -3,6 +3,14 @@ plugins {
     id 'kotlin-android'
 }
 
+def versionMajor = 1
+def versionMinor = 1
+def versionPatch = 0
+
+static def getDate() {
+    return new Date().format('yyyy-MM-dd')
+}
+
 android {
     compileSdk 30
     buildToolsVersion "30.0.3"
@@ -11,8 +19,8 @@ android {
         applicationId "eu.seldon1000.nextpass"
         minSdk 26
         targetSdk 30
-        versionCode 1
-        versionName "1.0"
+        versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
+        versionName "$versionMajor.$versionMinor.$versionPatch#${getDate()}"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
