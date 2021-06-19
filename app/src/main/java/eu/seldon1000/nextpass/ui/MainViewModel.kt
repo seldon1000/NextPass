@@ -50,7 +50,7 @@ object MainViewModel : ViewModel() {
     private val biometricProtectedState = MutableStateFlow(value = false)
     val biometricProtected = biometricProtectedState
 
-    private val lockTimeoutState = MutableStateFlow(value = 0.toLong())
+    private val lockTimeoutState = MutableStateFlow(value = (-1).toLong())
     val lockTimeout = lockTimeoutState
 
     private val currentScreenState = MutableStateFlow(value = "passwords")
@@ -111,7 +111,11 @@ object MainViewModel : ViewModel() {
     fun setNewPin(pin: String) {
         context!!.getSharedPreferences("PIN", 0).edit().putString("PIN", pin).apply()
 
-        pinProtectedState.value = true
+        if (!pinProtectedState.value) {
+            pinProtectedState.value = true
+
+            setLockTimeout(timeout = 0)
+        }
     }
 
     fun disablePin() {

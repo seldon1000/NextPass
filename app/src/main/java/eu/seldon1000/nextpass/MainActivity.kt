@@ -67,8 +67,8 @@ class MainActivity : FragmentActivity() {
         )
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onRestart() {
+        super.onRestart()
 
         coroutineScope.cancel()
     }
