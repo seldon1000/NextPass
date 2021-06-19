@@ -67,8 +67,6 @@
     <string name="disable_pin">Disable PIN protection?</string>
     <string name="disable_pin_body">PIN protection will be deleted. Are you sure you want to proceed?</string>
     <string name="pin_disabled_snack">PIN disabled successfully</string>
-    <string name="revert_changes">Revert changes?</string>
-    <string name="revert_changes_body">Changes will be reverted and the PIN will be the same. Are you sure you want to go back?</string>
     <string name="custom_field">Custom field</string>
     <string name="favorites">Favorites</string>
     <string name="new_password">New password</string>

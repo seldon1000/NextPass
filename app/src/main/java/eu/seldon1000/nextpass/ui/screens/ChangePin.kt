@@ -149,13 +149,7 @@ fun ChangePin(change: Boolean) {
         }
     }, bottomBar = {
         BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
-            IconButton(onClick = {
-                MainViewModel.showDialog(
-                    title = context.getString(R.string.revert_changes),
-                    body = context.getString(R.string.revert_changes_body),
-                    confirm = true
-                ) { MainViewModel.popBackStack() }
-            }) {
+            IconButton(onClick = { MainViewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"
