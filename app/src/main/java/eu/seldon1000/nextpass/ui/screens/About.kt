@@ -105,18 +105,7 @@ fun About() {
                             context.packageManager.getPackageInfo(
                                 context.packageName,
                                 0
-                            ).versionName.substringBefore(delimiter = "#")
-                        ),
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    )
-                    Text(
-                        text = context.getString(
-                            R.string.version_date,
-                            context.packageManager.getPackageInfo(
-                                context.packageName,
-                                0
-                            ).versionName.substringAfter(delimiter = "#")
+                            ).versionName
                         ),
                         fontSize = 14.sp,
                         color = Color.Gray

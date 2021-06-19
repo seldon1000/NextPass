@@ -7,10 +7,6 @@ def versionMajor = 1
 def versionMinor = 1
 def versionPatch = 0
 
-static def getDate() {
-    return new Date().format('yyyy-MM-dd')
-}
-
 android {
     compileSdk 30
     buildToolsVersion "30.0.3"
@@ -20,7 +16,7 @@ android {
         minSdk 26
         targetSdk 30
         versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
-        versionName "$versionMajor.$versionMinor.$versionPatch#${getDate()}"
+        versionName "$versionMajor.$versionMinor.$versionPatch"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
