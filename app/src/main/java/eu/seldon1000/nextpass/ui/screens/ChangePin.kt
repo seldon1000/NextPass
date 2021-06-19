@@ -149,7 +149,12 @@ fun ChangePin(change: Boolean) {
         }
     }, bottomBar = {
         BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
-            IconButton(onClick = { MainViewModel.popBackStack() }) {
+            IconButton(onClick = {
+                if (confirm) {
+                    confirm = false
+                    pin = tempPin
+                } else MainViewModel.popBackStack()
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"
