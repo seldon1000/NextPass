@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">NextPass</string>
     <string name="app_version">App version: %1$s</string>
-    <string name="version_date">Version date: </string>
+    <string name="version_date">Version date: %1$s</string>
     <string name="main_developer_body">Main developer. Click here for more info.</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
