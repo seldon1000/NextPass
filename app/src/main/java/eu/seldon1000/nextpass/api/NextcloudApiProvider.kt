@@ -72,8 +72,6 @@ object NextcloudApiProvider : ViewModel() {
     private val connectedCallback: NextcloudAPI.ApiConnectedListener = object :
         NextcloudAPI.ApiConnectedListener {
         override fun onConnected() {
-            refreshServerList()
-
             MainViewModel.showSnackbar(
                 message = globalContext.getString(
                     R.string.connected_snack,
@@ -103,6 +101,8 @@ object NextcloudApiProvider : ViewModel() {
                 GsonBuilder().create(),
                 connectedCallback
             )
+
+            refreshServerList()
 
             MainViewModel.navigate(route = "passwords")
         } catch (e: Exception) {
