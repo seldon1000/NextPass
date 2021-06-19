@@ -67,16 +67,13 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onPause() {
-        MainViewModel.setUnlock(unlock = false)
+        MainViewModel.lock()
 
         super.onPause()
     }
 
     override fun onDestroy() {
-        MainViewModel.setUnlock(unlock = false)
-        MainViewModel.setRefreshing(refreshing = false)
-        NextcloudApiProvider.viewModelScope.cancel()
-        NextcloudApiProvider.stopNextcloudApi()
+        MainViewModel.lock()
 
         super.onDestroy()
     }

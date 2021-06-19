@@ -38,6 +38,7 @@ import com.nextcloud.android.sso.model.SingleSignOnAccount
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -74,6 +75,8 @@ object NextcloudApiProvider : ViewModel() {
     private val connectedCallback: NextcloudAPI.ApiConnectedListener = object :
         NextcloudAPI.ApiConnectedListener {
         override fun onConnected() {
+            refreshServerList()
+
             MainViewModel.showSnackbar(
                 message = globalContext.getString(
                     R.string.connected_snack,
@@ -83,6 +86,7 @@ object NextcloudApiProvider : ViewModel() {
         }
 
         override fun onError(e: Exception) {
+            showError()
         }
     }
 
@@ -103,8 +107,6 @@ object NextcloudApiProvider : ViewModel() {
                 connectedCallback
             )
 
-            refreshServerList()
-
             MainViewModel.navigate(route = "passwords")
         } catch (e: Exception) {
         }
@@ -123,7 +125,6 @@ object NextcloudApiProvider : ViewModel() {
 
             MainViewModel.setRefreshing(refreshing = false)
             MainViewModel.disablePin()
-            MainViewModel.setUnlock(unlock = true)
             MainViewModel.navigate(route = "welcome")
             MainViewModel.showSnackbar(message = globalContext.getString(R.string.disconnected_snack))
         }
@@ -163,7 +164,6 @@ object NextcloudApiProvider : ViewModel() {
                 SingleAccountHelper.setCurrentAccount(globalContext, account.name)
 
                 MainViewModel.disablePin()
-                MainViewModel.setUnlock(unlock = true)
 
                 attemptLogin()
             }
@@ -478,6 +478,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun stopNextcloudApi() {
+        viewModelScope.cancel()
         nextcloudApi?.stop()
     }
 }

@@ -120,6 +120,7 @@ object MainViewModel : ViewModel() {
 
         biometricProtectedState.value = false
         pinProtectedState.value = false
+        unlock()
     }
 
     fun disableFinger() {
@@ -128,8 +129,18 @@ object MainViewModel : ViewModel() {
         biometricProtectedState.value = false
     }
 
-    fun setUnlock(unlock: Boolean) {
-        unlockedState.value = unlock
+    fun lock() {
+        if (pinProtectedState.value) {
+            unlockedState.value = false
+
+            setRefreshing(refreshing = false)
+            navigate(route = "access_pin/false")
+            NextcloudApiProvider.stopNextcloudApi()
+        }
+    }
+
+    fun unlock() {
+        unlockedState.value = true
     }
 
     fun setClipboardManager(manager: ClipboardManager) {
@@ -172,7 +183,8 @@ object MainViewModel : ViewModel() {
     fun popBackStack(): Boolean {
         try {
             return if (navController!!.previousBackStackEntry!!.destination.route!! == "welcome" ||
-                navController!!.currentDestination!!.route!! == "access_pin" ||
+                navController!!.currentDestination!!.route!! == "welcome" ||
+                navController!!.currentDestination!!.route!! == "access_pin/{shouldRaiseBiometric}" ||
                 navController!!.currentDestination!!.route!! == "passwords"
             )
                 if (currentFolderState.value != 0) {
@@ -218,13 +230,6 @@ object MainViewModel : ViewModel() {
     fun dismissDialog() {
         openDialogState.value = false
     }
-
-    private val biometricsIgnoredErrors = listOf(
-        BiometricPrompt.ERROR_NEGATIVE_BUTTON,
-        BiometricPrompt.ERROR_CANCELED,
-        BiometricPrompt.ERROR_USER_CANCELED,
-        BiometricPrompt.ERROR_NO_BIOMETRICS
-    )
 
     fun showBiometricPrompt() {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()

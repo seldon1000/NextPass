@@ -96,8 +96,8 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                 }
                 FloatingActionButton(onClick = {
                     if (MainViewModel.checkPin(pin = pin)) {
-                        MainViewModel.setUnlock(unlock = true)
                         NextcloudApiProvider.attemptLogin()
+                        MainViewModel.unlock()
                     } else {
                         MainViewModel.showDialog(
                             title = context.getString(R.string.wrong_pin),

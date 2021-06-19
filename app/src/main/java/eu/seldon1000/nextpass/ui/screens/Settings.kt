@@ -178,11 +178,7 @@ fun Settings() {
                 title = context.getString(R.string.lock_now),
                 body = context.getString(R.string.lock_now_tip)
             ) {
-                if (protected) {
-                    MainViewModel.setUnlock(unlock = false)
-                    NextcloudApiProvider.stopNextcloudApi()
-                    MainViewModel.navigate(route = "access_pin/false")
-                }
+                if (protected) MainViewModel.lock()
             }
             Box(modifier = Modifier.size(size = paddingValues.calculateBottomPadding() + 48.dp))
         }
