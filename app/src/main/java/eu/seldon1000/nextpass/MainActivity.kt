@@ -77,6 +77,8 @@ class MainActivity : FragmentActivity() {
         super.onStop()
 
         coroutineScope.launch {
+            if (MainViewModel.lockTimeout.value == (-1).toLong()) return@launch
+
             delay(MainViewModel.lockTimeout.value)
             MainViewModel.lock()
         }
@@ -87,6 +89,7 @@ class MainActivity : FragmentActivity() {
 
         coroutineScope.cancel()
         MainViewModel.lock()
+        NextcloudApiProvider.stopNextcloudApi()
     }
 
     override fun onBackPressed() {

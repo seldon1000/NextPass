@@ -152,7 +152,6 @@ object MainViewModel : ViewModel() {
 
             setRefreshing(refreshing = false)
             navigate(route = "access_pin/$shouldRaiseBiometric")
-            NextcloudApiProvider.stopNextcloudApi()
         }
     }
 
