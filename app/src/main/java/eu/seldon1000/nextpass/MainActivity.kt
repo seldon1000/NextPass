@@ -44,7 +44,7 @@ class MainActivity : FragmentActivity() {
 
         setContent {
             if (MainViewModel.unlocked.value) rememberCoroutineScope().launch { NextcloudApiProvider.attemptLogin() }
-            else rememberCoroutineScope().launch { MainViewModel.navigate(route = "access_pin") }
+            else rememberCoroutineScope().launch { MainViewModel.navigate(route = "access_pin/true") }
 
             NextPassTheme {
                 Surface(color = MaterialTheme.colors.background) {
