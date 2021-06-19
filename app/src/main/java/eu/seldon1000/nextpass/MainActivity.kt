@@ -85,6 +85,7 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        coroutineScope.cancel()
         MainViewModel.lock()
     }
 
