@@ -63,7 +63,7 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
                     id = if (expanded) R.drawable.ic_round_arrow_drop_up_24
                     else R.drawable.ic_round_arrow_drop_down_24
                 ),
-                contentDescription = "expand_folder_list"
+                contentDescription = "expand_folder_menu"
             )
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
