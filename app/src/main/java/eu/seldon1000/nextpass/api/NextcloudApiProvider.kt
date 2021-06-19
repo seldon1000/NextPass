@@ -86,10 +86,6 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun getUserId(): String? {
-        return currentAccount?.userId
-    }
-
     fun getAccountName(): String? {
         return currentAccount?.name
     }
