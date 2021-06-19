@@ -19,6 +19,8 @@
     <string name="access_nextpass_body">Use your biometric system to authenticate.</string>
     <string name="random_password">Random password</string>
     <string name="authenticate">Authenticate</string>
+    <string name="immediately">Immediately</string>
+    <string name="never">Never</string>
     <string name="search_message">What are you looking for?</string>
     <string name="missing_nextcloud">Missing Nextcloud Files app!</string>
     <string name="missing_nextcloud_body">NextPass needs the Nextcloud Files app to be installed and updated.\n\nDo you want to install it now?</string>
@@ -27,7 +29,7 @@
     <string name="send_email_body">Click here to quickly send us an email. We\'ll get back to you as soon as possible.</string>
     <string name="passwords">Passwords</string>
     <string name="lock_timeout">Lock timeout</string>
-    <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock.</string>
+    <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock, If you choose \'Never\', the app will remain unlocked till next restart or forced interruption.</string>
     <string name="special_thanks">Special thanks and mentions</string>
     <string name="special_thanks_body">NextPass was made possible thanks to the work of many people and some amazing tools. Click here to learn more about them.</string>
     <string name="parent">Parent ID</string>
