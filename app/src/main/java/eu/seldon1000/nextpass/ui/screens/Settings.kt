@@ -56,6 +56,17 @@ fun Settings() {
 
     var expanded by remember { mutableStateOf(value = false) }
 
+    val timeoutOptions = listOf<Long>(
+        0,
+        60000,
+        300000,
+        600000,
+        1800000,
+        3600000,
+        86400000,
+        -1
+    )
+
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = { MainViewModel.navigate(route = "about") }) {
             Icon(
@@ -209,9 +220,9 @@ fun Settings() {
                     ) {
                         Row(modifier = Modifier.padding(all = 8.dp)) {
                             Text(
-                                text = when {
-                                    lockTimeout.toInt() == 0 -> context.getString(R.string.immediately)
-                                    lockTimeout.toInt() == -1 -> context.getString(R.string.never)
+                                text = when (lockTimeout) {
+                                    0.toLong() -> context.getString(R.string.immediately)
+                                    (-1).toLong() -> context.getString(R.string.never)
                                     else -> when {
                                         lockTimeout < 3600000 -> "${lockTimeout / 60000} minutes"
                                         else -> "${lockTimeout / 3600000} hours"
@@ -230,77 +241,23 @@ fun Settings() {
                         DropdownMenu(
                             expanded = expanded,
                             onDismissRequest = { expanded = false }) {
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 0)
-                                expanded = false
-                            }, enabled = lockTimeout != 0.toLong()) {
-                                Text(
-                                    text = context.getString(R.string.immediately),
-                                    color = if (lockTimeout == 0.toLong()) Color.Gray else Color.White
-                                )
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 60000)
-                                expanded = false
-                            }, enabled = lockTimeout != 60000.toLong()) {
-                                Text(
-                                    text = "1 minute",
-                                    color = if (lockTimeout == 60000.toLong()) Color.Gray else Color.White
-                                )
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 300000)
-                                expanded = false
-                            }, enabled = lockTimeout != 300000.toLong()) {
-                                Text(
-                                    text = "5 minutes",
-                                    color = if (lockTimeout == 300000.toLong()) Color.Gray else Color.White
-                                )
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 600000)
-                                expanded = false
-                            }, enabled = lockTimeout != 600000.toLong()) {
-                                Text(
-                                    text = "10 minutes",
-                                    color = if (lockTimeout == 600000.toLong()) Color.Gray else Color.White
-                                )
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 1800000)
-                                expanded = false
-                            }, enabled = lockTimeout != 1800000.toLong()) {
-                                Text(
-                                    text = "30 minutes",
-                                    color = if (lockTimeout == 1800000.toLong()) Color.Gray else Color.White
-                                )
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 3600000)
-                                expanded = false
-                            }, enabled = lockTimeout != 3600000.toLong()) {
-                                Text(
-                                    text = "1 hour",
-                                    color = if (lockTimeout == 3600000.toLong()) Color.Gray else Color.White
-                                )
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = 86400000)
-                                expanded = false
-                            }, enabled = lockTimeout != 86400000.toLong()) {
-                                Text(
-                                    text = "24 hours",
-                                    color = if (lockTimeout == 86400000.toLong()) Color.Gray else Color.White
-                                )
-                            }
-                            DropdownMenuItem(onClick = {
-                                MainViewModel.setLockTimeout(timeout = -1)
-                                expanded = false
-                            }, enabled = lockTimeout != (-1).toLong()) {
-                                Text(
-                                    text = context.getString(R.string.never),
-                                    color = if (lockTimeout == (-1).toLong()) Color.Gray else Color.White
-                                )
+                            timeoutOptions.forEach { option ->
+                                DropdownMenuItem(onClick = {
+                                    MainViewModel.setLockTimeout(timeout = option)
+                                    expanded = false
+                                }, enabled = lockTimeout != option) {
+                                    Text(
+                                        text = when (option) {
+                                            0.toLong() -> context.getString(R.string.immediately)
+                                            (-1).toLong() -> context.getString(R.string.never)
+                                            else -> when {
+                                                option < 3600000 -> "${option / 60000} minutes"
+                                                else -> "${option / 3600000} hours"
+                                            }
+                                        },
+                                        color = if (lockTimeout == option) Color.Gray else Color.White
+                                    )
+                                }
                             }
                         }
                     }
