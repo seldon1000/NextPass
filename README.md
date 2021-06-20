@@ -28,5 +28,8 @@ This is because NextPass communicates with the Nextcloud server through Nextclou
 # Translations
 Currently, NextPass only supports english, but translations are so very welcome. I plan to setup an actual translation platform (Crowdin, probably) in the future, but, until then, you can open an issue specifying your language and I will provide anything you need.
 
+# Special thanks and mentions
+Go to: https://github.com/seldon1000/NextPass/blob/master/THANKS.md
+
 
 ***README IN PROGRESS***
