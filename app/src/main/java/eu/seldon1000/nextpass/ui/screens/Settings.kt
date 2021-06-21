@@ -267,9 +267,7 @@ fun Settings() {
                 GenericColumnItem(
                     title = context.getString(R.string.lock_now),
                     body = context.getString(R.string.lock_now_tip)
-                ) {
-                    if (protected) MainViewModel.lock(shouldRaiseBiometric = false)
-                }
+                ) { if (protected) MainViewModel.lock(shouldRaiseBiometric = false) }
             }
         }
     }
