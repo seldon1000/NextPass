@@ -40,9 +40,7 @@ import eu.seldon1000.nextpass.ui.theme.Orange500
 fun AccessPin(shouldRaiseBiometric: Boolean) {
     val context = LocalContext.current
 
-    val fingerProtected by MainViewModel.biometricProtected.collectAsState()
-
-    if (fingerProtected && shouldRaiseBiometric) MainViewModel.showBiometricPrompt()
+    if (MainViewModel.biometricProtected.value && shouldRaiseBiometric) MainViewModel.showBiometricPrompt()
 
     var pin by remember { mutableStateOf(value = "") }
 
@@ -80,7 +78,7 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                 modifier = Modifier.width(width = 200.dp)
             )
             Row {
-                if (fingerProtected) {
+                if (MainViewModel.biometricProtected.value) {
                     FloatingActionButton(
                         onClick = { MainViewModel.showBiometricPrompt() },
                         backgroundColor = Orange500,
