@@ -179,10 +179,7 @@ object MainViewModel : ViewModel() {
                 route = navController!!.currentBackStackEntry!!.destination.route!!,
                 inclusive = true
             )
-        else {
-            NextcloudApiProvider.attemptLogin()
-            navigate(route = "passwords")
-        }
+        else openApp()
     }
 
     fun openApp(shouldRememberScreen: Boolean = false) {
@@ -298,7 +295,7 @@ object MainViewModel : ViewModel() {
                     result: BiometricPrompt.AuthenticationResult
                 ) {
                     unlockedState.value = true
-                    NextcloudApiProvider.attemptLogin()
+                    unlock()
                 }
 
                 override fun onAuthenticationFailed() {}
