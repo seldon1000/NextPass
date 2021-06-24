@@ -174,18 +174,20 @@ object MainViewModel : ViewModel() {
     fun unlock() {
         unlockedState.value = true
 
-        if (navController!!.previousBackStackEntry!!.destination.route != "welcome") navController!!.popBackStack(
-            route = navController!!.currentBackStackEntry!!.destination.route!!,
-            inclusive = true
-        ) else {
+        if (navController!!.previousBackStackEntry!!.destination.route != "welcome")
+            navController!!.popBackStack(
+                route = navController!!.currentBackStackEntry!!.destination.route!!,
+                inclusive = true
+            )
+        else {
             NextcloudApiProvider.attemptLogin()
             navigate(route = "passwords")
         }
     }
 
-    fun openApp() {
+    fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlockedState.value) {
-            if (NextcloudApiProvider.attemptLogin()) navigate(route = "passwords")
+            if (NextcloudApiProvider.attemptLogin() && !shouldRememberScreen) navigate(route = "passwords")
         } else navigate(route = "access_pin/true")
     }
 

@@ -159,7 +159,7 @@ object NextcloudApiProvider : ViewModel() {
             ) { account ->
                 SingleAccountHelper.setCurrentAccount(context, account.name)
 
-                MainViewModel.openApp()
+                MainViewModel.openApp(shouldRememberScreen = currentAccountState.value != null)
             }
         } catch (e: AccountImportCancelledException) {
         }
