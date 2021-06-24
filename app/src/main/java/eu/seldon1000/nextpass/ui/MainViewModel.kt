@@ -219,8 +219,12 @@ object MainViewModel : ViewModel() {
     }
 
     fun navigate(route: String) {
-        currentScreenState.value = route
-        navController!!.navigate(route = route)
+        if (navController!!.currentDestination!!.route!!.substringBefore("/") !=
+            route.substringBefore("/")
+        ) {
+            currentScreenState.value = route
+            navController!!.navigate(route = route)
+        }
     }
 
     fun popBackStack(): Boolean {
