@@ -93,10 +93,8 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                     Box(modifier = Modifier.size(size = 16.dp))
                 }
                 FloatingActionButton(onClick = {
-                    if (MainViewModel.checkPin(pin = pin)) {
-                        NextcloudApiProvider.attemptLogin()
-                        MainViewModel.unlock()
-                    } else {
+                    if (MainViewModel.checkPin(pin = pin)) MainViewModel.unlock()
+                    else {
                         MainViewModel.showDialog(
                             title = context.getString(R.string.wrong_pin),
                             body = context.getString(R.string.wrong_pin_body)

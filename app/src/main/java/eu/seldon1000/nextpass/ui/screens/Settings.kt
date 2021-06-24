@@ -16,6 +16,9 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.biometric.BiometricManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,9 +53,12 @@ fun Settings() {
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
 
+    val currentAccount by NextcloudApiProvider.currentAccount.collectAsState()
+
     val protected by MainViewModel.pinProtected.collectAsState()
     val biometricProtected by MainViewModel.biometricProtected.collectAsState()
     val lockTimeout by MainViewModel.lockTimeout.collectAsState()
+    val autofill by MainViewModel.autofill.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
 
@@ -101,13 +107,13 @@ fun Settings() {
                 )
                 GenericColumnItem(
                     title = context.getString(R.string.current_account),
-                    body = "${NextcloudApiProvider.getAccountName()}"
+                    body = "${currentAccount?.name}"
                 ) {
                     MainViewModel.setPrimaryClip(
                         label = context.getString(R.string.current_account),
                         context.getString(
                             R.string.copy_snack_message,
-                            NextcloudApiProvider.getAccountName()
+                            currentAccount?.name
                         )
                     )
                 }
@@ -268,6 +274,36 @@ fun Settings() {
                     title = context.getString(R.string.lock_now),
                     body = context.getString(R.string.lock_now_tip)
                 ) { if (protected) MainViewModel.lock(shouldRaiseBiometric = false) }
+            }
+            item {
+                Text(
+                    text = "Autofill",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = NextcloudBlue,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+            item {
+                GenericColumnItem(
+                    title = "Autofill Service",
+                    body = "If enabled, NextPass will detect when you're logging in in any website or app and will offer you some suggestions from your own passwords accordingly.",
+                    item = {
+                        Checkbox(
+                            checked = autofill,
+                            onCheckedChange = null,
+                            enabled = false,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    }
+                ) {
+                    context.startActivity(
+                        Intent(
+                            Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE,
+                            Uri.parse("package:eu.seldon1000.nextpass")
+                        )
+                    )
+                }
             }
         }
     }

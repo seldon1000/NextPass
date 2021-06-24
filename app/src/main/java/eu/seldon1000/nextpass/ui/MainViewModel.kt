@@ -19,6 +19,7 @@ package eu.seldon1000.nextpass.ui
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.view.autofill.AutofillManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
 import androidx.fragment.app.FragmentActivity
@@ -40,6 +41,11 @@ object MainViewModel : ViewModel() {
     private var clipboardManager: ClipboardManager? = null
 
     private var snackbarHostState: SnackbarHostState? = null
+
+    private var autofillManager: AutofillManager? = null
+
+    private val autofillState = MutableStateFlow(value = false)
+    val autofill = autofillState
 
     private val unlockedState = MutableStateFlow(value = true)
     val unlocked = unlockedState
@@ -83,20 +89,28 @@ object MainViewModel : ViewModel() {
     private val dialogConfirmState = MutableStateFlow(value = false)
     val dialogConfirm = dialogConfirmState
 
-    fun setContext(con: FragmentActivity) {
-        context = con
+    fun setContext(context: FragmentActivity) {
+        this.context = context
 
-        clipboardManager = context!!.getSystemService(FragmentActivity.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboardManager =
+            this.context!!.getSystemService(FragmentActivity.CLIPBOARD_SERVICE) as ClipboardManager
+        autofillManager = this.context!!.getSystemService(AutofillManager::class.java)
 
-        if (context!!.getSharedPreferences("PIN", 0).contains("PIN")) {
+        checkAutofillEnabled()
+
+        if (this.context!!.getSharedPreferences("PIN", 0).contains("PIN")) {
             unlockedState.value = false
             pinProtectedState.value = true
             lockTimeoutState.value =
-                context!!.getSharedPreferences("timeout", 0).getLong("timeout", 0)
+                this.context!!.getSharedPreferences("timeout", 0).getLong("timeout", 0)
 
-            if (context!!.getSharedPreferences("biometric", 0).contains("biometric"))
+            if (this.context!!.getSharedPreferences("biometric", 0).contains("biometric"))
                 biometricProtectedState.value = true
         }
+    }
+
+    fun checkAutofillEnabled() {
+        autofillState.value = autofillManager!!.hasEnabledAutofillServices()
     }
 
     fun setNavController(controller: NavController) {
@@ -159,6 +173,20 @@ object MainViewModel : ViewModel() {
 
     fun unlock() {
         unlockedState.value = true
+
+        if (navController!!.previousBackStackEntry!!.destination.route != "welcome") navController!!.popBackStack(
+            route = navController!!.currentBackStackEntry!!.destination.route!!,
+            inclusive = true
+        ) else {
+            NextcloudApiProvider.attemptLogin()
+            navigate(route = "passwords")
+        }
+    }
+
+    fun openApp() {
+        if (unlockedState.value) {
+            if (NextcloudApiProvider.attemptLogin()) navigate(route = "passwords")
+        } else navigate(route = "access_pin/true")
     }
 
     fun setSnackbarHostState(snackbar: SnackbarHostState) {
@@ -180,7 +208,9 @@ object MainViewModel : ViewModel() {
             selectedFolderState.value = folder
         } else {
             currentFolderState.value =
-                NextcloudApiProvider.storedFolders.value.indexOfFirst { it.id == NextcloudApiProvider.storedFolders.value[currentFolderState.value].parent }
+                NextcloudApiProvider.storedFolders.value.indexOfFirst {
+                    it.id == NextcloudApiProvider.storedFolders.value[currentFolderState.value].parent
+                }
             selectedFolderState.value = currentFolderState.value
         }
     }
@@ -197,6 +227,7 @@ object MainViewModel : ViewModel() {
     fun popBackStack(): Boolean {
         try {
             return if (navController!!.previousBackStackEntry!!.destination.route!! == "welcome" ||
+                navController!!.previousBackStackEntry!!.destination.route!! == "access_pin/{shouldRaiseBiometric}" ||
                 navController!!.currentDestination!!.route!! == "welcome" ||
                 navController!!.currentDestination!!.route!! == "access_pin/{shouldRaiseBiometric}" ||
                 navController!!.currentDestination!!.route!! == "passwords"

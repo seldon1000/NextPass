@@ -40,12 +40,11 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        NextcloudApiProvider.setContext(this)
-        MainViewModel.setContext(con = this)
+        NextcloudApiProvider.setContext(context = this)
+        MainViewModel.setContext(context = this)
 
         setContent {
-            if (MainViewModel.unlocked.value) rememberCoroutineScope().launch { NextcloudApiProvider.attemptLogin() }
-            else rememberCoroutineScope().launch { MainViewModel.navigate(route = "access_pin/true") }
+            rememberCoroutineScope().launch { MainViewModel.openApp() }
 
             NextPassTheme {
                 Surface(color = MaterialTheme.colors.background) {

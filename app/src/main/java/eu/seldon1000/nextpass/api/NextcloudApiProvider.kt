@@ -46,11 +46,13 @@ import java.util.stream.Collectors
 
 @SuppressLint("StaticFieldLeak")
 object NextcloudApiProvider : ViewModel() {
-    private lateinit var globalContext: Context
+    private lateinit var context: Context
 
     private const val endpoint = "/index.php/apps/passwords/api/1.0"
     private var nextcloudApi: NextcloudAPI? = null
-    private var currentAccount: SingleSignOnAccount? = null
+
+    private val currentAccountState: MutableStateFlow<SingleSignOnAccount?> = MutableStateFlow(value = null)
+    val currentAccount = currentAccountState
 
     private val baseFolder =
         Folder(
@@ -66,16 +68,16 @@ object NextcloudApiProvider : ViewModel() {
     val storedFolders = storedFoldersState
 
     fun setContext(context: Context) {
-        globalContext = context
+        this.context = context
     }
 
     private val connectedCallback: NextcloudAPI.ApiConnectedListener = object :
         NextcloudAPI.ApiConnectedListener {
         override fun onConnected() {
             MainViewModel.showSnackbar(
-                message = globalContext.getString(
+                message = context.getString(
                     R.string.connected_snack,
-                    currentAccount?.userId
+                    currentAccountState.value?.userId
                 )
             )
         }
@@ -85,58 +87,55 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun getAccountName(): String? {
-        return currentAccount?.name
-    }
-
-    fun attemptLogin() {
+    fun attemptLogin(): Boolean {
         storedPasswordsState.value = mutableStateListOf()
 
         try {
-            currentAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(globalContext)
+            currentAccountState.value = SingleAccountHelper.getCurrentSingleSignOnAccount(context)
 
             nextcloudApi = NextcloudAPI(
-                globalContext,
-                currentAccount!!,
+                context,
+                currentAccountState.value!!,
                 GsonBuilder().create(),
                 connectedCallback
             )
 
             refreshServerList()
 
-            MainViewModel.navigate(route = "passwords")
+            return true
         } catch (e: Exception) {
+            return false
         }
     }
 
     fun attemptLogout() {
         MainViewModel.showDialog(
-            title = globalContext.getString(R.string.logout),
-            body = globalContext.getString(R.string.logout_body),
+            title = context.getString(R.string.logout),
+            body = context.getString(R.string.logout_body),
             confirm = true
         ) {
             storedPasswordsState.value.clear()
-            AccountImporter.clearAllAuthTokens(globalContext)
-            currentAccount = null
+            AccountImporter.clearAllAuthTokens(context)
+            currentAccountState.value = null
             nextcloudApi = null
 
             MainViewModel.setRefreshing(refreshing = false)
             MainViewModel.disablePin()
             MainViewModel.navigate(route = "welcome")
-            MainViewModel.showSnackbar(message = globalContext.getString(R.string.disconnected_snack))
+            MainViewModel.showSnackbar(message = context.getString(R.string.disconnected_snack))
         }
     }
 
     fun pickNewAccount() {
         try {
-            AccountImporter.pickNewAccount(globalContext as Activity)
+            AccountImporter.pickNewAccount(context as Activity)
         } catch (e: NextcloudFilesAppNotInstalledException) {
             MainViewModel.showDialog(
-                title = globalContext.getString(R.string.missing_nextcloud),
-                body = globalContext.getString(R.string.missing_nextcloud_body),
+                title = context.getString(R.string.missing_nextcloud),
+                body = context.getString(R.string.missing_nextcloud_body),
                 confirm = true
             ) {
-                globalContext.startActivity(
+                context.startActivity(
                     Intent(
                         Intent.ACTION_VIEW,
                         Uri.parse("https://play.google.com/store/apps/details?id=com.nextcloud.client")
@@ -156,11 +155,11 @@ object NextcloudApiProvider : ViewModel() {
                 requestCode,
                 resultCode,
                 data,
-                globalContext as Activity
+                context as Activity
             ) { account ->
-                SingleAccountHelper.setCurrentAccount(globalContext, account.name)
+                SingleAccountHelper.setCurrentAccount(context, account.name)
 
-                attemptLogin()
+                MainViewModel.openApp()
             }
         } catch (e: AccountImportCancelledException) {
         }
@@ -465,8 +464,8 @@ object NextcloudApiProvider : ViewModel() {
 
     private fun showError() {
         MainViewModel.showDialog(
-            title = globalContext.getString(R.string.error),
-            body = globalContext.getString(R.string.error_body)
+            title = context.getString(R.string.error),
+            body = context.getString(R.string.error_body)
         ) {}
 
         MainViewModel.setRefreshing(refreshing = false)
