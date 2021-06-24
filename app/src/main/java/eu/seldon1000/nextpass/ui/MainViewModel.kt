@@ -86,6 +86,8 @@ object MainViewModel : ViewModel() {
     fun setContext(con: FragmentActivity) {
         context = con
 
+        clipboardManager = context!!.getSystemService(FragmentActivity.CLIPBOARD_SERVICE) as ClipboardManager
+
         if (context!!.getSharedPreferences("PIN", 0).contains("PIN")) {
             unlockedState.value = false
             pinProtectedState.value = true
@@ -157,10 +159,6 @@ object MainViewModel : ViewModel() {
 
     fun unlock() {
         unlockedState.value = true
-    }
-
-    fun setClipboardManager(manager: ClipboardManager) {
-        clipboardManager = manager
     }
 
     fun setSnackbarHostState(snackbar: SnackbarHostState) {

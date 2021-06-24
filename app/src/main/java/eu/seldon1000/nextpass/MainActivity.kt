@@ -16,7 +16,6 @@
 
 package eu.seldon1000.nextpass
 
-import android.content.ClipboardManager
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -43,7 +42,6 @@ class MainActivity : FragmentActivity() {
 
         NextcloudApiProvider.setContext(this)
         MainViewModel.setContext(con = this)
-        MainViewModel.setClipboardManager(manager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager)
 
         setContent {
             if (MainViewModel.unlocked.value) rememberCoroutineScope().launch { NextcloudApiProvider.attemptLogin() }
