@@ -26,6 +26,7 @@ import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
+import java.net.URL
 
 class NextPassAutofillService : AutofillService() {
     private val usernameHints =
@@ -71,28 +72,33 @@ class NextPassAutofillService : AutofillService() {
     private fun traverseNode(viewNode: ViewNode, callback: FillCallback) {
         if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
             NextcloudApiProvider.storedPasswords.value.forEach {
-                if (viewNode.idPackage?.contains(it.label, ignoreCase = true) == true) {
-                    val usernamePresentation = RemoteViews(packageName, R.layout.simple_list_item_1)
-                    val passwordPresentation = RemoteViews(packageName, R.layout.simple_list_item_1)
-
-                    usernamePresentation.setTextViewText(R.id.text1, it.username)
-                    usernamePresentation.setImageViewResource(
-                        R.id.icon,
-                        eu.seldon1000.nextpass.R.drawable.ic_passwords_icon
-                    )
-                    passwordPresentation.setTextViewText(R.id.text1, it.username)
+                if (viewNode.idPackage?.contains(
+                        it.label,
+                        ignoreCase = true
+                    ) == true || try {
+                        viewNode.idPackage?.contains(
+                            URL(it.url).host.substringBefore("."),
+                            ignoreCase = true
+                        ) == true
+                    } catch (e: Exception) {
+                        false
+                    }
+                ) {
+                    val credentialsPresentation =
+                        RemoteViews(packageName, R.layout.simple_list_item_1)
+                    credentialsPresentation.setTextViewText(R.id.text1, it.username)
 
                     fillResponse.addDataset(
                         Dataset.Builder()
                             .setValue(
                                 usernameId.last(),
                                 AutofillValue.forText(it.username),
-                                usernamePresentation
+                                credentialsPresentation
                             )
                             .setValue(
                                 passwordId.last(),
                                 AutofillValue.forText(it.password),
-                                passwordPresentation
+                                credentialsPresentation
                             ).build()
                     )
 
