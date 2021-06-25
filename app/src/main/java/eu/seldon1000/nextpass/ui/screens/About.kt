@@ -46,20 +46,7 @@ fun About() {
 
     val scrollState = rememberScrollState()
 
-    val greetings = listOf(
-        "Hello there",
-        "Nice to meet you",
-        "Stop tapping on me",
-        "I'm your friend",
-        "How's it going?",
-        "Have a good day",
-        "I'm NextPass",
-        "What are you doing?",
-        "Don't you have other things to do?",
-        "Yes?",
-        "What do you want?",
-        "It tickles"
-    )
+    val greetings = context.resources.getStringArray(R.array.greetings)
 
     MyScaffoldLayout(fab = {}, bottomBar = {
         BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {

@@ -99,7 +99,7 @@ fun Settings() {
             }
             item {
                 Text(
-                    text = "Account",
+                    text = context.getString(R.string.account),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = NextcloudBlue,
@@ -277,7 +277,7 @@ fun Settings() {
             }
             item {
                 Text(
-                    text = "Autofill",
+                    text = context.getString(R.string.autofill),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = NextcloudBlue,

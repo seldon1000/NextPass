@@ -29,8 +29,7 @@ import eu.seldon1000.nextpass.ui.MainViewModel
 import java.net.URL
 
 class NextPassAutofillService : AutofillService() {
-    private val usernameHints =
-        listOf("username", "nickname", "name", "user", "e-mail", "email", "mail", "phone", "number")
+    private var usernameHints = arrayOf<String>()
 
     private var fillResponse = FillResponse.Builder()
     private var usernameId = mutableListOf<AutofillId>()
@@ -46,6 +45,9 @@ class NextPassAutofillService : AutofillService() {
         cancellationSignal: CancellationSignal,
         callback: FillCallback
     ) {
+        if (usernameHints.isEmpty())
+            usernameHints = resources.getStringArray(eu.seldon1000.nextpass.R.array.username_hints)
+
         fillResponse = FillResponse.Builder()
         usernameId = mutableListOf()
         passwordId = mutableListOf()

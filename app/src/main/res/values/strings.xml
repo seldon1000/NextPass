@@ -28,6 +28,7 @@
     <string name="send_email">Send us an email</string>
     <string name="send_email_body">Click here to quickly send us an email. We\'ll get back to you as soon as possible.</string>
     <string name="passwords">Passwords</string>
+    <string name="autofill">Autofill</string>
     <string name="lock_timeout">Lock timeout</string>
     <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock, If you choose \'Never\', the app will remain unlocked till next restart or forced interruption.</string>
     <string name="special_thanks">Special thanks and mentions</string>
@@ -117,4 +118,31 @@
     <string name="folder_deleted_snack">Folder deleted</string>
     <string name="missing_info">Missing info!</string>
     <string name="missing_info_body">You must fill the required fields!</string>
+    <string name="account">Account</string>
+    <string-array name="greetings" translatable="true">
+        <item>Hello there</item>
+        <item>Nice to meet you</item>
+        <item>Stop tapping on me</item>
+        <item>I\'m your friend</item>
+        <item>How\'s it going?</item>
+        <item>Have a good day</item>
+        <item>I am NextPass!</item>
+        <item>What are you doing?</item>
+        <item>Don\'t you have other things to do?</item>
+        <item>Yes?</item>
+        <item>What do you want?</item>
+        <item>It tickles</item>
+        <item>How can I help you?</item>
+    </string-array>
+    <string-array name="username_hints" translatable="false">
+        <item>username</item>
+        <item>nickname</item>
+        <item>user</item>
+        <item>name</item>
+        <item>e-mail</item>
+        <item>email</item>
+        <item>mail</item>
+        <item>phone</item>
+        <item>number</item>
+    </string-array>
 </resources>
