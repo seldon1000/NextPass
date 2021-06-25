@@ -56,6 +56,9 @@ object MainViewModel : ViewModel() {
     private val biometricProtectedState = MutableStateFlow(value = false)
     val biometricProtected = biometricProtectedState
 
+    private val biometricDismissedState = MutableStateFlow(value = false)
+    val biometricDismissed = biometricDismissedState
+
     private val lockTimeoutState = MutableStateFlow(value = (-1).toLong())
     val lockTimeout = lockTimeoutState
 
@@ -165,6 +168,8 @@ object MainViewModel : ViewModel() {
     fun lock(shouldRaiseBiometric: Boolean = true) {
         if (pinProtectedState.value) {
             unlockedState.value = false
+
+            if (biometricProtectedState.value) biometricDismissedState.value = false
 
             setRefreshing(refreshing = false)
             navigate(route = "access_pin/$shouldRaiseBiometric")
@@ -293,16 +298,18 @@ object MainViewModel : ViewModel() {
                     errorCode: Int,
                     errString: CharSequence
                 ) {
+                    biometricDismissedState.value = true
                 }
 
                 override fun onAuthenticationSucceeded(
                     result: BiometricPrompt.AuthenticationResult
                 ) {
-                    unlockedState.value = true
                     unlock()
                 }
 
-                override fun onAuthenticationFailed() {}
+                override fun onAuthenticationFailed() {
+                    biometricDismissedState.value = true
+                }
             }
         )
 

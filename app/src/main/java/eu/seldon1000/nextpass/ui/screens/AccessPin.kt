@@ -31,7 +31,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.theme.Orange500
@@ -40,11 +39,9 @@ import eu.seldon1000.nextpass.ui.theme.Orange500
 fun AccessPin(shouldRaiseBiometric: Boolean) {
     val context = LocalContext.current
 
-    if (MainViewModel.biometricProtected.value && shouldRaiseBiometric) MainViewModel.showBiometricPrompt()
+    val biometricDismissed by MainViewModel.biometricDismissed.collectAsState()
 
-    var pin by remember { mutableStateOf(value = "") }
-
-    var showed by remember { mutableStateOf(value = false) }
+    if (MainViewModel.biometricProtected.value && shouldRaiseBiometric && !biometricDismissed) MainViewModel.showBiometricPrompt()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -56,6 +53,9 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
+            var showed by remember { mutableStateOf(value = false) }
+            var pin by remember { mutableStateOf(value = "") }
+
             OutlinedTextField(
                 value = pin,
                 onValueChange = { pin = it },
