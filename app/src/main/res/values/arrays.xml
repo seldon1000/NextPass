@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2021 Nicolas Mariniello
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string-array name="greetings" translatable="true">
+        <item>Hello there</item>
+        <item>Nice to meet you</item>
+        <item>Stop tapping on me</item>
+        <item>I\'m your friend</item>
+        <item>How\'s it going?</item>
+        <item>Have a good day</item>
+        <item>I am NextPass!</item>
+        <item>What are you doing?</item>
+        <item>Don\'t you have other things to do?</item>
+        <item>Yes?</item>
+        <item>What do you want?</item>
+        <item>It tickles</item>
+        <item>How can I help you?</item>
+    </string-array>
+    <string-array name="username_hints" translatable="false">
+        <item>username</item>
+        <item>nickname</item>
+        <item>user</item>
+        <item>name</item>
+        <item>e-mail</item>
+        <item>email</item>
+        <item>mail</item>
+        <item>phone</item>
+        <item>number</item>
+    </string-array>
+</resources>
