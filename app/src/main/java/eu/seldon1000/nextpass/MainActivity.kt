@@ -47,9 +47,7 @@ class MainActivity : FragmentActivity() {
             rememberCoroutineScope().launch { MainViewModel.openApp() }
 
             NextPassTheme {
-                Surface(color = MaterialTheme.colors.background) {
-                    CentralScreenControl()
-                }
+                CentralScreenControl()
             }
         }
     }
