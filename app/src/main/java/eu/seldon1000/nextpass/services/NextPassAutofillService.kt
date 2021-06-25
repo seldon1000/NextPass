@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.seldon1000.nextpass.service
+package eu.seldon1000.nextpass.services
 
 import android.R
 import android.app.assist.AssistStructure
