@@ -286,8 +286,8 @@ fun Settings() {
             }
             item {
                 GenericColumnItem(
-                    title = "Autofill Service",
-                    body = "If enabled, NextPass will detect when you're logging in in any website or app and will offer you some suggestions from your own passwords accordingly.",
+                    title = context.getString(R.string.autofill_service),
+                    body = context.getString(R.string.autofill_service_tip),
                     item = {
                         Checkbox(
                             checked = autofill,

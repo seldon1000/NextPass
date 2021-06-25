@@ -35,6 +35,8 @@
     <string name="parent">Parent ID</string>
     <string name="folder_details">Folder details</string>
     <string name="about">About</string>
+    <string name="autofill_service">Autofill Service</string>
+    <string name="autofill_service_tip">If enabled, NextPass will try to detect when you\'re logging into a website or an app and will offer you some suggestions from your own passwords accordingly. Changes will be applied once the app is restarted.</string>
     <string name="waiting_server">Waiting for server…</string>
     <string name="welcome_message">Welcome, NextPass needs a Nextcloud account to work. Please login with the button below.</string>
     <string name="settings">Settings</string>

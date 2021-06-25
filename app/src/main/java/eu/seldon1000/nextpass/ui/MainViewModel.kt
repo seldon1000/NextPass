@@ -112,8 +112,10 @@ object MainViewModel : ViewModel() {
         }
     }
 
-    fun checkAutofillEnabled() {
+    fun checkAutofillEnabled(): Boolean {
         autofillState.value = autofillManager!!.hasEnabledAutofillServices()
+
+        return autofillState.value
     }
 
     fun setNavController(controller: NavController) {
