@@ -33,11 +33,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import eu.seldon1000.nextpass.BuildConfig
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.GenericColumnItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
+import java.text.SimpleDateFormat
+import java.util.*
 
 @ExperimentalMaterialApi
 @Composable
@@ -93,6 +96,14 @@ fun About() {
                                 context.packageName,
                                 0
                             ).versionName
+                        ),
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = context.getString(
+                            R.string.version_date, SimpleDateFormat.getDateInstance()
+                                .format(Date(BuildConfig.VERSION_DATE))
                         ),
                         fontSize = 14.sp,
                         color = Color.Gray
