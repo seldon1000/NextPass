@@ -28,6 +28,9 @@ import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 
 class NextPassAutofillService : AutofillService() {
+    private val usernameHints =
+        listOf("username", "nickname", "name", "user", "e-mail", "email", "mail", "phone", "number")
+
     private var fillResponse = FillResponse.Builder()
     private var usernameId = mutableListOf<AutofillId>()
     private var passwordId = mutableListOf<AutofillId>()
@@ -69,11 +72,14 @@ class NextPassAutofillService : AutofillService() {
         if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
             NextcloudApiProvider.storedPasswords.value.forEach {
                 if (viewNode.idPackage?.contains(it.label, ignoreCase = true) == true) {
-                    val usernamePresentation =
-                        RemoteViews(packageName, R.layout.simple_list_item_1)
+                    val usernamePresentation = RemoteViews(packageName, R.layout.simple_list_item_1)
+                    val passwordPresentation = RemoteViews(packageName, R.layout.simple_list_item_1)
+
                     usernamePresentation.setTextViewText(R.id.text1, it.username)
-                    val passwordPresentation =
-                        RemoteViews(packageName, R.layout.simple_list_item_1)
+                    usernamePresentation.setImageViewResource(
+                        R.id.icon,
+                        eu.seldon1000.nextpass.R.drawable.ic_passwords_icon
+                    )
                     passwordPresentation.setTextViewText(R.id.text1, it.username)
 
                     fillResponse.addDataset(
@@ -89,22 +95,24 @@ class NextPassAutofillService : AutofillService() {
                                 passwordPresentation
                             ).build()
                     )
+
+                    ready = true
                 }
             }
-
-            ready = true
         }
-        if (viewNode.hint?.lowercase()?.contains("username") == true &&
+
+        if (usernameHints.any { viewNode.hint?.lowercase()?.contains(it) == true } &&
             !usernameId.contains(element = viewNode.autofillId)
         ) {
             usernameId.add(element = viewNode.autofillId!!)
             if (passwordId.size == usernameId.size) ready = false
         }
+
         if (viewNode.hint?.lowercase()?.contains("password") == true &&
-            !usernameId.contains(element = viewNode.autofillId)
+            !passwordId.contains(element = viewNode.autofillId)
         ) {
             passwordId.add(element = viewNode.autofillId!!)
-            if (passwordId.size == usernameId.size) ready = false
+            if (passwordId.size < usernameId.size) ready = false
         }
 
         val children = viewNode.run { (0 until childCount).map { getChildAt(it) } }
