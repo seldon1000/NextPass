@@ -21,11 +21,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
-import android.service.autofill.AutofillService
 import android.view.autofill.AutofillManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
@@ -42,12 +37,6 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("StaticFieldLeak")
 object MainViewModel : ViewModel() {
-    private val networkRequest = NetworkRequest.Builder()
-        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-        .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
-        .build()
-
     private var context: FragmentActivity? = null
 
     private var sharedPreferences: SharedPreferences? = null
@@ -124,19 +113,9 @@ object MainViewModel : ViewModel() {
             autofillState.value = true
             autostartState.value = sharedPreferences!!.contains("autostart")
 
-            (context.getSystemService(AutofillService.CONNECTIVITY_SERVICE) as ConnectivityManager)
-                .registerNetworkCallback(
-                    networkRequest,
-                    object : ConnectivityManager.NetworkCallback() {
-                        override fun onAvailable(network: Network) {
-                            super.onAvailable(network)
-
-                            context.startForegroundService(
-                                Intent(context, NextPassAutofillService::class.java)
-                            )
-                        }
-                    }
-                )
+            context.startForegroundService(
+                Intent(context, NextPassAutofillService::class.java)
+            )
         }
 
         if (sharedPreferences!!.contains("PIN")) {
