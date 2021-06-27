@@ -106,7 +106,7 @@ class NextPassAutofillService : AutofillService() {
 
         return Notification.Builder(this, channel.id)
             .setContentTitle("NextPass Autofill Service")
-            .setContentText("NextPass is running a service in background to provide login suggestions when needed.")
+            .setContentText("Provide login suggestions when needed.")
             .setContentIntent(pendingIntent)
             .setSmallIcon(eu.seldon1000.nextpass.R.drawable.ic_passwords_icon)
             .build()
