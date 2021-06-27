@@ -84,25 +84,21 @@ object NextcloudApiProvider : ViewModel() {
         }
 
     fun attemptLogin(): Boolean {
-        if (currentAccountState.value == null) {
-            storedPasswordsState.value = mutableStateListOf()
+        return try {
+            currentAccountState.value =
+                SingleAccountHelper.getCurrentSingleSignOnAccount(context)
 
-            return try {
-                currentAccountState.value =
-                    SingleAccountHelper.getCurrentSingleSignOnAccount(context)
+            nextcloudApi = NextcloudAPI(
+                context!!,
+                currentAccountState.value!!,
+                GsonBuilder().create(),
+                connectedCallback
+            )
 
-                nextcloudApi = NextcloudAPI(
-                    context!!,
-                    currentAccountState.value!!,
-                    GsonBuilder().create(),
-                    connectedCallback
-                )
-
-                true
-            } catch (e: Exception) {
-                false
-            }
-        } else return true
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun attemptLogout() {
