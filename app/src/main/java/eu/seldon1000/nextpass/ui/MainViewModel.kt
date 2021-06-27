@@ -122,6 +122,7 @@ object MainViewModel : ViewModel() {
 
         if (autofillManager!!.hasEnabledAutofillServices()) {
             autofillState.value = true
+            autostartState.value = sharedPreferences!!.contains("autostart")
 
             (context.getSystemService(AutofillService.CONNECTIVITY_SERVICE) as ConnectivityManager)
                 .registerNetworkCallback(
@@ -137,8 +138,6 @@ object MainViewModel : ViewModel() {
                     }
                 )
         }
-
-        autostartState.value = sharedPreferences!!.contains("autostart")
 
         if (sharedPreferences!!.contains("PIN")) {
             unlockedState.value = false
