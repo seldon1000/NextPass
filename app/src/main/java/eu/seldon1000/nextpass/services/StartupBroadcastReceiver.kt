@@ -36,7 +36,9 @@ class StartupBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         val autofillManager = context.getSystemService(AutofillManager::class.java)
 
-        if (autofillManager.hasEnabledAutofillServices()) {
+        if (autofillManager.hasEnabledAutofillServices() &&
+            context.getSharedPreferences("nextpass", 0).contains("autostart")
+        ) {
             (context.getSystemService(AutofillService.CONNECTIVITY_SERVICE) as ConnectivityManager)
                 .registerNetworkCallback(
                     networkRequest,

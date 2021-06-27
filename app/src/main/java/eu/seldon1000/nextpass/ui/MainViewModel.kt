@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -49,6 +50,8 @@ object MainViewModel : ViewModel() {
 
     private var context: FragmentActivity? = null
 
+    private var sharedPreferences: SharedPreferences? = null
+
     private var navController: NavController? = null
 
     private var clipboardManager: ClipboardManager? = null
@@ -59,6 +62,9 @@ object MainViewModel : ViewModel() {
 
     private val autofillState = MutableStateFlow(value = false)
     val autofill = autofillState
+
+    private val autostartState = MutableStateFlow(value = false)
+    val autostart = autostartState
 
     private val unlockedState = MutableStateFlow(value = true)
     val unlocked = unlockedState
@@ -108,6 +114,8 @@ object MainViewModel : ViewModel() {
     fun setContext(context: FragmentActivity) {
         this.context = context
 
+        sharedPreferences = this.context!!.getSharedPreferences("nextpass", 0)
+
         clipboardManager =
             this.context!!.getSystemService(FragmentActivity.CLIPBOARD_SERVICE) as ClipboardManager
         autofillManager = this.context!!.getSystemService(AutofillManager::class.java)
@@ -130,15 +138,27 @@ object MainViewModel : ViewModel() {
                 )
         }
 
-        if (this.context!!.getSharedPreferences("PIN", 0).contains("PIN")) {
+        autostartState.value = sharedPreferences!!.contains("autostart")
+
+        if (sharedPreferences!!.contains("PIN")) {
             unlockedState.value = false
             pinProtectedState.value = true
-            lockTimeoutState.value =
-                this.context!!.getSharedPreferences("timeout", 0).getLong("timeout", 0)
+            lockTimeoutState.value = sharedPreferences!!.getLong("timeout", 0)
 
-            if (this.context!!.getSharedPreferences("biometric", 0).contains("biometric"))
-                biometricProtectedState.value = true
+            biometricProtectedState.value = sharedPreferences!!.contains("biometric")
         }
+    }
+
+    fun enableAutostart() {
+        sharedPreferences!!.edit().putBoolean("autostart", true).apply()
+
+        autostartState.value = true
+    }
+
+    fun disableAutostart() {
+        sharedPreferences!!.edit().remove("autostart").apply()
+
+        autostartState.value = false
     }
 
     fun setNavController(controller: NavController) {
@@ -146,14 +166,15 @@ object MainViewModel : ViewModel() {
     }
 
     fun checkPin(pin: String): Boolean {
-        return if (context!!.getSharedPreferences("PIN", 0).getString("PIN", null) == pin) {
+        return if (sharedPreferences!!.getString("PIN", null) == pin) {
             unlockedState.value = true
+
             true
         } else false
     }
 
     fun setNewPin(pin: String) {
-        context!!.getSharedPreferences("PIN", 0).edit().putString("PIN", pin).apply()
+        sharedPreferences!!.edit().putString("PIN", pin).apply()
 
         if (!pinProtectedState.value) {
             pinProtectedState.value = true
@@ -163,8 +184,8 @@ object MainViewModel : ViewModel() {
     }
 
     fun disablePin() {
-        context!!.getSharedPreferences("PIN", 0).edit().remove("PIN").apply()
-        context!!.getSharedPreferences("timeout", 0).edit().remove("timeout").apply()
+        sharedPreferences!!.edit().remove("PIN").apply()
+        sharedPreferences!!.edit().remove("timeout").apply()
 
         biometricProtectedState.value = false
         pinProtectedState.value = false
@@ -173,19 +194,19 @@ object MainViewModel : ViewModel() {
     }
 
     fun enableBiometric() {
-        context!!.getSharedPreferences("biometric", 0).edit().putString("biometric", "yes").apply()
+        sharedPreferences!!.edit().putBoolean("biometric", true).apply()
 
         biometricProtectedState.value = true
     }
 
     fun disableBiometric() {
-        context!!.getSharedPreferences("biometric", 0).edit().remove("biometric").apply()
+        sharedPreferences!!.edit().remove("biometric").apply()
 
         biometricProtectedState.value = false
     }
 
     fun setLockTimeout(timeout: Long) {
-        context!!.getSharedPreferences("timeout", 0).edit().putLong("timeout", timeout).apply()
+        sharedPreferences!!.edit().putLong("timeout", timeout).apply()
 
         lockTimeoutState.value = timeout
     }
@@ -204,9 +225,9 @@ object MainViewModel : ViewModel() {
     fun unlock() {
         unlockedState.value = true
 
-        if (navController!!.previousBackStackEntry!!.destination.route != "welcome")
-            navController!!.popBackStack(
-                route = navController!!.currentBackStackEntry!!.destination.route!!,
+        if (navController?.previousBackStackEntry?.destination?.route != "welcome")
+            navController?.popBackStack(
+                route = navController?.currentBackStackEntry?.destination?.route!!,
                 inclusive = true
             )
         else openApp()
@@ -214,7 +235,8 @@ object MainViewModel : ViewModel() {
 
     fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlockedState.value) {
-            if (NextcloudApiProvider.attemptLogin() && !shouldRememberScreen) navigate(route = "passwords")
+            if (!shouldRememberScreen && NextcloudApiProvider.attemptLogin())
+                navigate(route = "passwords")
         } else navigate(route = "access_pin/true")
     }
 
@@ -224,11 +246,15 @@ object MainViewModel : ViewModel() {
 
     fun setRefreshing(refreshing: Boolean) {
         refreshingState.value = refreshing &&
-                currentScreenState.value != "access_pin/{shouldRaiseBiometric}" &&
-                currentScreenState.value != "welcome" &&
-                currentScreenState.value != "settings" &&
-                currentScreenState.value != "about" &&
-                currentScreenState.value != "pin"
+                try {
+                    navController?.currentDestination?.route!! != "access_pin/{shouldRaiseBiometric}" &&
+                            navController?.currentDestination?.route!! != "welcome" &&
+                            navController?.currentDestination?.route!! != "settings" &&
+                            navController?.currentDestination?.route!! != "about" &&
+                            navController?.currentDestination?.route!! != "pin"
+                } catch (e: Exception) {
+                    false
+                }
     }
 
     fun setFolderMode(mode: Boolean? = null) {
@@ -254,23 +280,28 @@ object MainViewModel : ViewModel() {
     }
 
     fun navigate(route: String) {
-        if (navController!!.currentDestination!!.route!!.substringBefore("/") !=
+        if (navController?.currentDestination?.route!!.substringBefore("/") !=
             route.substringBefore("/")
         ) {
             currentScreenState.value = route
-            navController!!.navigate(route = route)
+            navController?.navigate(route = route)
 
-            refreshingState.value = false
+            if (navController?.currentDestination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
+                navController?.currentDestination?.route!! == "welcome" ||
+                navController?.currentDestination?.route!! == "settings" ||
+                navController?.currentDestination?.route!! == "about" ||
+                navController?.currentDestination?.route!! == "pin"
+            ) refreshingState.value = false
         }
     }
 
     fun popBackStack(): Boolean {
         try {
-            return if (navController!!.previousBackStackEntry!!.destination.route!! == "welcome" ||
-                navController!!.previousBackStackEntry!!.destination.route!! == "access_pin/{shouldRaiseBiometric}" ||
-                navController!!.currentDestination!!.route!! == "welcome" ||
-                navController!!.currentDestination!!.route!! == "access_pin/{shouldRaiseBiometric}" ||
-                navController!!.currentDestination!!.route!! == "passwords"
+            return if (navController?.previousBackStackEntry?.destination?.route!! == "welcome" ||
+                navController?.previousBackStackEntry?.destination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
+                navController?.currentDestination?.route!! == "welcome" ||
+                navController?.currentDestination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
+                navController?.currentDestination?.route!! == "passwords"
             )
                 if (currentFolderState.value != 0) {
                     setCurrentFolder()
@@ -278,8 +309,8 @@ object MainViewModel : ViewModel() {
                 } else false
             else {
                 currentScreenState.value =
-                    navController!!.previousBackStackEntry!!.destination.route!!
-                navController!!.popBackStack()
+                    navController?.previousBackStackEntry?.destination?.route!!
+                navController?.popBackStack()
 
                 true
             }
@@ -298,8 +329,12 @@ object MainViewModel : ViewModel() {
 
     fun showSnackbar(message: String) {
         viewModelScope.launch {
-            snackbarHostState?.currentSnackbarData?.dismiss()
-            snackbarHostState?.showSnackbar(message = message)
+            if (navController?.currentDestination?.route!! != "access_pin/{shouldRaiseBiometric}" &&
+                navController?.currentDestination?.route!! != "pin"
+            ) {
+                snackbarHostState?.currentSnackbarData?.dismiss()
+                snackbarHostState?.showSnackbar(message = message)
+            }
         }
     }
 

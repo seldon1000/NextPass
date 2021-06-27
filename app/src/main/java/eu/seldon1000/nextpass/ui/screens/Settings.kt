@@ -59,6 +59,7 @@ fun Settings() {
     val biometricProtected by MainViewModel.biometricProtected.collectAsState()
     val lockTimeout by MainViewModel.lockTimeout.collectAsState()
     val autofill by MainViewModel.autofill.collectAsState()
+    val autostart by MainViewModel.autostart.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
 
@@ -304,6 +305,24 @@ fun Settings() {
                         )
                     )
                 }
+            }
+            item {
+                GenericColumnItem(
+                    title = "Autostart Service",
+                    body = "If enabled, this will allow NextPass to run a background service as soon as your device boots, to provide suggestions automatically without opening the app first.",
+                    item = {
+                        Checkbox(
+                            checked = autostart,
+                            onCheckedChange = {
+                                if (autostart) MainViewModel.disableAutostart()
+                                else MainViewModel.enableAutostart()
+                            },
+                            enabled = autofill,
+                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    }
+                ) {}
             }
         }
     }

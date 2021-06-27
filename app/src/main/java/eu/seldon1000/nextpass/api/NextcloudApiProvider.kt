@@ -46,7 +46,7 @@ import java.util.stream.Collectors
 
 @SuppressLint("StaticFieldLeak")
 object NextcloudApiProvider : ViewModel() {
-    private lateinit var context: Context
+    private var context: Context? = null
 
     private const val endpoint = "/index.php/apps/passwords/api/1.0"
     private var nextcloudApi: NextcloudAPI? = null
@@ -69,19 +69,13 @@ object NextcloudApiProvider : ViewModel() {
     val storedFolders = storedFoldersState
 
     fun setContext(context: Context) {
-        this.context = context
+        if (this.context == null)
+            this.context = context
     }
 
     private val connectedCallback: NextcloudAPI.ApiConnectedListener = object :
         NextcloudAPI.ApiConnectedListener {
-        override fun onConnected() {
-            MainViewModel.showSnackbar(
-                message = context.getString(
-                    R.string.connected_snack,
-                    currentAccountState.value?.userId
-                )
-            )
-        }
+        override fun onConnected() {}
 
         override fun onError(e: Exception) {
             showError()
@@ -97,7 +91,7 @@ object NextcloudApiProvider : ViewModel() {
                     SingleAccountHelper.getCurrentSingleSignOnAccount(context)
 
                 nextcloudApi = NextcloudAPI(
-                    context,
+                    context!!,
                     currentAccountState.value!!,
                     GsonBuilder().create(),
                     connectedCallback
@@ -114,8 +108,8 @@ object NextcloudApiProvider : ViewModel() {
 
     fun attemptLogout() {
         MainViewModel.showDialog(
-            title = context.getString(R.string.logout),
-            body = context.getString(R.string.logout_body),
+            title = context!!.getString(R.string.logout),
+            body = context!!.getString(R.string.logout_body),
             confirm = true
         ) {
             storedPasswordsState.value.clear()
@@ -126,7 +120,7 @@ object NextcloudApiProvider : ViewModel() {
             MainViewModel.setRefreshing(refreshing = false)
             MainViewModel.disablePin()
             MainViewModel.navigate(route = "welcome")
-            MainViewModel.showSnackbar(message = context.getString(R.string.disconnected_snack))
+            MainViewModel.showSnackbar(message = context!!.getString(R.string.disconnected_snack))
         }
     }
 
@@ -135,11 +129,11 @@ object NextcloudApiProvider : ViewModel() {
             AccountImporter.pickNewAccount(context as Activity)
         } catch (e: NextcloudFilesAppNotInstalledException) {
             MainViewModel.showDialog(
-                title = context.getString(R.string.missing_nextcloud),
-                body = context.getString(R.string.missing_nextcloud_body),
+                title = context!!.getString(R.string.missing_nextcloud),
+                body = context!!.getString(R.string.missing_nextcloud_body),
                 confirm = true
             ) {
-                context.startActivity(
+                context!!.startActivity(
                     Intent(
                         Intent.ACTION_VIEW,
                         Uri.parse("https://play.google.com/store/apps/details?id=com.nextcloud.client")
@@ -164,6 +158,13 @@ object NextcloudApiProvider : ViewModel() {
                 SingleAccountHelper.setCurrentAccount(context, account.name)
 
                 MainViewModel.openApp(shouldRememberScreen = currentAccountState.value != null)
+
+                MainViewModel.showSnackbar(
+                    message = context!!.getString(
+                        R.string.connected_snack,
+                        currentAccountState.value?.userId
+                    )
+                )
             }
         } catch (e: AccountImportCancelledException) {
         }
@@ -237,6 +238,8 @@ object NextcloudApiProvider : ViewModel() {
             data.add(index = 0, element = baseFolder)
 
             storedFoldersState.value = data
+
+            MainViewModel.setRefreshing(refreshing = false)
         }
     }
 
@@ -450,8 +453,8 @@ object NextcloudApiProvider : ViewModel() {
             .setUrl("$endpoint/service/password")
             .build()
 
-        try {
-            return withContext(Dispatchers.IO) {
+        return try {
+            withContext(Dispatchers.IO) {
                 return@withContext JSONObject(
                     nextcloudApi!!.performNetworkRequest(generateRequest)
                         .bufferedReader()
@@ -462,14 +465,14 @@ object NextcloudApiProvider : ViewModel() {
         } catch (e: Exception) {
             showError()
 
-            return ""
+            ""
         }
     }
 
     private fun showError() {
         MainViewModel.showDialog(
-            title = context.getString(R.string.error),
-            body = context.getString(R.string.error_body)
+            title = context!!.getString(R.string.error),
+            body = context!!.getString(R.string.error_body)
         ) {}
 
         MainViewModel.setRefreshing(refreshing = false)
