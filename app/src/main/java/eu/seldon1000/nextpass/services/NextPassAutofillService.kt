@@ -64,13 +64,15 @@ class NextPassAutofillService : AutofillService() {
     }
 
     private fun startService() {
-        if (isServiceStarted) return
+        if (!isServiceStarted) {
+            NextcloudApiProvider.refreshServerList()
 
-        isServiceStarted = true
+            isServiceStarted = true
 
-        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NextPassAutofill::lock").apply {
-                acquire()
+            wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NextPassAutofill::lock").apply {
+                    acquire()
+                }
             }
         }
     }

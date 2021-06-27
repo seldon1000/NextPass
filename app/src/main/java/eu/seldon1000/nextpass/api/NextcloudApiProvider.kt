@@ -86,7 +86,7 @@ object NextcloudApiProvider : ViewModel() {
         if (currentAccountState.value == null) {
             storedPasswordsState.value = mutableStateListOf()
 
-            try {
+            return try {
                 currentAccountState.value =
                     SingleAccountHelper.getCurrentSingleSignOnAccount(context)
 
@@ -97,11 +97,9 @@ object NextcloudApiProvider : ViewModel() {
                     connectedCallback
                 )
 
-                refreshServerList()
-
-                return true
+                true
             } catch (e: Exception) {
-                return false
+                false
             }
         } else return true
     }
@@ -238,8 +236,6 @@ object NextcloudApiProvider : ViewModel() {
             data.add(index = 0, element = baseFolder)
 
             storedFoldersState.value = data
-
-            MainViewModel.setRefreshing(refreshing = false)
         }
     }
 

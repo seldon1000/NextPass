@@ -240,8 +240,10 @@ object MainViewModel : ViewModel() {
 
     fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlockedState.value) {
-            if (!shouldRememberScreen && NextcloudApiProvider.attemptLogin())
+            if (!shouldRememberScreen && NextcloudApiProvider.attemptLogin()) {
                 navigate(route = "passwords")
+                NextcloudApiProvider.refreshServerList()
+            }
         } else navigate(route = "access_pin/true")
     }
 
