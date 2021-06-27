@@ -230,12 +230,13 @@ object MainViewModel : ViewModel() {
     fun unlock() {
         unlockedState.value = true
 
-        if (navController?.previousBackStackEntry?.destination?.route != "welcome")
+        if (navController?.previousBackStackEntry?.destination?.route != "welcome") {
+            currentScreenState.value = navController?.previousBackStackEntry?.destination?.route!!
             navController?.popBackStack(
                 route = navController?.currentBackStackEntry?.destination?.route!!,
                 inclusive = true
             )
-        else openApp()
+        } else openApp()
     }
 
     fun openApp(shouldRememberScreen: Boolean = false) {
