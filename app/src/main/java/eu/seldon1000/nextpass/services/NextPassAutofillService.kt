@@ -93,10 +93,7 @@ class NextPassAutofillService : AutofillService() {
             "NextPass Autofill Service",
             "NextPass Autofill Service",
             NotificationManager.IMPORTANCE_MIN
-        ).apply {
-            description =
-                "NextPass is running a service in background to provide login suggestions when needed."
-        }
+        ).apply { description = "NextPass Autofill Service" }
 
         notificationManager.createNotificationChannel(channel)
 
