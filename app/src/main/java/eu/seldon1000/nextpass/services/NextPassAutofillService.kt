@@ -45,13 +45,6 @@ class NextPassAutofillService : AutofillService() {
     private var passwordId = mutableListOf<AutofillId>()
     private var ready = false
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (NextcloudApiProvider.attemptLogin()) startService()
-        else stopService()
-
-        return START_STICKY
-    }
-
     override fun onCreate() {
         super.onCreate()
 
@@ -61,6 +54,13 @@ class NextPassAutofillService : AutofillService() {
 
         val notification = createNotification()
         startForeground(1, notification)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (NextcloudApiProvider.attemptLogin()) startService()
+        else stopService()
+
+        return START_STICKY
     }
 
     private fun startService() {

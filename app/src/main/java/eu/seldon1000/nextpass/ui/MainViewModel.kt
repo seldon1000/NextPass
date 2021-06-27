@@ -223,7 +223,12 @@ object MainViewModel : ViewModel() {
     }
 
     fun setRefreshing(refreshing: Boolean) {
-        refreshingState.value = refreshing
+        refreshingState.value = refreshing &&
+                currentScreenState.value != "access_pin" &&
+                currentScreenState.value != "welcome" &&
+                currentScreenState.value != "settings" &&
+                currentScreenState.value != "about" &&
+                currentScreenState.value != "pin"
     }
 
     fun setFolderMode(mode: Boolean? = null) {
