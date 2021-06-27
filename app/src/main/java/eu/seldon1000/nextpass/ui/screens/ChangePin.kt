@@ -102,7 +102,6 @@ fun ChangePin(change: Boolean) {
                             confirm = true
                         ) {
                             MainViewModel.disablePin()
-                            MainViewModel.popBackStack()
                             MainViewModel.showSnackbar(message = context.getString(R.string.pin_disabled_snack))
                         }
                     } else {
