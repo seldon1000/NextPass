@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -34,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import eu.seldon1000.nextpass.AUTOFILL_SETTINGS_CODE
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
@@ -309,8 +311,8 @@ fun Settings() {
             }
             item {
                 GenericColumnItem(
-                    title = "Autostart Service",
-                    body = "If enabled, this will allow NextPass to run a background service as soon as your device boots, to provide suggestions automatically without opening the app first.",
+                    title = context.getString(R.string.autostart_service),
+                    body = context.getString(R.string.autostart_service_tip),
                     item = {
                         Checkbox(
                             checked = autostart,

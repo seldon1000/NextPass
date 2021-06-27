@@ -36,8 +36,8 @@
     <string name="parent">Parent ID</string>
     <string name="folder_details">Folder details</string>
     <string name="about">About</string>
-    <string name="autofill_service">Autofill Service</string>
-    <string name="autofill_service_tip">If enabled, NextPass will try to detect when you\'re logging into a website or an app and will offer you some suggestions from your own passwords accordingly. Changes will be applied once the app is restarted.</string>
+    <string name="autofill_service">Autofill service</string>
+    <string name="autofill_service_tip">If enabled, NextPass will try to detect when you\'re logging into a website or an app and will offer you some suggestions from your own passwords accordingly.</string>
     <string name="waiting_server">Waiting for server…</string>
     <string name="welcome_message">Welcome, NextPass needs a Nextcloud account to work. Please login with the button below.</string>
     <string name="settings">Settings</string>
@@ -47,6 +47,8 @@
     <string name="generate_random_password">Generate random password now</string>
     <string name="random_password_tip">Click here to automatically generate a new random password and copy it to your device\'s clipboard. This action follows your server\'s settings.</string>
     <string name="search">Search</string>
+    <string name="autostart_service">Autostart service</string>
+    <string name="autostart_service_tip">If enabled, this will allow NextPass to run a background service as soon as your device boots, in order to provide suggestions automatically without opening the app first.</string>
     <string name="search_hint">Type here to search…</string>
     <string name="results_number">There are %1$d results</string>
     <string name="security">Security</string>
