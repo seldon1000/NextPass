@@ -224,7 +224,7 @@ object MainViewModel : ViewModel() {
 
     fun setRefreshing(refreshing: Boolean) {
         refreshingState.value = refreshing &&
-                currentScreenState.value != "access_pin" &&
+                currentScreenState.value != "access_pin/{shouldRaiseBiometric}" &&
                 currentScreenState.value != "welcome" &&
                 currentScreenState.value != "settings" &&
                 currentScreenState.value != "about" &&
@@ -259,6 +259,8 @@ object MainViewModel : ViewModel() {
         ) {
             currentScreenState.value = route
             navController!!.navigate(route = route)
+
+            refreshingState.value = false
         }
     }
 

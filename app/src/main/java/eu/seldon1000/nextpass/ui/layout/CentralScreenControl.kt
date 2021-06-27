@@ -69,7 +69,7 @@ fun CentralScreenControl() {
         SwipeRefresh(
             state = refreshState,
             onRefresh = { NextcloudApiProvider.refreshServerList() },
-            swipeEnabled = currentScreen != "access_pin" &&
+            swipeEnabled = currentScreen != "access_pin/{shouldRaiseBiometric}" &&
                     currentScreen != "welcome" &&
                     currentScreen != "settings" &&
                     currentScreen != "about" &&
