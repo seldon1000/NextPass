@@ -23,6 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.GsonBuilder
@@ -68,19 +69,19 @@ object NextcloudApiProvider : ViewModel() {
     private val storedFoldersState = MutableStateFlow(value = mutableStateListOf(baseFolder))
     val storedFolders = storedFoldersState
 
-    fun setContext(context: Context) {
-        if (this.context == null)
-            this.context = context
+    fun setContext(context: Any) {
+        if (context is FragmentActivity || this.context == null)
+            this.context = context as Context
     }
 
-    private val connectedCallback: NextcloudAPI.ApiConnectedListener = object :
-        NextcloudAPI.ApiConnectedListener {
-        override fun onConnected() {}
+    private val connectedCallback: NextcloudAPI.ApiConnectedListener =
+        object : NextcloudAPI.ApiConnectedListener {
+            override fun onConnected() {}
 
-        override fun onError(e: Exception) {
-            showError()
+            override fun onError(e: Exception) {
+                showError()
+            }
         }
-    }
 
     fun attemptLogin(): Boolean {
         if (currentAccountState.value == null) {
