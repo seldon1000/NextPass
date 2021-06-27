@@ -24,7 +24,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.fragment.app.FragmentActivity
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.services.NextPassAutofillService
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.CentralScreenControl
 import eu.seldon1000.nextpass.ui.theme.NextPassTheme
@@ -32,7 +31,6 @@ import kotlinx.coroutines.*
 
 class MainActivity : FragmentActivity() {
     private val coroutineScope = MainScope()
-    private var autofillService: Intent? = null
 
     @ExperimentalMaterialApi
     @ExperimentalAnimationApi
@@ -41,9 +39,6 @@ class MainActivity : FragmentActivity() {
 
         NextcloudApiProvider.setContext(context = this)
         MainViewModel.setContext(context = this)
-
-        autofillService = Intent(this, NextPassAutofillService::class.java)
-        startService(autofillService)
 
         setContent {
             rememberCoroutineScope().launch { MainViewModel.openApp() }
@@ -89,7 +84,6 @@ class MainActivity : FragmentActivity() {
         coroutineScope.cancel()
         MainViewModel.lock()
         NextcloudApiProvider.stopNextcloudApi()
-        stopService(autofillService)
     }
 
     override fun onBackPressed() {

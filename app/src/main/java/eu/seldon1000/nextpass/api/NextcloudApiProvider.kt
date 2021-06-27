@@ -176,16 +176,12 @@ object NextcloudApiProvider : ViewModel() {
             .build()
 
         return try {
-            val io = JsonParser.parseString(
+            JsonParser.parseString(
                 nextcloudApi!!.performNetworkRequest(listRequest)
                     .bufferedReader()
                     .lines()
                     .collect(Collectors.joining("\n"))
             ).asJsonArray
-
-            println("CIAO ${io.size()}")
-
-            return io
         } catch (e: Exception) {
             showError()
 

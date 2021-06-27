@@ -19,6 +19,12 @@ package eu.seldon1000.nextpass.ui
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.service.autofill.AutofillService
 import android.view.autofill.AutofillManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
@@ -28,12 +34,19 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.services.NextPassAutofillService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @SuppressLint("StaticFieldLeak")
 object MainViewModel : ViewModel() {
+    private val networkRequest = NetworkRequest.Builder()
+        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+        .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+        .build()
+
     private var context: FragmentActivity? = null
 
     private var navController: NavController? = null
@@ -99,7 +112,23 @@ object MainViewModel : ViewModel() {
             this.context!!.getSystemService(FragmentActivity.CLIPBOARD_SERVICE) as ClipboardManager
         autofillManager = this.context!!.getSystemService(AutofillManager::class.java)
 
-        if (autofillManager!!.hasEnabledAutofillServices()) autofillState.value = true
+        if (autofillManager!!.hasEnabledAutofillServices()) {
+            autofillState.value = true
+
+            (context.getSystemService(AutofillService.CONNECTIVITY_SERVICE) as ConnectivityManager)
+                .registerNetworkCallback(
+                    networkRequest,
+                    object : ConnectivityManager.NetworkCallback() {
+                        override fun onAvailable(network: Network) {
+                            super.onAvailable(network)
+
+                            context.startForegroundService(
+                                Intent(context, NextPassAutofillService::class.java)
+                            )
+                        }
+                    }
+                )
+        }
 
         if (this.context!!.getSharedPreferences("PIN", 0).contains("PIN")) {
             unlockedState.value = false
@@ -262,8 +291,8 @@ object MainViewModel : ViewModel() {
 
     fun showSnackbar(message: String) {
         viewModelScope.launch {
-            snackbarHostState!!.currentSnackbarData?.dismiss()
-            snackbarHostState!!.showSnackbar(message = message)
+            snackbarHostState?.currentSnackbarData?.dismiss()
+            snackbarHostState?.showSnackbar(message = message)
         }
     }
 

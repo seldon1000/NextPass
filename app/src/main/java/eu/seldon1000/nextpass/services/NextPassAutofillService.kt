@@ -17,27 +17,100 @@
 package eu.seldon1000.nextpass.services
 
 import android.R
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.assist.AssistStructure
 import android.app.assist.AssistStructure.ViewNode
+import android.content.Context
+import android.content.Intent
 import android.os.CancellationSignal
+import android.os.PowerManager
 import android.service.autofill.*
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
+import eu.seldon1000.nextpass.MainActivity
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.ui.MainViewModel
 import java.net.URL
 
 class NextPassAutofillService : AutofillService() {
-    private var usernameHints = arrayOf<String>()
+    private var isServiceStarted = false
+    private var wakeLock: PowerManager.WakeLock? = null
 
+    private var usernameHints = arrayOf<String>()
     private var fillResponse = FillResponse.Builder()
     private var usernameId = mutableListOf<AutofillId>()
     private var passwordId = mutableListOf<AutofillId>()
     private var ready = false
 
-    init {
-        if (!MainViewModel.checkAutofillEnabled()) stopSelf()
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (NextcloudApiProvider.attemptLogin()) startService()
+        else stopService()
+
+        return START_STICKY
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+
+        NextcloudApiProvider.setContext(context = this)
+
+        usernameHints = resources.getStringArray(eu.seldon1000.nextpass.R.array.username_hints)
+
+        val notification = createNotification()
+        startForeground(1, notification)
+    }
+
+    private fun startService() {
+        if (isServiceStarted) return
+
+        isServiceStarted = true
+
+        wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+            newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NextPassAutofill::lock").apply {
+                acquire()
+            }
+        }
+    }
+
+    private fun stopService() {
+        try {
+            wakeLock?.let { if (it.isHeld) it.release() }
+            stopForeground(true)
+            stopSelf()
+        } catch (e: Exception) {
+        }
+
+        isServiceStarted = false
+    }
+
+    private fun createNotification(): Notification { // TODO: temporary, the notification is showed for test purposes
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channel = NotificationChannel(
+            "NextPass Autofill Service",
+            "NextPass Autofill Service",
+            NotificationManager.IMPORTANCE_MIN
+        ).apply {
+            description =
+                "NextPass is running a service in background to provide login suggestions when needed."
+        }
+
+        notificationManager.createNotificationChannel(channel)
+
+        val pendingIntent: PendingIntent =
+            Intent(this, MainActivity::class.java).let { notificationIntent ->
+                PendingIntent.getActivity(this, 0, notificationIntent, 0)
+            }
+
+        return Notification.Builder(this, channel.id)
+            .setContentTitle("NextPass Autofill Service")
+            .setContentText("NextPass is running a service in background to provide login suggestions when needed.")
+            .setContentIntent(pendingIntent)
+            .setSmallIcon(eu.seldon1000.nextpass.R.drawable.ic_passwords_icon)
+            .build()
     }
 
     override fun onFillRequest(
@@ -45,9 +118,6 @@ class NextPassAutofillService : AutofillService() {
         cancellationSignal: CancellationSignal,
         callback: FillCallback
     ) {
-        if (usernameHints.isEmpty())
-            usernameHints = resources.getStringArray(eu.seldon1000.nextpass.R.array.username_hints)
-
         fillResponse = FillResponse.Builder()
         usernameId = mutableListOf()
         passwordId = mutableListOf()
