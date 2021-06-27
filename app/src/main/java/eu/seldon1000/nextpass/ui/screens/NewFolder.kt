@@ -137,7 +137,7 @@ fun NewFolder() {
                         }) { /*TODO: replace with standard FavoriteIcon composable, once SSO supports PATCH method*/
                             Icon(
                                 painter = if (favorite)
-                                    painterResource(id = R.drawable.ic_round_star_yellow_24)
+                                    painterResource(id = R.drawable.ic_round_star_24)
                                 else
                                     painterResource(id = R.drawable.ic_round_star_border_24),
                                 contentDescription = "favorite",

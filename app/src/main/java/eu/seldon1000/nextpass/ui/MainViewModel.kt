@@ -99,7 +99,7 @@ object MainViewModel : ViewModel() {
             this.context!!.getSystemService(FragmentActivity.CLIPBOARD_SERVICE) as ClipboardManager
         autofillManager = this.context!!.getSystemService(AutofillManager::class.java)
 
-        checkAutofillEnabled()
+        if (autofillManager!!.hasEnabledAutofillServices()) autofillState.value = true
 
         if (this.context!!.getSharedPreferences("PIN", 0).contains("PIN")) {
             unlockedState.value = false
@@ -110,12 +110,6 @@ object MainViewModel : ViewModel() {
             if (this.context!!.getSharedPreferences("biometric", 0).contains("biometric"))
                 biometricProtectedState.value = true
         }
-    }
-
-    fun checkAutofillEnabled(): Boolean {
-        autofillState.value = autofillManager!!.hasEnabledAutofillServices()
-
-        return autofillState.value
     }
 
     fun setNavController(controller: NavController) {

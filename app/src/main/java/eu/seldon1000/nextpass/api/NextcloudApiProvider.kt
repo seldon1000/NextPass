@@ -51,7 +51,8 @@ object NextcloudApiProvider : ViewModel() {
     private const val endpoint = "/index.php/apps/passwords/api/1.0"
     private var nextcloudApi: NextcloudAPI? = null
 
-    private val currentAccountState: MutableStateFlow<SingleSignOnAccount?> = MutableStateFlow(value = null)
+    private val currentAccountState: MutableStateFlow<SingleSignOnAccount?> =
+        MutableStateFlow(value = null)
     val currentAccount = currentAccountState
 
     private val baseFolder =
@@ -88,24 +89,27 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun attemptLogin(): Boolean {
-        storedPasswordsState.value = mutableStateListOf()
+        if (currentAccountState.value == null) {
+            storedPasswordsState.value = mutableStateListOf()
 
-        try {
-            currentAccountState.value = SingleAccountHelper.getCurrentSingleSignOnAccount(context)
+            try {
+                currentAccountState.value =
+                    SingleAccountHelper.getCurrentSingleSignOnAccount(context)
 
-            nextcloudApi = NextcloudAPI(
-                context,
-                currentAccountState.value!!,
-                GsonBuilder().create(),
-                connectedCallback
-            )
+                nextcloudApi = NextcloudAPI(
+                    context,
+                    currentAccountState.value!!,
+                    GsonBuilder().create(),
+                    connectedCallback
+                )
 
-            refreshServerList()
+                refreshServerList()
 
-            return true
-        } catch (e: Exception) {
-            return false
-        }
+                return true
+            } catch (e: Exception) {
+                return false
+            }
+        } else return true
     }
 
     fun attemptLogout() {
@@ -172,12 +176,16 @@ object NextcloudApiProvider : ViewModel() {
             .build()
 
         return try {
-            JsonParser.parseString(
+            val io = JsonParser.parseString(
                 nextcloudApi!!.performNetworkRequest(listRequest)
                     .bufferedReader()
                     .lines()
                     .collect(Collectors.joining("\n"))
             ).asJsonArray
+
+            println("CIAO ${io.size()}")
+
+            return io
         } catch (e: Exception) {
             showError()
 

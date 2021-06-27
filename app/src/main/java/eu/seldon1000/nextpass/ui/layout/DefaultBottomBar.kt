@@ -77,7 +77,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             },
             icon = {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_round_star_yellow_24),
+                    painter = painterResource(id = R.drawable.ic_round_star_24),
                     contentDescription = "favorites"
                 )
             },

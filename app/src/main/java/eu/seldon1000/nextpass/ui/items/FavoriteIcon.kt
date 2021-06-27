@@ -31,7 +31,7 @@ fun FavoriteIcon(favorite: Boolean, action: (Boolean) -> Unit) {
         val tint by animateColorAsState(if (favorite) Color.Yellow else Color.White)
 
         Icon(
-            painter = if (favorite) painterResource(id = R.drawable.ic_round_star_yellow_24)
+            painter = if (favorite) painterResource(id = R.drawable.ic_round_star_24)
             else painterResource(id = R.drawable.ic_round_star_border_24),
             contentDescription = "favorite",
             tint = tint
