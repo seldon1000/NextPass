@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,8 +48,6 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
                     contentDescription = "search"
                 )
             },
-            label = { Text(text = "Search") },
-            alwaysShowLabel = false,
             selectedContentColor = NextcloudBlue,
             unselectedContentColor = Color.White
         )
@@ -69,8 +66,6 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
                     contentDescription = "home"
                 )
             },
-            label = { Text(text = "Home") },
-            alwaysShowLabel = false,
             selectedContentColor = NextcloudBlue,
             unselectedContentColor = Color.White
         )
@@ -86,8 +81,6 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
                     contentDescription = "favorites"
                 )
             },
-            label = { Text(text = "Favorites") },
-            alwaysShowLabel = false,
             selectedContentColor = NextcloudBlue,
             unselectedContentColor = Color.White
         )
@@ -103,8 +96,6 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
                     contentDescription = "settings"
                 )
             },
-            label = { Text(text = "Settings") },
-            alwaysShowLabel = false,
             selectedContentColor = NextcloudBlue,
             unselectedContentColor = Color.White
         )
