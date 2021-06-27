@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -28,6 +29,8 @@ import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.CentralScreenControl
 import eu.seldon1000.nextpass.ui.theme.NextPassTheme
 import kotlinx.coroutines.*
+
+const val AUTOFILL_SETTINGS_CODE = 7799
 
 class MainActivity : FragmentActivity() {
     private val coroutineScope = MainScope()
@@ -52,7 +55,9 @@ class MainActivity : FragmentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        NextcloudApiProvider.handleAccountImporterResponse(
+        if (requestCode == AUTOFILL_SETTINGS_CODE && resultCode == Activity.RESULT_OK)
+            MainViewModel.enableAutofill()
+        else NextcloudApiProvider.handleAccountImporterResponse(
             requestCode = requestCode,
             resultCode = resultCode,
             data = data

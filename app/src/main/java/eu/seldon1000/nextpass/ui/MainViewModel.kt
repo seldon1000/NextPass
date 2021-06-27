@@ -149,6 +149,12 @@ object MainViewModel : ViewModel() {
         }
     }
 
+    fun enableAutofill() {
+        autofillState.value = true
+
+        context!!.startForegroundService(Intent(context, NextPassAutofillService::class.java))
+    }
+
     fun enableAutostart() {
         sharedPreferences!!.edit().putBoolean("autostart", true).apply()
 

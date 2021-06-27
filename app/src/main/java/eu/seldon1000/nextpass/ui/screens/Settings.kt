@@ -298,11 +298,12 @@ fun Settings() {
                         )
                     }
                 ) {
-                    context.startActivity(
+                    (context as Activity).startActivityForResult(
                         Intent(
                             Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE,
                             Uri.parse("package:eu.seldon1000.nextpass")
-                        )
+                        ),
+                        AUTOFILL_SETTINGS_CODE
                     )
                 }
             }
