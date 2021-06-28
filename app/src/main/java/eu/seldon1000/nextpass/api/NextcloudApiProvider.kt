@@ -20,8 +20,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.*
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -485,7 +484,7 @@ object NextcloudApiProvider : ViewModel() {
                     data.setFavicon(
                         BitmapFactory.decodeStream(
                             nextcloudApi!!.performNetworkRequest(faviconRequest)
-                        )
+                        ).toRoundedCorners()
                     )
                 } catch (e: Exception) {
                 }
@@ -499,12 +498,29 @@ object NextcloudApiProvider : ViewModel() {
                     try {
                         currentRequestedFaviconState.value = BitmapFactory.decodeStream(
                             nextcloudApi!!.performNetworkRequest(faviconRequest)
-                        )
+                        ).toRoundedCorners()
                     } catch (e: Exception) {
                     }
                 } else currentRequestedFaviconState.value = null
             }
         }
+    }
+
+    fun Bitmap.toRoundedCorners(cornerRadius: Float = 16F): Bitmap? {
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+
+        canvas.clipPath(Path().apply {
+            addRoundRect(
+                RectF(0f, 0f, width.toFloat(), height.toFloat()),
+                cornerRadius,
+                cornerRadius,
+                Path.Direction.CCW
+            )
+        })
+
+        canvas.drawBitmap(this, 0f, 0f, null)
+        return bitmap
     }
 
     private fun showError() {

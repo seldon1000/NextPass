@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import coil.transform.RoundedCornersTransformation
 import com.google.accompanist.coil.rememberCoilPainter
 
 @Composable
@@ -35,10 +34,7 @@ fun Favicon(favicon: Bitmap?, size: Dp) {
         animationSpec = tween(durationMillis = 300)
     ) {
         Image(
-            painter = rememberCoilPainter(
-                request = it,
-                requestBuilder = { transformations(RoundedCornersTransformation(radius = 16F)) }
-            ),
+            painter = rememberCoilPainter(request = it),
             alignment = Alignment.Center,
             contentDescription = "favicon",
             modifier = Modifier.size(size = size)
