@@ -37,16 +37,7 @@ fun Favicon(favicon: Bitmap?, size: Dp) {
         Image(
             painter = rememberCoilPainter(
                 request = it,
-                requestBuilder = {
-                    transformations(
-                        RoundedCornersTransformation(
-                            topLeft = 16F,
-                            topRight = 16F,
-                            bottomLeft = 16F,
-                            bottomRight = 16F
-                        )
-                    )
-                }
+                requestBuilder = { transformations(RoundedCornersTransformation(radius = 16F)) }
             ),
             alignment = Alignment.Center,
             contentDescription = "favicon",
