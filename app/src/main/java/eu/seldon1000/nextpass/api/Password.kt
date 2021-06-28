@@ -26,7 +26,7 @@ import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 
-class Password(val passwordData: JsonObject, var index: Int = -1) {
+data class Password(val passwordData: JsonObject, var index: Int = -1) {
     private val formatter = SimpleDateFormat.getDateTimeInstance()
 
     val id: String = passwordData.get("id").asString

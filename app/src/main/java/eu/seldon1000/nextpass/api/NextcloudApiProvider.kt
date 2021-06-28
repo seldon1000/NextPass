@@ -156,6 +156,8 @@ object NextcloudApiProvider : ViewModel() {
             ) { account ->
                 SingleAccountHelper.setCurrentAccount(context, account.name)
 
+                storedPasswordsState.value = mutableStateListOf()
+
                 MainViewModel.openApp(shouldRememberScreen = currentAccountState.value != null)
 
                 MainViewModel.showSnackbar(

@@ -237,7 +237,6 @@ object MainViewModel : ViewModel() {
                 try {
                     navController?.currentDestination?.route!! != "access_pin/{shouldRaiseBiometric}" &&
                             navController?.currentDestination?.route!! != "welcome" &&
-                            navController?.currentDestination?.route!! != "settings" &&
                             navController?.currentDestination?.route!! != "about" &&
                             navController?.currentDestination?.route!! != "pin"
                 } catch (e: Exception) {
