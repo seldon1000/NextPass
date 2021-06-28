@@ -195,6 +195,16 @@ object MainViewModel : ViewModel() {
         lockTimeoutState.value = timeout
     }
 
+    fun openApp(shouldRememberScreen: Boolean = false) {
+        if (unlockedState.value) {
+            if (NextcloudApiProvider.attemptLogin()) {
+                if (!shouldRememberScreen) navigate(route = "passwords")
+
+                NextcloudApiProvider.refreshServerList()
+            }
+        } else navigate(route = "access_pin/true")
+    }
+
     fun lock(shouldRaiseBiometric: Boolean = true) {
         if (pinProtectedState.value) {
             unlockedState.value = false
@@ -216,16 +226,6 @@ object MainViewModel : ViewModel() {
                 inclusive = true
             )
         } else openApp()
-    }
-
-    fun openApp(shouldRememberScreen: Boolean = false) {
-        if (unlockedState.value) {
-            NextcloudApiProvider.attemptLogin()
-
-            if (!shouldRememberScreen) navigate(route = "passwords")
-
-            NextcloudApiProvider.refreshServerList()
-        } else navigate(route = "access_pin/true")
     }
 
     fun setSnackbarHostState(snackbar: SnackbarHostState) {
