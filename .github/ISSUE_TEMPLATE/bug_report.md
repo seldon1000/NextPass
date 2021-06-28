@@ -16,8 +16,8 @@ Provide detailed steps to reproduce the bug, so that we're able to experience it
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Screenshots/Videos/GIFs**
+If applicable, add media files to help explain your problem.
 
 **Device informations**
  - Manufacturer
