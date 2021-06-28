@@ -76,7 +76,6 @@ fun Favorites() {
                         if (password.favorite) PasswordCard(password = password)
                     }
                 }
-
             }
             item {
                 CountMessage(

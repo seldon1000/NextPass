@@ -118,7 +118,7 @@ fun PasswordList() {
                     icon = painterResource(id = R.drawable.ic_round_back_arrow_24)
                 )
             }
-            if (folderMode) items(storedFolders) { folder ->
+            if (folderMode) items(items = storedFolders) { folder ->
                 if (folder.parent == storedFolders[currentFolder].id)
                     FolderCard(folder = folder)
             }
