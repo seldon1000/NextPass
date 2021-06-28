@@ -438,6 +438,21 @@ object NextcloudApiProvider : ViewModel() {
                     ).asJsonObject, index = index
                 )
 
+                viewModelScope.launch(Dispatchers.IO) {
+                    val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
+                        .setUrl("$endpoint/service/favicon/${Uri.parse(updatedPassword.url).host ?: storedPasswordsState.value[index].url}/144")
+                        .build()
+
+                    try {
+                        updatedPassword.setFavicon(
+                            BitmapFactory.decodeStream(
+                                nextcloudApi!!.performNetworkRequest(faviconRequest)
+                            )
+                        )
+                    } catch (e: Exception) {
+                    }
+                }
+
                 storedPasswordsState.value[index] = updatedPassword
 
                 MainViewModel.setRefreshing(refreshing = false)
