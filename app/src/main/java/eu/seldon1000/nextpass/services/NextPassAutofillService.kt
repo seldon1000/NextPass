@@ -16,7 +16,6 @@
 
 package eu.seldon1000.nextpass.services
 
-import android.R
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -33,6 +32,7 @@ import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
 import eu.seldon1000.nextpass.MainActivity
+import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 
 class NextPassAutofillService : AutofillService() {
@@ -50,7 +50,7 @@ class NextPassAutofillService : AutofillService() {
 
         NextcloudApiProvider.setContext(context = this)
 
-        usernameHints = resources.getStringArray(eu.seldon1000.nextpass.R.array.username_hints)
+        usernameHints = resources.getStringArray(R.array.username_hints)
 
         val notification = createNotification()
         startForeground(1, notification)
@@ -109,7 +109,7 @@ class NextPassAutofillService : AutofillService() {
             .setContentTitle("NextPass Autofill Service")
             .setContentText("Provide login suggestions when needed.")
             .setContentIntent(pendingIntent)
-            .setSmallIcon(eu.seldon1000.nextpass.R.drawable.ic_passwords_icon)
+            .setSmallIcon(R.drawable.ic_passwords_icon)
             .build()
     }
 
@@ -165,8 +165,10 @@ class NextPassAutofillService : AutofillService() {
                     }
                 ) {
                     val credentialsPresentation =
-                        RemoteViews(packageName, R.layout.simple_list_item_1)
-                    credentialsPresentation.setTextViewText(R.id.text1, password.username)
+                        RemoteViews(packageName, R.layout.autofill_list_item)
+                    credentialsPresentation.setTextViewText(R.id.label, password.label)
+                    credentialsPresentation.setTextViewText(R.id.username, password.username)
+                    credentialsPresentation.setImageViewBitmap(R.id.favicon, password.favicon.value)
 
                     fillResponse.addDataset(
                         Dataset.Builder()
