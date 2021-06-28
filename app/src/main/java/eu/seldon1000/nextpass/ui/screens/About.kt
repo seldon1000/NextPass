@@ -157,7 +157,7 @@ fun About() {
                     }
                     GenericColumnItem(
                         title = "Passwords",
-                        body = context.getString(R.string.passwords_body),
+                        body = context.getString(R.string.passwords_tip),
                         icon = {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_passwords_icon),
@@ -175,7 +175,7 @@ fun About() {
                     }
                     GenericColumnItem(
                         title = context.getString(R.string.need_help),
-                        body = context.getString(R.string.need_help_body),
+                        body = context.getString(R.string.need_help_tip),
                         icon = {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_help_center_24),
@@ -193,7 +193,7 @@ fun About() {
                     }
                     GenericColumnItem(
                         title = context.getString(R.string.send_email),
-                        body = context.getString(R.string.send_email_body),
+                        body = context.getString(R.string.send_email_tip),
                         icon = {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_email_24),
@@ -211,7 +211,7 @@ fun About() {
                     }
                     GenericColumnItem(
                         title = context.getString(R.string.special_thanks),
-                        body = context.getString(R.string.special_thanks_body),
+                        body = context.getString(R.string.special_thanks_tip),
                         icon = {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_people_24),
