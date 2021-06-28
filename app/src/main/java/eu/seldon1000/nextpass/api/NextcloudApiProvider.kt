@@ -52,8 +52,7 @@ object NextcloudApiProvider : ViewModel() {
     private const val endpoint = "/index.php/apps/passwords/api/1.0"
     private var nextcloudApi: NextcloudAPI? = null
 
-    private val currentAccountState: MutableStateFlow<SingleSignOnAccount?> =
-        MutableStateFlow(value = null)
+    private val currentAccountState = MutableStateFlow<SingleSignOnAccount?>(value = null)
     val currentAccount = currentAccountState
 
     private val baseFolder =
