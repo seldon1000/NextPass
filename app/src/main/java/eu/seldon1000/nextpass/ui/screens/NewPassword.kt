@@ -345,9 +345,7 @@ fun NewPassword() {
                     ) {
                         TextButton(
                             onClick = { customFields.add(element = mutableStateMapOf("label" to "")) }
-                        ) {
-                            Text(text = context.getString(R.string.add_custom_field))
-                        }
+                        ) { Text(text = context.getString(R.string.add_custom_field)) }
                     }
                 }
             }
