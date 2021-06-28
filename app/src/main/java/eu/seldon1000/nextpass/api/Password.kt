@@ -16,16 +16,17 @@
 
 package eu.seldon1000.nextpass.api
 
+import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.ui.graphics.painter.Painter
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.JsonObject
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 
-data class Password(val passwordData: JsonObject, var index: Int = -1) {
+class Password(val passwordData: JsonObject, var index: Int = -1) {
     private val formatter = SimpleDateFormat.getDateTimeInstance()
 
     val id: String = passwordData.get("id").asString
@@ -50,7 +51,12 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
 
     val status: Int = passwordData.get("status").asInt
 
-    var favicon: Painter? = null
+    private val faviconState = MutableStateFlow<Bitmap?>(value = null)
+    val favicon = faviconState
+
+    fun setFavicon(bitmap: Bitmap) {
+        faviconState.value = bitmap
+    }
 
     fun restoreCustomFields() {
         customFields = ObjectMapper().readValue(

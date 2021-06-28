@@ -48,6 +48,8 @@ fun PasswordCard(password: Password) {
     val folderMode by MainViewModel.folderMode.collectAsState()
     val currentFolder by MainViewModel.currentFolder.collectAsState()
 
+    val favicon by password.favicon.collectAsState()
+
     var expanded by remember { mutableStateOf(value = false) }
 
     Card(
@@ -63,7 +65,7 @@ fun PasswordCard(password: Password) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Box(modifier = Modifier.padding(all = 8.dp)) {
-                Favicon(data = password, size = 44.dp)
+                Favicon(favicon = favicon, size = 44.dp)
             }
             Column(
                 modifier = Modifier

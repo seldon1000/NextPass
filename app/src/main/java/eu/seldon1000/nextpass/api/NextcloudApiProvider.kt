@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -67,6 +69,9 @@ object NextcloudApiProvider : ViewModel() {
 
     private val storedFoldersState = MutableStateFlow(value = mutableStateListOf(baseFolder))
     val storedFolders = storedFoldersState
+
+    private val currentRequestedFaviconState = MutableStateFlow<Bitmap?>(value = null)
+    val currentRequestedFavicon = currentRequestedFaviconState
 
     fun setContext(context: Any) {
         if (context is FragmentActivity || this.context == null)
@@ -214,6 +219,21 @@ object NextcloudApiProvider : ViewModel() {
             passwords.sortedBy { it.asJsonObject.get("label").asString.lowercase() }
                 .forEachIndexed { index, password ->
                     data.add(Password(passwordData = password.asJsonObject, index = index))
+
+                    viewModelScope.launch(Dispatchers.IO) {
+                        val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
+                            .setUrl("$endpoint/service/favicon/${Uri.parse(data[index].url).host ?: data[index].url}/144")
+                            .build()
+
+                        try {
+                            data[index].setFavicon(
+                                BitmapFactory.decodeStream(
+                                    nextcloudApi!!.performNetworkRequest(faviconRequest)
+                                )
+                            )
+                        } catch (e: Exception) {
+                        }
+                    }
                 }
 
             storedPasswordsState.value = data
@@ -458,6 +478,21 @@ object NextcloudApiProvider : ViewModel() {
             showError()
 
             ""
+        }
+    }
+
+    fun faviconRequest(url: String) {
+        val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
+            .setUrl("$endpoint/service/favicon/${Uri.parse(url).host ?: url}/144")
+            .build()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                currentRequestedFaviconState.value = BitmapFactory.decodeStream(
+                    nextcloudApi!!.performNetworkRequest(faviconRequest)
+                )
+            } catch (e: Exception) {
+            }
         }
     }
 

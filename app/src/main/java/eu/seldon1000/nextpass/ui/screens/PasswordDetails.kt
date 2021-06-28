@@ -74,6 +74,7 @@ fun PasswordDetails(passwordData: Password) {
     var password by remember { mutableStateOf(value = passwordData.password) }
     var notes by remember { mutableStateOf(value = passwordData.notes) }
     var customFields by remember { mutableStateOf(value = passwordData.customFields) }
+    val favicon by passwordData.favicon.collectAsState()
 
     MyScaffoldLayout(fab = {
         FloatingActionButton({
@@ -188,7 +189,7 @@ fun PasswordDetails(passwordData: Password) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.padding(all = 72.dp)
             ) {
-                Favicon(data = passwordData, size = 144.dp)
+                Favicon(favicon = favicon, size = 144.dp)
             }
             Card(
                 elevation = 6.dp,

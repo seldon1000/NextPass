@@ -159,7 +159,10 @@ fun NewPassword() {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.padding(all = 72.dp)
             ) {
-                Favicon(data = url, size = 144.dp)
+                val favicon by NextcloudApiProvider.currentRequestedFavicon.collectAsState()
+
+                NextcloudApiProvider.faviconRequest(url = url)
+                Favicon(favicon = favicon, size = 144.dp)
             }
             Card(
                 elevation = 6.dp,
