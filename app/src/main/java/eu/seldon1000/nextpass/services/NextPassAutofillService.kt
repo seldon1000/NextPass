@@ -25,6 +25,7 @@ import android.app.assist.AssistStructure
 import android.app.assist.AssistStructure.ViewNode
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.CancellationSignal
 import android.os.PowerManager
 import android.service.autofill.*
@@ -33,7 +34,6 @@ import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
 import eu.seldon1000.nextpass.MainActivity
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import java.net.URL
 
 class NextPassAutofillService : AutofillService() {
     private var isServiceStarted = false
@@ -143,33 +143,41 @@ class NextPassAutofillService : AutofillService() {
 
     private fun traverseNode(viewNode: ViewNode, callback: FillCallback) {
         if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
-            NextcloudApiProvider.storedPasswords.value.forEach {
+            NextcloudApiProvider.storedPasswords.value.forEach { password ->
                 if (viewNode.idPackage?.contains(
-                        it.label,
+                        password.label,
                         ignoreCase = true
                     ) == true || try {
                         viewNode.idPackage?.contains(
-                            URL(it.url).host.substringBefore("."),
+                            Uri.parse(password.url).host!!,
                             ignoreCase = true
                         ) == true
                     } catch (e: Exception) {
                         false
+                    } || password.customFields.any { customField ->
+                        customField.values.any {
+                            try {
+                                it.contains(viewNode.idPackage!!, ignoreCase = true)
+                            } catch (e: Exception) {
+                                false
+                            }
+                        }
                     }
                 ) {
                     val credentialsPresentation =
                         RemoteViews(packageName, R.layout.simple_list_item_1)
-                    credentialsPresentation.setTextViewText(R.id.text1, it.username)
+                    credentialsPresentation.setTextViewText(R.id.text1, password.username)
 
                     fillResponse.addDataset(
                         Dataset.Builder()
                             .setValue(
                                 usernameId.last(),
-                                AutofillValue.forText(it.username),
+                                AutofillValue.forText(password.username),
                                 credentialsPresentation
                             )
                             .setValue(
                                 passwordId.last(),
-                                AutofillValue.forText(it.password),
+                                AutofillValue.forText(password.password),
                                 credentialsPresentation
                             ).build()
                     )
