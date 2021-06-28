@@ -16,9 +16,10 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
-import android.app.Activity
-import android.view.WindowManager
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,8 +42,6 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 @Composable
 fun ChangePin(change: Boolean) {
     val context = LocalContext.current
-
-    (context as Activity).window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
     val protected by MainViewModel.pinProtected.collectAsState()
 

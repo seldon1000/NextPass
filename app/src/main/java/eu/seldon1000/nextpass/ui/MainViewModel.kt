@@ -276,7 +276,9 @@ object MainViewModel : ViewModel() {
     }
 
     private fun setKeyboardMode() {
-        if (navController?.currentDestination?.route!! == "search")
+        if (navController?.currentDestination?.route!! == "search" ||
+            navController?.currentDestination?.route!! == "pin/{change}"
+        )
             context!!.window.setSoftInputMode(16)
         else
             context!!.window.setSoftInputMode(32)
