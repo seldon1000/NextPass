@@ -187,7 +187,7 @@ fun About() {
                         context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://github.com/seldon1000/NextPass/issues/new")
+                                Uri.parse("https://github.com/seldon1000/NextPass/issues/new/choose")
                             )
                         )
                     }
