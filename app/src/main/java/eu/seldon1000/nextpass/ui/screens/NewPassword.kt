@@ -194,7 +194,7 @@ fun NewPassword() {
                         value = url,
                         onValueChange = {
                             if (it.length >= url.length || it.isEmpty())
-                                NextcloudApiProvider.faviconRequest(url = it)
+                                NextcloudApiProvider.faviconRequest(data = it)
 
                             url = it
                         },

@@ -54,7 +54,7 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
     private val faviconState = MutableStateFlow<Bitmap?>(value = null)
     val favicon = faviconState
 
-    fun setFavicon(bitmap: Bitmap) {
+    fun setFavicon(bitmap: Bitmap?) {
         faviconState.value = bitmap
     }
 

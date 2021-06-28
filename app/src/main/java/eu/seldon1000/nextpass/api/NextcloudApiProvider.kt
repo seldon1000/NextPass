@@ -222,20 +222,7 @@ object NextcloudApiProvider : ViewModel() {
                 .forEachIndexed { index, password ->
                     data.add(Password(passwordData = password.asJsonObject, index = index))
 
-                    viewModelScope.launch(Dispatchers.IO) {
-                        val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
-                            .setUrl("$endpoint/service/favicon/${Uri.parse(data[index].url).host ?: data[index].url}/144")
-                            .build()
-
-                        try {
-                            data[index].setFavicon(
-                                BitmapFactory.decodeStream(
-                                    nextcloudApi!!.performNetworkRequest(faviconRequest)
-                                )
-                            )
-                        } catch (e: Exception) {
-                        }
-                    }
+                    faviconRequest(data = data[index])
                 }
 
             storedPasswordsState.value = data
@@ -438,20 +425,9 @@ object NextcloudApiProvider : ViewModel() {
                     ).asJsonObject, index = index
                 )
 
-                viewModelScope.launch(Dispatchers.IO) {
-                    val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
-                        .setUrl("$endpoint/service/favicon/${Uri.parse(updatedPassword.url).host ?: storedPasswordsState.value[index].url}/144")
-                        .build()
-
-                    try {
-                        updatedPassword.setFavicon(
-                            BitmapFactory.decodeStream(
-                                nextcloudApi!!.performNetworkRequest(faviconRequest)
-                            )
-                        )
-                    } catch (e: Exception) {
-                    }
-                }
+                if (password.url != params["url"])
+                    faviconRequest(data = updatedPassword)
+                else updatedPassword.setFavicon(bitmap = password.favicon.value)
 
                 storedPasswordsState.value[index] = updatedPassword
 
@@ -498,20 +474,36 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun faviconRequest(url: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
-                .setUrl("$endpoint/service/favicon/${Uri.parse(url).host ?: url}/144")
-                .build()
+    fun faviconRequest(data: Any) {
+        when (data) {
+            is Password -> viewModelScope.launch(Dispatchers.IO) {
+                val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
+                    .setUrl("$endpoint/service/favicon/${Uri.parse(data.url).host ?: data.url}/144")
+                    .build()
 
-            if (url.isNotEmpty()) {
                 try {
-                    currentRequestedFaviconState.value = BitmapFactory.decodeStream(
-                        nextcloudApi!!.performNetworkRequest(faviconRequest)
+                    data.setFavicon(
+                        BitmapFactory.decodeStream(
+                            nextcloudApi!!.performNetworkRequest(faviconRequest)
+                        )
                     )
                 } catch (e: Exception) {
                 }
-            } else currentRequestedFaviconState.value = null
+            }
+            is String -> viewModelScope.launch(Dispatchers.IO) {
+                val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
+                    .setUrl("$endpoint/service/favicon/${Uri.parse(data).host ?: data}/144")
+                    .build()
+
+                if (data.isNotEmpty()) {
+                    try {
+                        currentRequestedFaviconState.value = BitmapFactory.decodeStream(
+                            nextcloudApi!!.performNetworkRequest(faviconRequest)
+                        )
+                    } catch (e: Exception) {
+                    }
+                } else currentRequestedFaviconState.value = null
+            }
         }
     }
 
