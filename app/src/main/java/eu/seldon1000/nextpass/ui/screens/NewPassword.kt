@@ -70,6 +70,7 @@ fun NewPassword() {
     var username by remember { mutableStateOf(value = "") }
     var password by remember { mutableStateOf(value = "") }
     var notes by remember { mutableStateOf(value = "") }
+    val favicon by NextcloudApiProvider.currentRequestedFavicon.collectAsState()
 
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = {
@@ -158,12 +159,7 @@ fun NewPassword() {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.padding(all = 72.dp)
-            ) {
-                val favicon by NextcloudApiProvider.currentRequestedFavicon.collectAsState()
-
-                NextcloudApiProvider.faviconRequest(url = url)
-                Favicon(favicon = favicon, size = 144.dp)
-            }
+            ) { Favicon(favicon = favicon, size = 144.dp) }
             Card(
                 elevation = 6.dp,
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
@@ -196,7 +192,12 @@ fun NewPassword() {
                     }
                     OutlinedTextField(
                         value = url,
-                        onValueChange = { url = it },
+                        onValueChange = {
+                            if (it.length >= url.length || it.isEmpty())
+                                NextcloudApiProvider.faviconRequest(url = it)
+
+                            url = it
+                        },
                         label = { Text(text = LocalContext.current.getString(R.string.url)) },
                         shape = RoundedCornerShape(size = 8.dp),
                         modifier = Modifier
