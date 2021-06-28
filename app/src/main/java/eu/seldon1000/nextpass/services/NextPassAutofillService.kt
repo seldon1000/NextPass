@@ -65,7 +65,8 @@ class NextPassAutofillService : AutofillService() {
 
     private fun startService() {
         if (!isServiceStarted) {
-            NextcloudApiProvider.refreshServerList()
+            if (NextcloudApiProvider.storedPasswords.value.isEmpty())
+                NextcloudApiProvider.refreshServerList()
 
             isServiceStarted = true
 
