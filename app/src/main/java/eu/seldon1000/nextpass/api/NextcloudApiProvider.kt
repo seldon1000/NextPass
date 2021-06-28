@@ -490,11 +490,11 @@ object NextcloudApiProvider : ViewModel() {
                 }
             }
             is String -> viewModelScope.launch(Dispatchers.IO) {
-                val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
-                    .setUrl("$endpoint/service/favicon/${Uri.parse(data).host ?: data}/144")
-                    .build()
-
                 if (data.isNotEmpty()) {
+                    val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
+                        .setUrl("$endpoint/service/favicon/${Uri.parse(data).host ?: data}/144")
+                        .build()
+
                     try {
                         currentRequestedFaviconState.value = BitmapFactory.decodeStream(
                             nextcloudApi!!.performNetworkRequest(faviconRequest)
