@@ -216,7 +216,7 @@ fun About() {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_people_24),
                                 contentDescription = "special_thanks",
-                                modifier = Modifier.padding(start = 16.dp, top = 16.dp)
+                                modifier = Modifier.padding(start = 16.dp)
                             )
                         }
                     ) {
