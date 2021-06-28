@@ -24,8 +24,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.Dp
-import com.google.accompanist.coil.rememberCoilPainter
 
 @Composable
 fun Favicon(favicon: Bitmap?, size: Dp) {
@@ -34,9 +35,9 @@ fun Favicon(favicon: Bitmap?, size: Dp) {
         animationSpec = tween(durationMillis = 300)
     ) {
         Image(
-            painter = rememberCoilPainter(request = it),
-            alignment = Alignment.Center,
+            bitmap = it?.asImageBitmap() ?: ImageBitmap(1, 1),
             contentDescription = "favicon",
+            alignment = Alignment.Center,
             modifier = Modifier.size(size = size)
         )
     }
