@@ -109,14 +109,7 @@ object MainViewModel : ViewModel() {
             this.context!!.getSystemService(FragmentActivity.CLIPBOARD_SERVICE) as ClipboardManager
         autofillManager = this.context!!.getSystemService(AutofillManager::class.java)
 
-        if (autofillManager!!.hasEnabledAutofillServices()) {
-            autofillState.value = true
-            autostartState.value = sharedPreferences!!.contains("autostart")
-
-            context.startForegroundService(
-                Intent(context, NextPassAutofillService::class.java)
-            )
-        }
+        autostartState.value = sharedPreferences!!.contains("autostart")
 
         if (sharedPreferences!!.contains("PIN")) {
             unlockedState.value = false
@@ -125,6 +118,20 @@ object MainViewModel : ViewModel() {
 
             biometricProtectedState.value = sharedPreferences!!.contains("biometric")
         }
+    }
+
+    fun launchAutofillService(): Boolean {
+        return if (autofillManager!!.hasEnabledAutofillServices() &&
+            NextcloudApiProvider.attemptLogin()
+        ) {
+            autofillState.value = true
+
+            context!!.startForegroundService(
+                Intent(context, NextPassAutofillService::class.java)
+            )
+
+            true
+        } else false
     }
 
     fun enableAutofill() {
@@ -198,6 +205,8 @@ object MainViewModel : ViewModel() {
     fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlockedState.value) {
             if (NextcloudApiProvider.attemptLogin()) {
+                launchAutofillService()
+
                 if (!shouldRememberScreen) navigate(route = "passwords")
 
                 NextcloudApiProvider.refreshServerList()
