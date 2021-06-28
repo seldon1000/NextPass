@@ -275,6 +275,13 @@ object MainViewModel : ViewModel() {
         selectedFolderState.value = folder
     }
 
+    private fun setKeyboardMode() {
+        if (navController?.currentDestination?.route!! == "search")
+            context!!.window.setSoftInputMode(16)
+        else
+            context!!.window.setSoftInputMode(32)
+    }
+
     fun navigate(route: String) {
         if (navController?.currentDestination?.route!!.substringBefore("/") !=
             route.substringBefore("/")
@@ -289,6 +296,8 @@ object MainViewModel : ViewModel() {
                 navController?.currentDestination?.route!! == "pin"
             ) refreshingState.value = false
         }
+
+        setKeyboardMode()
     }
 
     fun popBackStack(): Boolean {
@@ -307,6 +316,8 @@ object MainViewModel : ViewModel() {
                 currentScreenState.value =
                     navController?.previousBackStackEntry?.destination?.route!!
                 navController?.popBackStack()
+
+                setKeyboardMode()
 
                 true
             }

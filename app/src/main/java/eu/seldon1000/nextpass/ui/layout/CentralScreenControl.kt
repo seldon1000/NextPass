@@ -16,8 +16,6 @@
 
 package eu.seldon1000.nextpass.ui.layout
 
-import android.app.Activity
-import android.view.WindowManager
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,8 +45,6 @@ import eu.seldon1000.nextpass.ui.screens.*
 @ExperimentalMaterialApi
 @Composable
 fun CentralScreenControl() {
-    val context = LocalContext.current
-
     val navController = rememberNavController()
     MainViewModel.setNavController(controller = navController)
 
@@ -77,8 +73,6 @@ fun CentralScreenControl() {
         ) {
             NavHost(navController = navController, startDestination = "welcome")
             {
-                (context as Activity).window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-
                 composable(
                     route = "access_pin/{shouldRaiseBiometric}",
                     listOf(navArgument(name = "shouldRaiseBiometric") { type = NavType.BoolType })

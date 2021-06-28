@@ -16,8 +16,6 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
-import android.app.Activity
-import android.view.WindowManager
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,8 +44,6 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 @Composable
 fun Search() {
     val context = LocalContext.current
-
-    (context as Activity).window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
     val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
