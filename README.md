@@ -11,7 +11,7 @@ Just import the project from Version Control, let Gradle do its (endless) magic 
 
 
 # Requirements
-NextPass officially supports Android up from 8.0, although pre-11 versions could experience some weird behavior. Please, if you experience issues with a less recent Android version, report them on GitHub providing a detailed description (you can do this just by opening 'About' screen in the app itself).
+NextPass officially supports Android up from 8.0. Please, if you experience issues, report them on GitHub providing a detailed description (you can do this just by opening 'About' screen in the app itself).
 
 
 # Known issues
