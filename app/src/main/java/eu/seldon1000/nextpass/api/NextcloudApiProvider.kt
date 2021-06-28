@@ -482,16 +482,18 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun faviconRequest(url: String) {
-        val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
-            .setUrl("$endpoint/service/favicon/${Uri.parse(url).host ?: url}/144")
-            .build()
+        if (url.isNotEmpty()) {
+            val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
+                .setUrl("$endpoint/service/favicon/${Uri.parse(url).host ?: url}/144")
+                .build()
 
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                currentRequestedFaviconState.value = BitmapFactory.decodeStream(
-                    nextcloudApi!!.performNetworkRequest(faviconRequest)
-                )
-            } catch (e: Exception) {
+            viewModelScope.launch(Dispatchers.IO) {
+                try {
+                    currentRequestedFaviconState.value = BitmapFactory.decodeStream(
+                        nextcloudApi!!.performNetworkRequest(faviconRequest)
+                    )
+                } catch (e: Exception) {
+                }
             }
         }
     }
