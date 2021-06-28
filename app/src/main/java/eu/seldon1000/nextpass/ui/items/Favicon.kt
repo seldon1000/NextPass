@@ -17,34 +17,40 @@
 package eu.seldon1000.nextpass.ui.items
 
 import android.graphics.Bitmap
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.core.graphics.createBitmap
 import coil.transform.RoundedCornersTransformation
 import com.google.accompanist.coil.rememberCoilPainter
 
 @Composable
 fun Favicon(favicon: Bitmap?, size: Dp) {
-    Image(
-        painter = rememberCoilPainter(
-            request = favicon ?: createBitmap(width = 1, height = 1),
-            requestBuilder = {
-                transformations(
-                    RoundedCornersTransformation(
-                        topLeft = 16F,
-                        topRight = 16F,
-                        bottomLeft = 16F,
-                        bottomRight = 16F
+    Crossfade(
+        targetState = favicon,
+        animationSpec = tween(durationMillis = 300)
+    ) {
+        Image(
+            painter = rememberCoilPainter(
+                request = it,
+                requestBuilder = {
+                    transformations(
+                        RoundedCornersTransformation(
+                            topLeft = 16F,
+                            topRight = 16F,
+                            bottomLeft = 16F,
+                            bottomRight = 16F
+                        )
                     )
-                )
-            }
-        ),
-        alignment = Alignment.Center,
-        contentDescription = "favicon",
-        modifier = Modifier.size(size = size)
-    )
+                }
+            ),
+            alignment = Alignment.Center,
+            contentDescription = "favicon",
+            modifier = Modifier.size(size = size)
+        )
+    }
 }
