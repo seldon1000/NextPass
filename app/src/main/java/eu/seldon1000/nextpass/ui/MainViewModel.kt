@@ -39,16 +39,15 @@ import kotlinx.coroutines.launch
 @SuppressLint("StaticFieldLeak")
 object MainViewModel : ViewModel() {
     private var context: FragmentActivity? = null
-
     private var sharedPreferences: SharedPreferences? = null
 
-    private var navController: NavController? = null
-
     private var clipboardManager: ClipboardManager? = null
-
-    private var snackbarHostState: SnackbarHostState? = null
-
     private var autofillManager: AutofillManager? = null
+
+    private var autofillIntent: Intent? = null
+
+    private var navController: NavController? = null
+    private var snackbarHostState: SnackbarHostState? = null
 
     private var pendingUnlockAction = {}
 
@@ -133,18 +132,29 @@ object MainViewModel : ViewModel() {
         }
     }
 
-    fun launchAutofillService(): Boolean {
+    private fun startAutofillService(): Boolean {
         return if (autofillManager!!.hasEnabledAutofillServices() &&
             NextcloudApiProvider.attemptLogin()
         ) {
             autofillState.value = true
 
-            context!!.startForegroundService(
-                Intent(context, NextPassAutofillService::class.java)
-            )
+            if (autofillIntent == null)
+                autofillIntent = Intent(context, NextPassAutofillService::class.java)
+
+            context!!.startForegroundService(autofillIntent)
 
             true
         } else false
+    }
+
+    fun stopAutofillService() {
+        if (!autofillState.value)
+            showSnackbar(message = context!!.getString(R.string.service_not_enabled_snack))
+        else {
+            context!!.stopService(autofillIntent)
+
+            showSnackbar(message = context!!.getString(R.string.service_terminated_snack))
+        }
     }
 
     fun enableScreenProtection() {
@@ -174,7 +184,7 @@ object MainViewModel : ViewModel() {
     fun enableAutofill() {
         autofillState.value = true
 
-        context!!.startForegroundService(Intent(context, NextPassAutofillService::class.java))
+        startAutofillService()
     }
 
     fun enableAutostart() {
@@ -242,7 +252,7 @@ object MainViewModel : ViewModel() {
     fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlockedState.value) {
             if (NextcloudApiProvider.attemptLogin()) {
-                launchAutofillService()
+                startAutofillService()
 
                 if (!shouldRememberScreen) navigate(route = "passwords")
 

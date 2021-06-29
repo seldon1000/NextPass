@@ -277,7 +277,7 @@ fun Settings() {
                 GenericColumnItem(
                     title = context.getString(R.string.lock_now),
                     body = context.getString(R.string.lock_now_tip)
-                ) { if (protected) MainViewModel.lock(shouldRaiseBiometric = false) }
+                ) { MainViewModel.lock(shouldRaiseBiometric = false) }
             }
             item {
                 GenericColumnItem(
@@ -345,6 +345,13 @@ fun Settings() {
                         )
                     }
                 ) {}
+            }
+            item {
+                GenericColumnItem(
+                    title = context.getString(R.string.stop_service_now),
+                    body = context.getString(R.string.stop_service_now_tip),
+                    item = {}
+                ) { MainViewModel.stopAutofillService() }
             }
         }
     }

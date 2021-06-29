@@ -23,6 +23,8 @@
     <string name="authenticate">Authenticate</string>
     <string name="immediately">Immediately</string>
     <string name="never">Never</string>
+    <string name="service_terminated_snack">Autofill service terminated</string>
+    <string name="service_not_enabled_snack">You must enable autofill service in settings first</string>
     <string name="search_message">What are you looking for?</string>
     <string name="missing_nextcloud">Missing Nextcloud Files app!</string>
     <string name="missing_nextcloud_body">NextPass needs the Nextcloud Files app to be installed and updated.\n\nDo you want to install it now?</string>
@@ -31,6 +33,8 @@
     <string name="send_email_tip">Click here to quickly send us an email. We\'ll get back to you as soon as possible.</string>
     <string name="passwords">Passwords</string>
     <string name="autofill">Autofill</string>
+    <string name="stop_service_now">Stop service now</string>
+    <string name="stop_service_now_tip">Click here to manually terminate the background autofill service. Note that it will automatically restart if you restart NextPass. You can disable it completely in your device\'s settings.</string>
     <string name="lock_timeout">Lock timeout</string>
     <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock, If you choose \'Never\', the app will remain unlocked till next restart or forced interruption.</string>
     <string name="special_thanks">Special thanks and mentions</string>
