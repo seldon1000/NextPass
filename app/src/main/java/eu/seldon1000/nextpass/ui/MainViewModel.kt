@@ -75,11 +75,11 @@ object MainViewModel : ViewModel() {
     private val lockTimeoutState = MutableStateFlow(value = (-1).toLong())
     val lockTimeout = lockTimeoutState
 
-    private val currentScreenState = MutableStateFlow(value = "passwords")
-    val currentScreen = currentScreenState
-
     private val refreshingState = MutableStateFlow(value = false)
     val refreshing: StateFlow<Boolean> = refreshingState
+
+    private val currentScreenState = MutableStateFlow(value = "passwords")
+    val currentScreen = currentScreenState
 
     private val folderModeState = MutableStateFlow(value = false)
     val folderMode = folderModeState
@@ -114,10 +114,7 @@ object MainViewModel : ViewModel() {
         autofillManager = this.context!!.getSystemService(AutofillManager::class.java)
 
         screenProtectionState.value = sharedPreferences!!.contains("screen")
-        if (screenProtectionState.value) context.window.setFlags(
-            WindowManager.LayoutParams.FLAG_SECURE,
-            WindowManager.LayoutParams.FLAG_SECURE
-        )
+        if (screenProtectionState.value) enableScreenProtection()
 
         autostartState.value = sharedPreferences!!.contains("autostart")
 
@@ -125,8 +122,58 @@ object MainViewModel : ViewModel() {
             unlockedState.value = false
             pinProtectedState.value = true
             lockTimeoutState.value = sharedPreferences!!.getLong("timeout", 0)
-
             biometricProtectedState.value = sharedPreferences!!.contains("biometric")
+        }
+    }
+
+    fun setPrimaryClip(label: String, clip: String) {
+        viewModelScope.launch {
+            clipboardManager!!.setPrimaryClip(ClipData.newPlainText(label, clip))
+        }
+
+        showSnackbar(message = context!!.getString(R.string.copy_snack_message, label))
+    }
+
+    fun setNavController(controller: NavController) {
+        navController = controller
+    }
+
+    fun setSnackbarHostState(snackbar: SnackbarHostState) {
+        snackbarHostState = snackbar
+    }
+
+    fun showSnackbar(message: String) {
+        viewModelScope.launch {
+            if (navController?.currentDestination?.route!! != "access_pin/{shouldRaiseBiometric}" &&
+                navController?.currentDestination?.route!! != "pin"
+            ) {
+                snackbarHostState?.currentSnackbarData?.dismiss()
+                snackbarHostState?.showSnackbar(message = message)
+            }
+        }
+    }
+
+    fun enableScreenProtection() {
+        sharedPreferences!!.edit().putBoolean("screen", true).apply()
+
+        context!!.window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
+
+        screenProtectionState.value = true
+    }
+
+    fun disableScreenProtection() {
+        if (pinProtectedState.value) {
+            sharedPreferences!!.edit().remove("screen").apply()
+
+            lock(shouldRaiseBiometric = true)
+            pendingUnlockAction = {
+                context!!.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+
+            screenProtectionState.value = false
         }
     }
 
@@ -155,30 +202,6 @@ object MainViewModel : ViewModel() {
         }
     }
 
-    fun enableScreenProtection() {
-        sharedPreferences!!.edit().putBoolean("screen", true).apply()
-
-        context!!.window.setFlags(
-            WindowManager.LayoutParams.FLAG_SECURE,
-            WindowManager.LayoutParams.FLAG_SECURE
-        )
-
-        screenProtectionState.value = true
-    }
-
-    fun disableScreenProtection() {
-        if (pinProtectedState.value) {
-            sharedPreferences!!.edit().remove("screen").apply()
-
-            lock(shouldRaiseBiometric = true)
-            pendingUnlockAction = {
-                context!!.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
-
-            screenProtectionState.value = false
-        }
-    }
-
     fun enableAutofill() {
         autofillState.value = true
 
@@ -197,8 +220,42 @@ object MainViewModel : ViewModel() {
         autostartState.value = false
     }
 
-    fun setNavController(controller: NavController) {
-        navController = controller
+    fun lock(shouldRaiseBiometric: Boolean = true) {
+        if (pinProtectedState.value) {
+            unlockedState.value = false
+
+            if (biometricProtectedState.value) biometricDismissedState.value = false
+
+            setRefreshing(refreshing = false)
+            navigate(route = "access_pin/$shouldRaiseBiometric")
+        }
+    }
+
+    fun unlock() {
+        unlockedState.value = true
+
+        if (navController?.previousBackStackEntry?.destination?.route != "welcome") {
+            currentScreenState.value = navController?.previousBackStackEntry?.destination?.route!!
+            navController?.popBackStack(
+                route = navController?.currentBackStackEntry?.destination?.route!!,
+                inclusive = true
+            )
+        } else openApp()
+
+        pendingUnlockAction()
+        pendingUnlockAction = {}
+    }
+
+    fun openApp(shouldRememberScreen: Boolean = false) {
+        if (unlockedState.value) {
+            if (NextcloudApiProvider.attemptLogin()) {
+                startAutofillService()
+
+                if (!shouldRememberScreen) navigate(route = "passwords")
+
+                NextcloudApiProvider.refreshServerList()
+            }
+        } else navigate(route = "access_pin/true")
     }
 
     fun checkPin(pin: String): Boolean {
@@ -241,52 +298,42 @@ object MainViewModel : ViewModel() {
         biometricProtectedState.value = false
     }
 
+    fun showBiometricPrompt() {
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(context!!.getString(R.string.access_nextpass))
+            .setSubtitle(context!!.getString(R.string.access_nextpass_body))
+            .setNegativeButtonText(context!!.getString(R.string.cancel))
+            .build()
+
+        val biometricPrompt = BiometricPrompt(
+            context!!,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(
+                    errorCode: Int,
+                    errString: CharSequence
+                ) {
+                    biometricDismissedState.value = true
+                }
+
+                override fun onAuthenticationSucceeded(
+                    result: BiometricPrompt.AuthenticationResult
+                ) {
+                    unlock()
+                }
+
+                override fun onAuthenticationFailed() {
+                    biometricDismissedState.value = true
+                }
+            }
+        )
+
+        biometricPrompt.authenticate(promptInfo)
+    }
+
     fun setLockTimeout(timeout: Long) {
         sharedPreferences!!.edit().putLong("timeout", timeout).apply()
 
         lockTimeoutState.value = timeout
-    }
-
-    fun openApp(shouldRememberScreen: Boolean = false) {
-        if (unlockedState.value) {
-            if (NextcloudApiProvider.attemptLogin()) {
-                startAutofillService()
-
-                if (!shouldRememberScreen) navigate(route = "passwords")
-
-                NextcloudApiProvider.refreshServerList()
-            }
-        } else navigate(route = "access_pin/true")
-    }
-
-    fun lock(shouldRaiseBiometric: Boolean = true) {
-        if (pinProtectedState.value) {
-            unlockedState.value = false
-
-            if (biometricProtectedState.value) biometricDismissedState.value = false
-
-            setRefreshing(refreshing = false)
-            navigate(route = "access_pin/$shouldRaiseBiometric")
-        }
-    }
-
-    fun unlock() {
-        unlockedState.value = true
-
-        if (navController?.previousBackStackEntry?.destination?.route != "welcome") {
-            currentScreenState.value = navController?.previousBackStackEntry?.destination?.route!!
-            navController?.popBackStack(
-                route = navController?.currentBackStackEntry?.destination?.route!!,
-                inclusive = true
-            )
-        } else openApp()
-
-        pendingUnlockAction()
-        pendingUnlockAction = {}
-    }
-
-    fun setSnackbarHostState(snackbar: SnackbarHostState) {
-        snackbarHostState = snackbar
     }
 
     fun setRefreshing(refreshing: Boolean) {
@@ -299,28 +346,6 @@ object MainViewModel : ViewModel() {
                 } catch (e: Exception) {
                     false
                 }
-    }
-
-    fun setFolderMode(mode: Boolean? = null) {
-        if (mode == null) folderModeState.value = !folderModeState.value
-        else folderModeState.value = mode
-    }
-
-    fun setCurrentFolder(folder: Int? = null) {
-        if (folder != null) {
-            currentFolderState.value = folder
-            selectedFolderState.value = folder
-        } else {
-            currentFolderState.value =
-                NextcloudApiProvider.storedFolders.value.indexOfFirst {
-                    it.id == NextcloudApiProvider.storedFolders.value[currentFolderState.value].parent
-                }
-            selectedFolderState.value = currentFolderState.value
-        }
-    }
-
-    fun setSelectedFolder(folder: Int) {
-        selectedFolderState.value = folder
     }
 
     private fun setKeyboardMode() {
@@ -376,23 +401,26 @@ object MainViewModel : ViewModel() {
         }
     }
 
-    fun setPrimaryClip(label: String, clip: String) {
-        viewModelScope.launch {
-            clipboardManager!!.setPrimaryClip(ClipData.newPlainText(label, clip))
-        }
-
-        showSnackbar(message = context!!.getString(R.string.copy_snack_message, label))
+    fun setFolderMode(mode: Boolean? = null) {
+        if (mode == null) folderModeState.value = !folderModeState.value
+        else folderModeState.value = mode
     }
 
-    fun showSnackbar(message: String) {
-        viewModelScope.launch {
-            if (navController?.currentDestination?.route!! != "access_pin/{shouldRaiseBiometric}" &&
-                navController?.currentDestination?.route!! != "pin"
-            ) {
-                snackbarHostState?.currentSnackbarData?.dismiss()
-                snackbarHostState?.showSnackbar(message = message)
-            }
+    fun setCurrentFolder(folder: Int? = null) {
+        if (folder != null) {
+            currentFolderState.value = folder
+            selectedFolderState.value = folder
+        } else {
+            currentFolderState.value =
+                NextcloudApiProvider.storedFolders.value.indexOfFirst {
+                    it.id == NextcloudApiProvider.storedFolders.value[currentFolderState.value].parent
+                }
+            selectedFolderState.value = currentFolderState.value
         }
+    }
+
+    fun setSelectedFolder(folder: Int) {
+        selectedFolderState.value = folder
     }
 
     fun showDialog(title: String, body: String, confirm: Boolean = false, action: () -> Unit) {
@@ -406,37 +434,5 @@ object MainViewModel : ViewModel() {
 
     fun dismissDialog() {
         openDialogState.value = false
-    }
-
-    fun showBiometricPrompt() {
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(context!!.getString(R.string.access_nextpass))
-            .setSubtitle(context!!.getString(R.string.access_nextpass_body))
-            .setNegativeButtonText(context!!.getString(R.string.cancel))
-            .build()
-
-        val biometricPrompt = BiometricPrompt(
-            context!!,
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(
-                    errorCode: Int,
-                    errString: CharSequence
-                ) {
-                    biometricDismissedState.value = true
-                }
-
-                override fun onAuthenticationSucceeded(
-                    result: BiometricPrompt.AuthenticationResult
-                ) {
-                    unlock()
-                }
-
-                override fun onAuthenticationFailed() {
-                    biometricDismissedState.value = true
-                }
-            }
-        )
-
-        biometricPrompt.authenticate(promptInfo)
     }
 }
