@@ -37,7 +37,6 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import java.math.BigInteger
 import java.security.MessageDigest
-import java.util.*
 
 class NextPassAutofillService : AutofillService() {
     private var isServiceStarted = false
@@ -177,8 +176,7 @@ class NextPassAutofillService : AutofillService() {
                             )
                         ).toString()
                     } catch (e: Exception) {
-                        saveIdPackage.substringAfter(".").substringBefore(".")
-                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                        appName.replaceFirstChar { it.titlecase() }
                     }
                 } else "Unknown",
                 "username" to saveUsername,
