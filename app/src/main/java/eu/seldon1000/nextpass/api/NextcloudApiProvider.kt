@@ -41,8 +41,6 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.json.JSONArray
-import org.json.JSONObject
 import java.util.*
 import java.util.stream.Collectors
 
@@ -252,12 +250,12 @@ object NextcloudApiProvider : ViewModel() {
                 .build()
 
             try {
-                val response = JSONObject(
+                val response = JsonParser.parseString(
                     nextcloudApi!!.performNetworkRequest(createRequest)
                         .bufferedReader()
                         .lines()
                         .collect(Collectors.joining("\n"))
-                ).getString("id")
+                ).asJsonObject.get("id").asString
 
                 val listRequest = NextcloudRequest.Builder()
                     .setMethod("POST")
@@ -301,12 +299,12 @@ object NextcloudApiProvider : ViewModel() {
                 .build()
 
             try {
-                val response = JSONObject(
+                val response = JsonParser.parseString(
                     nextcloudApi!!.performNetworkRequest(createRequest)
                         .bufferedReader()
                         .lines()
                         .collect(Collectors.joining("\n"))
-                ).getString("id")
+                ).asJsonObject.get("id").asString
 
                 val showRequest = NextcloudRequest.Builder()
                     .setMethod("POST")
@@ -395,7 +393,7 @@ object NextcloudApiProvider : ViewModel() {
             if (!params.containsKey(key = "notes")) params["notes"] = password.notes
             if (!params.containsKey(key = "folder")) params["folder"] = password.folder
             if (!params.containsKey(key = "customFields")) params["customFields"] =
-                JSONArray(password.customFields).toString()
+                JsonParser.parseString(password.customFields.toString()).asJsonArray.toString()
             params["hash"] = password.hash
 
             val createRequest = NextcloudRequest.Builder()
@@ -405,12 +403,12 @@ object NextcloudApiProvider : ViewModel() {
                 .build()
 
             try {
-                val response = JSONObject(
+                val response = JsonParser.parseString(
                     nextcloudApi!!.performNetworkRequest(createRequest)
                         .bufferedReader()
                         .lines()
                         .collect(Collectors.joining("\n"))
-                ).getString("id")
+                ).asJsonObject.get("id").asString
 
                 val showRequest = NextcloudRequest.Builder()
                     .setMethod("POST")
@@ -462,12 +460,12 @@ object NextcloudApiProvider : ViewModel() {
 
         return try {
             withContext(Dispatchers.IO) {
-                return@withContext JSONObject(
+                return@withContext JsonParser.parseString(
                     nextcloudApi!!.performNetworkRequest(generateRequest)
                         .bufferedReader()
                         .lines()
                         .collect(Collectors.joining("\n"))
-                ).getString("password")
+                ).asJsonObject.get("password").asString
             }
         } catch (e: Exception) {
             showError()

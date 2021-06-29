@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.google.gson.JsonParser
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
@@ -44,7 +45,6 @@ import eu.seldon1000.nextpass.ui.items.Favicon
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import kotlinx.coroutines.launch
-import org.json.JSONArray
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -116,7 +116,7 @@ fun NewPassword() {
                         "notes" to notes,
                         "hash" to hash,
                         "folder" to storedFolders[selectedFolder].id,
-                        "customFields" to JSONArray(concreteCustomFields).toString()
+                        "customFields" to JsonParser.parseString(concreteCustomFields.toString()).asJsonArray.toString()
                     )
                     if (favorite) params["favorite"] = "true"
 
