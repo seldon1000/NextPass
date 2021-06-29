@@ -281,8 +281,8 @@ fun Settings() {
             }
             item {
                 GenericColumnItem(
-                    title = "Prevent screen capture",
-                    body = "If enabled, this will prevent user from capturing the screen when using NextPass (i.e. screenshots...).",
+                    title = context.getString(R.string.prevent_screen_capture),
+                    body = context.getString(R.string.prevent_screen_capture_tip),
                     item = {
                         Checkbox(
                             checked = screenProtection,
@@ -291,6 +291,7 @@ fun Settings() {
                                 else MainViewModel.enableScreenProtection()
                             },
                             enabled = true,
+                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }

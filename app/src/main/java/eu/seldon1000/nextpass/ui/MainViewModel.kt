@@ -115,7 +115,7 @@ object MainViewModel : ViewModel() {
             this.context!!.getSystemService(FragmentActivity.CLIPBOARD_SERVICE) as ClipboardManager
         autofillManager = this.context!!.getSystemService(AutofillManager::class.java)
 
-        screenProtectionState.value = sharedPreferences!!.contains("prevent")
+        screenProtectionState.value = sharedPreferences!!.contains("screen")
 
         if (screenProtectionState.value) context.window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
