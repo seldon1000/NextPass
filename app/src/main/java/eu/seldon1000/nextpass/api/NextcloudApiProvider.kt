@@ -241,7 +241,7 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun createPasswordRequest(params: MutableMap<String, String>) {
+    fun createPasswordRequest(params: Map<String, String>) {
         viewModelScope.launch(Dispatchers.IO) {
             val createRequest = NextcloudRequest.Builder()
                 .setMethod("POST")
@@ -290,7 +290,7 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun createFolderRequest(params: MutableMap<String, String>) {
+    fun createFolderRequest(params: Map<String, String>) {
         viewModelScope.launch(Dispatchers.IO) {
             val createRequest = NextcloudRequest.Builder()
                 .setMethod("POST")
@@ -392,8 +392,10 @@ object NextcloudApiProvider : ViewModel() {
             if (!params.containsKey(key = "url")) params["url"] = password.url
             if (!params.containsKey(key = "notes")) params["notes"] = password.notes
             if (!params.containsKey(key = "folder")) params["folder"] = password.folder
-            if (!params.containsKey(key = "customFields")) params["customFields"] =
-                JsonParser.parseString(password.customFields.toString()).asJsonArray.toString()
+            if (!params.containsKey(key = "customFields"))
+                params["customFields"] = JsonParser.parseString(
+                    password.customFields.toList().toString()
+                ).asJsonArray.toString()
             params["hash"] = password.hash
 
             val createRequest = NextcloudRequest.Builder()

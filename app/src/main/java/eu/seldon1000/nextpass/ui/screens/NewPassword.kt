@@ -91,7 +91,7 @@ fun NewPassword() {
                         try {
                             concreteCustomFields.add(
                                 mapOf(
-                                    "label" to customField["label"]!!,
+                                    "label" to "\"${customField["label"]!!}\"",
                                     "type" to if (customField["type"]!! != "secret" &&
                                         android.util.Patterns.EMAIL_ADDRESS.matcher(customField["value"]!!)
                                             .matches()
@@ -101,7 +101,7 @@ fun NewPassword() {
                                             .matches()
                                     ) "url"
                                     else customField["type"]!!,
-                                    "value" to customField["value"]!!
+                                    "value" to "\"${customField["value"]!!}\""
                                 )
                             )
                         } catch (e: Exception) {

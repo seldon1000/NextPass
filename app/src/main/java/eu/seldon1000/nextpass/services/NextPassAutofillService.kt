@@ -31,6 +31,7 @@ import android.service.autofill.*
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
+import com.google.gson.JsonParser
 import eu.seldon1000.nextpass.MainActivity
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
@@ -165,7 +166,7 @@ class NextPassAutofillService : AutofillService() {
                 hash = "0$hash"
             }
 
-            val params = mutableMapOf(
+            val params = mapOf(
                 "password" to savePassword,
                 "label" to if (saveIdPackage.isNotEmpty()) {
                     try {
@@ -181,7 +182,16 @@ class NextPassAutofillService : AutofillService() {
                     }
                 } else "Unknown",
                 "username" to saveUsername,
-                "hash" to hash
+                "hash" to hash,
+                "customFields" to JsonParser.parseString(
+                    listOf(
+                        mapOf(
+                            "label" to "\"Android app\"",
+                            "type" to "text",
+                            "value" to "\"$saveIdPackage\""
+                        )
+                    ).toString()
+                ).asJsonArray.toString()
             )
 
             NextcloudApiProvider.createPasswordRequest(params = params)

@@ -80,45 +80,45 @@ fun PasswordDetails(passwordData: Password) {
         FloatingActionButton({
             if (edit) {
                 if (label.isNotEmpty() && password.isNotEmpty()) {
-                    val concreteCustomFields = mutableListOf<Map<String, String>>()
-                    customFields.forEach { customField ->
-                        try {
-                            concreteCustomFields.add(
-                                mapOf(
-                                    "label" to customField["label"]!!,
-                                    "type" to if (customField["type"]!! != "secret" &&
-                                        android.util.Patterns.EMAIL_ADDRESS.matcher(customField["value"]!!)
-                                            .matches()
-                                    ) "email"
-                                    else if (customField["type"]!! != "secret" &&
-                                        android.util.Patterns.WEB_URL.matcher(customField["value"]!!)
-                                            .matches()
-                                    ) "url"
-                                    else customField["type"]!!,
-                                    "value" to customField["value"]!!
-                                )
-                            )
-                        } catch (e: Exception) {
-                        }
-                    }
-
-                    val params = mutableMapOf(
-                        "password" to password,
-                        "label" to label,
-                        "username" to username,
-                        "url" to url,
-                        "notes" to notes,
-                        "folder" to storedFolders[selectedFolder].id,
-                        "customFields" to JsonParser.parseString(concreteCustomFields.toString()).asJsonArray.toString()
-                    )
-                    if (passwordData.favorite) params["favorite"] = "true"
-
                     MainViewModel.showDialog(
                         title = context.getString(R.string.update_password),
                         body = context.getString(R.string.update_password_body),
                         confirm = true
                     ) {
                         edit = false
+
+                        val concreteCustomFields = mutableListOf<Map<String, String>>()
+                        customFields.forEach { customField ->
+                            try {
+                                concreteCustomFields.add(
+                                    mapOf(
+                                        "label" to "\"${customField["label"]!!}\"",
+                                        "type" to if (customField["type"]!! != "secret" &&
+                                            android.util.Patterns.EMAIL_ADDRESS.matcher(customField["value"]!!)
+                                                .matches()
+                                        ) "email"
+                                        else if (customField["type"]!! != "secret" &&
+                                            android.util.Patterns.WEB_URL.matcher(customField["value"]!!)
+                                                .matches()
+                                        ) "url"
+                                        else customField["type"]!!,
+                                        "value" to "\"${customField["value"]!!}\""
+                                    )
+                                )
+                            } catch (e: Exception) {
+                            }
+                        }
+
+                        val params = mutableMapOf(
+                            "password" to password,
+                            "label" to label,
+                            "username" to username,
+                            "url" to url,
+                            "notes" to notes,
+                            "folder" to storedFolders[selectedFolder].id,
+                            "customFields" to JsonParser.parseString(concreteCustomFields.toString()).asJsonArray.toString()
+                        )
+                        if (passwordData.favorite) params["favorite"] = "true"
 
                         MainViewModel.setRefreshing(refreshing = true)
                         NextcloudApiProvider.updatePasswordRequest(
