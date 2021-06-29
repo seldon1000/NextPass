@@ -208,7 +208,6 @@ class NextPassAutofillService : AutofillService() {
     }
 
     private fun traverseNode(viewNode: ViewNode, mode: Boolean) {
-        println("CIAO ${viewNode.autofillHints?.toList()}")
         if (!mode) {
             if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
                 NextcloudApiProvider.storedPasswords.value.forEach { password ->
