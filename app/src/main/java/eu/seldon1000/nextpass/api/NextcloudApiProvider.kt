@@ -244,6 +244,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun createPasswordRequest(params: MutableMap<String, String>) {
+        println("CIAO")
         viewModelScope.launch(Dispatchers.IO) {
             val createRequest = NextcloudRequest.Builder()
                 .setMethod("POST")

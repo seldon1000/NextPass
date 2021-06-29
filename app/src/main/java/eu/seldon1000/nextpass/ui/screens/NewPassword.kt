@@ -60,8 +60,6 @@ fun NewPassword() {
 
     val selectedFolder by MainViewModel.selectedFolder.collectAsState()
 
-    val customFields = SnapshotStateList<SnapshotStateMap<String, String>>()
-
     var showed by remember { mutableStateOf(value = false) }
     var favorite by remember { mutableStateOf(value = false) }
 
@@ -71,6 +69,7 @@ fun NewPassword() {
     var password by remember { mutableStateOf(value = "") }
     var notes by remember { mutableStateOf(value = "") }
     val favicon by NextcloudApiProvider.currentRequestedFavicon.collectAsState()
+    val customFields = SnapshotStateList<SnapshotStateMap<String, String>>()
 
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = {
@@ -126,7 +125,6 @@ fun NewPassword() {
                     MainViewModel.popBackStack()
                     MainViewModel.showSnackbar(message = context.getString(R.string.new_password_snack))
                 }
-
             } else MainViewModel.showDialog(
                 title = context.getString(R.string.missing_info),
                 body = context.getString(R.string.missing_info_body)
