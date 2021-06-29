@@ -64,7 +64,7 @@ fun PasswordCard(password: Password) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Box(modifier = Modifier.padding(all = 8.dp)) {
+            Box(modifier = Modifier.padding(all = 10.dp)) {
                 Favicon(favicon = favicon, size = 44.dp)
             }
             Column(
