@@ -17,7 +17,6 @@
 package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -102,11 +101,7 @@ fun Search() {
             item { Header(expanded = true, title = context.getString(R.string.search)) {} }
             if (searchedText.isNotEmpty()) {
                 items(items = resultFolders) { folder -> FolderCard(folder = folder) }
-                item {
-                    Column {
-                        resultPasswords.forEach { password -> PasswordCard(password = password) }
-                    }
-                }
+                items(resultPasswords) { password -> PasswordCard(password = password) }
             }
             item {
                 CountMessage(

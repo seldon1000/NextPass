@@ -122,13 +122,9 @@ fun PasswordList() {
                 if (folder.parent == storedFolders[currentFolder].id)
                     FolderCard(folder = folder)
             }
-            item {
-                Column {
-                    storedPasswords.forEach { password ->
-                        if (!folderMode || password.folder == storedFolders[currentFolder].id)
-                            PasswordCard(password = password)
-                    }
-                }
+            items(storedPasswords) { password ->
+                if (!folderMode || password.folder == storedFolders[currentFolder].id)
+                    PasswordCard(password = password)
             }
             item {
                 CountMessage(

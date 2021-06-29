@@ -17,7 +17,6 @@
 package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -70,12 +69,8 @@ fun Favorites() {
             items(items = favoriteFolders) { folder ->
                 if (folder.favorite) FolderCard(folder = folder)
             }
-            item {
-                Column {
-                    favoritePasswords.forEach { password ->
-                        if (password.favorite) PasswordCard(password = password)
-                    }
-                }
+            items(favoritePasswords) { password ->
+                if (password.favorite) PasswordCard(password = password)
             }
             item {
                 CountMessage(
