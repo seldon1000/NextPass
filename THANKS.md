@@ -20,7 +20,7 @@ NextPass was made possibile thanks to the amazing work of many people. This is a
 
 **Material Design guidelines** (https://material.io)
 
-**Besticon favicon-service** (https://github.com/mat/besticon) (temporary solution, still big thanks)
+**Besticon favicon-service** (https://github.com/mat/besticon) (no longer in the code, to be removed when a new release is out)
 
 
 ***List will be updated during development***
