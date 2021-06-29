@@ -39,9 +39,11 @@ import com.nextcloud.android.sso.helper.SingleAccountHelper
 import com.nextcloud.android.sso.model.SingleSignOnAccount
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.util.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.stream.Collectors
 
 @SuppressLint("StaticFieldLeak")
@@ -440,13 +442,13 @@ object NextcloudApiProvider : ViewModel() {
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val deleteRequest = NextcloudRequest.Builder()
-                    .setMethod("DELETE")
-                    .setUrl("$endpoint/password/delete")
-                    .setParameter(mapOf("id" to password.id))
-                    .build()
+            val deleteRequest = NextcloudRequest.Builder()
+                .setMethod("DELETE")
+                .setUrl("$endpoint/password/delete")
+                .setParameter(mapOf("id" to password.id))
+                .build()
 
+            try {
                 nextcloudApi!!.performNetworkRequest(deleteRequest)
             } catch (e: Exception) {
                 showError()
@@ -460,19 +462,19 @@ object NextcloudApiProvider : ViewModel() {
             .setUrl("$endpoint/service/password")
             .build()
 
-        return try {
-            withContext(Dispatchers.IO) {
-                return@withContext JsonParser.parseString(
+        return withContext(Dispatchers.IO) {
+            try {
+                JsonParser.parseString(
                     nextcloudApi!!.performNetworkRequest(generateRequest)
                         .bufferedReader()
                         .lines()
                         .collect(Collectors.joining("\n"))
                 ).asJsonObject.get("password").asString
-            }
-        } catch (e: Exception) {
-            showError()
+            } catch (e: Exception) {
+                showError()
 
-            ""
+                ""
+            }
         }
     }
 
