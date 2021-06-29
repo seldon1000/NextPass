@@ -208,6 +208,7 @@ class NextPassAutofillService : AutofillService() {
     }
 
     private fun traverseNode(viewNode: ViewNode, mode: Boolean) {
+        println("CIAO ${viewNode.autofillHints?.toList()}")
         if (!mode) {
             if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
                 NextcloudApiProvider.storedPasswords.value.forEach { password ->
@@ -259,32 +260,42 @@ class NextPassAutofillService : AutofillService() {
                 }
             }
 
-            if (usernameHints.any { viewNode.hint?.lowercase()?.contains(it) == true } &&
-                !usernameId.contains(element = viewNode.autofillId)
+            if (usernameHints.any { hint ->
+                    viewNode.autofillHints?.any { it.contains(hint, ignoreCase = true) } == true ||
+                            viewNode.hint?.contains(hint, ignoreCase = true) == true
+                } && !usernameId.contains(element = viewNode.autofillId)
             ) {
                 usernameId.add(element = viewNode.autofillId!!)
                 if (passwordId.size == usernameId.size) ready = false
             }
 
-            if (viewNode.hint?.lowercase()?.contains("password") == true &&
+            if ((viewNode.autofillHints?.any {
+                    it.contains("password", ignoreCase = true)
+                } == true || viewNode.hint?.contains("password", ignoreCase = true) == true) &&
                 !passwordId.contains(element = viewNode.autofillId)
             ) {
                 passwordId.add(element = viewNode.autofillId!!)
                 if (passwordId.size < usernameId.size) ready = false
             }
         } else {
-            if (usernameHints.any { viewNode.hint?.contains(it, ignoreCase = true) == true } &&
-                viewNode.text?.isNotEmpty() == true
+            if (usernameHints.any { hint ->
+                    viewNode.autofillHints?.any { it.contains(hint, ignoreCase = true) } == true ||
+                            viewNode.hint?.contains(hint, ignoreCase = true) == true
+                } && viewNode.text?.isNotEmpty() == true
             ) {
                 saveUsername = viewNode.text.toString()
+
                 if (viewNode.idPackage?.contains(".") == true)
                     saveIdPackage = viewNode.idPackage.toString()
             }
 
-            if (viewNode.hint?.contains("password", ignoreCase = true) == true &&
+            if ((viewNode.autofillHints?.any {
+                    it.contains("password", ignoreCase = true)
+                } == true || viewNode.hint?.contains("password", ignoreCase = true) == true) &&
                 viewNode.text?.isNotEmpty() == true
             ) {
                 savePassword = viewNode.text.toString()
+
                 if (viewNode.idPackage?.contains(".") == true)
                     saveIdPackage = viewNode.idPackage.toString()
             }
