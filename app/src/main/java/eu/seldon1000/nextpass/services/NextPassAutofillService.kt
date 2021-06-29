@@ -41,12 +41,12 @@ import java.security.MessageDigest
 class NextPassAutofillService : AutofillService() {
     private var isServiceStarted = false
     private var wakeLock: PowerManager.WakeLock? = null
+    private var usernameHints = arrayOf<String>()
 
     private var saveUsername = ""
     private var savePassword = ""
     private var saveIdPackage = ""
 
-    private var usernameHints = arrayOf<String>()
     private var fillResponse = FillResponse.Builder()
     private var usernameId = mutableListOf<AutofillId>()
     private var passwordId = mutableListOf<AutofillId>()
@@ -259,40 +259,30 @@ class NextPassAutofillService : AutofillService() {
                 }
             }
 
-            if (usernameHints.any { hint ->
-                    viewNode.autofillHints?.any { it.contains(hint, ignoreCase = true) } == true ||
-                            viewNode.hint?.contains(hint, ignoreCase = true) == true
-                } && !usernameId.contains(element = viewNode.autofillId)
+            if (checkUsernameHints(viewNode = viewNode) &&
+                !usernameId.contains(element = viewNode.autofillId)
             ) {
                 usernameId.add(element = viewNode.autofillId!!)
+
                 if (passwordId.size == usernameId.size) ready = false
             }
 
-            if ((viewNode.autofillHints?.any {
-                    it.contains("password", ignoreCase = true)
-                } == true || viewNode.hint?.contains("password", ignoreCase = true) == true) &&
+            if (checkPasswordHints(viewNode = viewNode) &&
                 !passwordId.contains(element = viewNode.autofillId)
             ) {
                 passwordId.add(element = viewNode.autofillId!!)
+
                 if (passwordId.size < usernameId.size) ready = false
             }
         } else {
-            if (usernameHints.any { hint ->
-                    viewNode.autofillHints?.any { it.contains(hint, ignoreCase = true) } == true ||
-                            viewNode.hint?.contains(hint, ignoreCase = true) == true
-                } && viewNode.text?.isNotEmpty() == true
-            ) {
+            if (checkUsernameHints(viewNode = viewNode) && viewNode.text?.isNotEmpty() == true) {
                 saveUsername = viewNode.text.toString()
 
                 if (viewNode.idPackage?.contains(".") == true)
                     saveIdPackage = viewNode.idPackage.toString()
             }
 
-            if ((viewNode.autofillHints?.any {
-                    it.contains("password", ignoreCase = true)
-                } == true || viewNode.hint?.contains("password", ignoreCase = true) == true) &&
-                viewNode.text?.isNotEmpty() == true
-            ) {
+            if (checkPasswordHints(viewNode = viewNode) && viewNode.text?.isNotEmpty() == true) {
                 savePassword = viewNode.text.toString()
 
                 if (viewNode.idPackage?.contains(".") == true)
@@ -302,5 +292,18 @@ class NextPassAutofillService : AutofillService() {
 
         val children = viewNode.run { (0 until childCount).map { getChildAt(it) } }
         children.forEach { childNode -> traverseNode(viewNode = childNode, mode = mode) }
+    }
+
+    private fun checkUsernameHints(viewNode: ViewNode): Boolean {
+        return usernameHints.any { hint ->
+            viewNode.autofillHints?.any { it.contains(hint, ignoreCase = true) } == true ||
+                    viewNode.hint?.contains(hint, ignoreCase = true) == true
+        }
+    }
+
+    private fun checkPasswordHints(viewNode: ViewNode): Boolean {
+        return viewNode.autofillHints?.any {
+            it.contains("password", ignoreCase = true)
+        } == true || viewNode.hint?.contains("password", ignoreCase = true) == true
     }
 }
