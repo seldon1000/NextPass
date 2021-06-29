@@ -165,6 +165,8 @@ class NextPassAutofillService : AutofillService() {
                 hash = "0$hash"
             }
 
+            val appName = saveIdPackage.substringAfter(".").substringBefore(".")
+
             val params = mapOf(
                 "password" to savePassword,
                 "label" to if (saveIdPackage.isNotEmpty()) {
@@ -180,6 +182,7 @@ class NextPassAutofillService : AutofillService() {
                     }
                 } else "Unknown",
                 "username" to saveUsername,
+                "url" to "$appName.com",
                 "hash" to hash,
                 "customFields" to JsonParser.parseString(
                     listOf(
