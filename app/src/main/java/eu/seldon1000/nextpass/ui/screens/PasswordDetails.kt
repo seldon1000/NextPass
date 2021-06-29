@@ -269,7 +269,7 @@ fun PasswordDetails(passwordData: Password) {
                             }
                         }
                     }
-                    OutlinedTextField(
+                    TextField(
                         value = url,
                         onValueChange = { url = it },
                         enabled = edit,
@@ -284,17 +284,23 @@ fun PasswordDetails(passwordData: Password) {
                                 }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_round_public_24),
-                                        contentDescription = "browse_url"
+                                        contentDescription = "browse_url",
+                                        tint = Color.White
                                     )
                                 }
                                 CopyButton(label = context.getString(R.string.url), clip = url)
                             }
                         },
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = label,
                         onValueChange = { label = it },
                         enabled = edit,
@@ -302,14 +308,23 @@ fun PasswordDetails(passwordData: Password) {
                         shape = RoundedCornerShape(size = 8.dp),
                         isError = label.isEmpty(),
                         trailingIcon = {
-                            CopyButton(label = context.getString(R.string.label), clip = label)
+                            CopyButton(
+                                label = context.getString(R.string.label),
+                                clip = label
+                            )
                         },
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            errorIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = username,
                         onValueChange = { username = it },
                         enabled = edit,
@@ -321,18 +336,22 @@ fun PasswordDetails(passwordData: Password) {
                                 clip = username
                             )
                         },
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = password,
                         onValueChange = { password = it },
                         enabled = edit,
                         label = { Text(text = context.getString(R.string.password)) },
                         shape = RoundedCornerShape(size = 8.dp),
                         isError = password.isEmpty(),
-                        singleLine = true,
                         visualTransformation = if (showed) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         trailingIcon = {
@@ -344,7 +363,8 @@ fun PasswordDetails(passwordData: Password) {
                                 }, enabled = edit) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_round_autorenew_24),
-                                        contentDescription = "generate_password"
+                                        contentDescription = "generate_password",
+                                        tint = if (edit) Color.White else Color.Gray
                                     )
                                 }
                                 IconButton(onClick = { showed = !showed }) {
@@ -353,7 +373,8 @@ fun PasswordDetails(passwordData: Password) {
                                             id = if (showed) R.drawable.ic_round_visibility_24
                                             else R.drawable.ic_round_visibility_off_24
                                         ),
-                                        contentDescription = "show_password"
+                                        contentDescription = "show_password",
+                                        tint = Color.White
                                     )
                                 }
                                 CopyButton(
@@ -362,27 +383,41 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                             }
                         },
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            errorIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = notes,
                         onValueChange = { notes = it },
                         enabled = edit,
                         label = { Text(text = context.getString(R.string.notes)) },
                         shape = RoundedCornerShape(size = 8.dp),
                         trailingIcon = {
-                            CopyButton(label = context.getString(R.string.notes), clip = notes)
+                            CopyButton(
+                                label = context.getString(R.string.notes),
+                                clip = notes
+                            )
                         },
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
                     customFields.forEach { customField ->
                         if (customField.containsKey(key = "value"))
-                            OutlinedTextField(
+                            TextField(
                                 value = customField["value"]!!,
                                 onValueChange = { customField["value"] = it },
                                 label = { Text(text = customField["label"]!!) },
@@ -404,7 +439,8 @@ fun PasswordDetails(passwordData: Password) {
                                                 painter = if (customField["type"] != "secret")
                                                     painterResource(id = R.drawable.ic_round_lock_open_24)
                                                 else painterResource(id = R.drawable.ic_round_lock_24),
-                                                contentDescription = "make_field_secret"
+                                                contentDescription = "make_field_secret",
+                                                tint = if (edit) Color.White else Color.Gray
                                             )
                                         }
                                         IconButton(
@@ -423,11 +459,16 @@ fun PasswordDetails(passwordData: Password) {
                                         )
                                     }
                                 },
+                                colors = TextFieldDefaults.textFieldColors(
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    disabledIndicatorColor = Color.Transparent
+                                ),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp),
                             )
-                        else OutlinedTextField(
+                        else TextField(
                             value = customField["label"]!!,
                             onValueChange = { customField["label"] = it },
                             label = { Text(text = context.getString(R.string.custom_field)) },
@@ -446,17 +487,25 @@ fun PasswordDetails(passwordData: Password) {
                                     }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_round_done_24),
-                                            contentDescription = "confirm_new_custom_label"
+                                            contentDescription = "confirm_new_custom_label",
+                                            tint = Color.White
                                         )
                                     }
                                     IconButton(onClick = { customFields.remove(element = customField) }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_round_close_24),
-                                            contentDescription = "delete_custom_field"
+                                            contentDescription = "delete_custom_field",
+                                            tint = Color.White
                                         )
                                     }
                                 }
                             },
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                errorIndicatorColor = Color.Transparent
+                            ),
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                             modifier = Modifier
                                 .fillMaxWidth()

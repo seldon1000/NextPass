@@ -145,13 +145,19 @@ fun NewFolder() {
                             )
                         }
                     }
-                    OutlinedTextField(
+                    TextField(
                         value = label,
                         onValueChange = { label = it },
                         label = { Text(text = context.getString(R.string.label)) },
                         shape = RoundedCornerShape(size = 8.dp),
                         isError = label.isEmpty(),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            errorIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),

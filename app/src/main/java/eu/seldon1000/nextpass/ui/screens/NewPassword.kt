@@ -188,7 +188,7 @@ fun NewPassword() {
                             )
                         }
                     }
-                    OutlinedTextField(
+                    TextField(
                         value = url,
                         onValueChange = {
                             if (it.length >= url.length || it.isEmpty())
@@ -198,31 +198,47 @@ fun NewPassword() {
                         },
                         label = { Text(text = LocalContext.current.getString(R.string.url)) },
                         shape = RoundedCornerShape(size = 8.dp),
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = label,
                         onValueChange = { label = it },
                         label = { Text(text = context.getString(R.string.label)) },
                         shape = RoundedCornerShape(size = 8.dp),
                         isError = label.isEmpty(),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            errorIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = username,
                         onValueChange = { username = it },
                         label = { Text(text = context.getString(R.string.username)) },
                         shape = RoundedCornerShape(size = 8.dp),
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = password,
                         onValueChange = { password = it },
                         label = { Text(text = context.getString(R.string.password)) },
@@ -239,7 +255,8 @@ fun NewPassword() {
                                 }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_round_autorenew_24),
-                                        contentDescription = "generate_password"
+                                        contentDescription = "generate_password",
+                                        tint = Color.White
                                     )
                                 }
                                 IconButton(onClick = { showed = !showed }) {
@@ -248,28 +265,40 @@ fun NewPassword() {
                                             id = if (showed) R.drawable.ic_round_visibility_24
                                             else R.drawable.ic_round_visibility_off_24
                                         ),
-                                        contentDescription = "show_password"
+                                        contentDescription = "show_password",
+                                        tint = Color.White
                                     )
                                 }
                             }
                         },
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            errorIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = notes,
                         onValueChange = { notes = it },
                         label = { Text(text = context.getString(R.string.notes)) },
                         shape = RoundedCornerShape(size = 8.dp),
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
                     customFields.forEach { customField ->
                         if (customField.containsKey(key = "value"))
-                            OutlinedTextField(
+                            TextField(
                                 value = customField["value"]!!,
                                 onValueChange = { customField["value"] = it },
                                 label = { Text(text = customField["label"]!!) },
@@ -286,22 +315,29 @@ fun NewPassword() {
                                                 painter = if (customField["type"]!! == "text") painterResource(
                                                     id = R.drawable.ic_round_lock_open_24
                                                 ) else painterResource(id = R.drawable.ic_round_lock_24),
-                                                contentDescription = "make_field_secret"
+                                                contentDescription = "make_field_secret",
+                                                tint = Color.White
                                             )
                                         }
                                         IconButton(onClick = { customFields.remove(element = customField) }) {
                                             Icon(
-                                                painter = painterResource(id = R.drawable.ic_round_close_24),
-                                                contentDescription = "delete_custom_field"
+                                                painter = painterResource(id = R.drawable.ic_round_delete_forever_24),
+                                                contentDescription = "delete_custom_field",
+                                                tint = Color.Red
                                             )
                                         }
                                     }
                                 },
+                                colors = TextFieldDefaults.textFieldColors(
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    disabledIndicatorColor = Color.Transparent
+                                ),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp),
                             )
-                        else OutlinedTextField(
+                        else TextField(
                             value = customField["label"]!!,
                             onValueChange = { customField["label"] = it },
                             label = { Text(text = context.getString(R.string.custom_field)) },
@@ -320,18 +356,26 @@ fun NewPassword() {
                                     }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_round_done_24),
-                                            contentDescription = "confirm_new_custom_label"
+                                            contentDescription = "confirm_new_custom_label",
+                                            tint = Color.White
                                         )
                                     }
                                     IconButton(onClick = { customFields.remove(element = customField) }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_round_close_24),
-                                            contentDescription = "delete_custom_field"
+                                            contentDescription = "delete_custom_field",
+                                            tint = Color.White
                                         )
                                     }
                                 }
                             },
                             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                errorIndicatorColor = Color.Transparent
+                            ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),

@@ -130,7 +130,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                             FavoriteIcon(favorite = folder.favorite) {} /*TODO: add updateFolderRequest, needs PATCH support from SSO*/
                         }
                     }
-                    OutlinedTextField(
+                    TextField(
                         value = label,
                         onValueChange = {},
                         enabled = false,
@@ -143,11 +143,16 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                                 clip = label
                             )
                         },
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                     )
-                    OutlinedTextField(
+                    TextField(
                         value = folder.parent,
                         onValueChange = {},
                         enabled = false,
@@ -159,6 +164,11 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                                 clip = folder.parent
                             )
                         },
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),

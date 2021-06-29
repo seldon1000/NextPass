@@ -19,6 +19,7 @@ package eu.seldon1000.nextpass.ui.items
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
@@ -33,7 +34,8 @@ fun CopyButton(label: String, clip: String) {
     }) {
         Icon(
             painter = painterResource(id = R.drawable.ic_round_content_copy_24),
-            contentDescription = "copy"
+            contentDescription = "copy",
+            tint = Color.White
         )
     }
 }
