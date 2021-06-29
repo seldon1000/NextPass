@@ -34,10 +34,17 @@ import android.widget.RemoteViews
 import eu.seldon1000.nextpass.MainActivity
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import java.math.BigInteger
+import java.security.MessageDigest
+import java.util.*
 
 class NextPassAutofillService : AutofillService() {
     private var isServiceStarted = false
     private var wakeLock: PowerManager.WakeLock? = null
+
+    private var saveUsername = ""
+    private var savePassword = ""
+    private var saveIdPackage = ""
 
     private var usernameHints = arrayOf<String>()
     private var fillResponse = FillResponse.Builder()
@@ -118,6 +125,10 @@ class NextPassAutofillService : AutofillService() {
         cancellationSignal: CancellationSignal,
         callback: FillCallback
     ) {
+        saveUsername = ""
+        savePassword = ""
+        saveIdPackage = ""
+
         fillResponse = FillResponse.Builder()
         usernameId = mutableListOf()
         passwordId = mutableListOf()
@@ -126,85 +137,147 @@ class NextPassAutofillService : AutofillService() {
         val context = request.fillContexts
         val structure = context.last().structure
 
-        traverseStructure(structure = structure, callback = callback)
+        traverseStructure(structure = structure, mode = false)
 
-        callback.onSuccess(if (ready) fillResponse.build() else null)
+        if (usernameId.isNotEmpty() && passwordId.isNotEmpty()) {
+            fillResponse.setSaveInfo(
+                SaveInfo.Builder(
+                    SaveInfo.SAVE_DATA_TYPE_USERNAME or SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                    arrayOf(usernameId.last(), passwordId.last())
+                ).build()
+            )
+
+            callback.onSuccess(fillResponse.build())
+        }
     }
 
     override fun onSaveRequest(request: SaveRequest, callback: SaveCallback) {
-        TODO("Not yet implemented")
+        val context = request.fillContexts
+        val structure = context.last().structure
+
+        traverseStructure(structure = structure, mode = true)
+
+        if (saveUsername.isNotEmpty() && savePassword.isNotEmpty()) {
+            val md = MessageDigest.getInstance("SHA-1")
+                .digest(savePassword.toByteArray())
+            var hash = BigInteger(1, md).toString(16)
+            while (hash.length < 32) {
+                hash = "0$hash"
+            }
+
+            val params = mutableMapOf(
+                "password" to savePassword,
+                "label" to if (saveIdPackage.isNotEmpty()) {
+                    try {
+                        packageManager.getApplicationLabel(
+                            packageManager.getApplicationInfo(
+                                saveIdPackage,
+                                0
+                            )
+                        ).toString()
+                    } catch (e: Exception) {
+                        saveIdPackage.substringAfter(".").substringBefore(".")
+                            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                    }
+                } else "Unknown",
+                "username" to saveUsername,
+                "hash" to hash
+            )
+
+            NextcloudApiProvider.createPasswordRequest(params = params)
+
+            callback.onSuccess()
+        }
     }
 
-    private fun traverseStructure(structure: AssistStructure, callback: FillCallback) {
+    private fun traverseStructure(structure: AssistStructure, mode: Boolean) {
         val windowNodes = structure.run { (0 until windowNodeCount).map { getWindowNodeAt(it) } }
 
-        windowNodes.forEach { traverseNode(viewNode = it.rootViewNode, callback = callback) }
+        windowNodes.forEach { traverseNode(viewNode = it.rootViewNode, mode = mode) }
     }
 
-    private fun traverseNode(viewNode: ViewNode, callback: FillCallback) {
-        if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
-            NextcloudApiProvider.storedPasswords.value.forEach { password ->
-                if (viewNode.idPackage?.contains(
-                        password.label,
-                        ignoreCase = true
-                    ) == true || try {
-                        viewNode.idPackage?.contains(
-                            Uri.parse(password.url).host!!,
+    private fun traverseNode(viewNode: ViewNode, mode: Boolean) {
+        if (!mode) {
+            if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
+                NextcloudApiProvider.storedPasswords.value.forEach { password ->
+                    if (viewNode.idPackage?.contains(
+                            password.label,
                             ignoreCase = true
-                        ) == true
-                    } catch (e: Exception) {
-                        false
-                    } || password.customFields.any { customField ->
-                        customField.values.any {
-                            try {
-                                it.contains(viewNode.idPackage!!, ignoreCase = true)
-                            } catch (e: Exception) {
-                                false
+                        ) == true || try {
+                            viewNode.idPackage?.contains(
+                                Uri.parse(password.url).host!!,
+                                ignoreCase = true
+                            ) == true
+                        } catch (e: Exception) {
+                            false
+                        } || password.customFields.any { customField ->
+                            customField.values.any {
+                                try {
+                                    it.contains(viewNode.idPackage!!, ignoreCase = true)
+                                } catch (e: Exception) {
+                                    false
+                                }
                             }
                         }
+                    ) {
+                        val credentialsPresentation =
+                            RemoteViews(packageName, R.layout.autofill_list_item)
+                        credentialsPresentation.setTextViewText(R.id.label, password.label)
+                        credentialsPresentation.setTextViewText(R.id.username, password.username)
+                        credentialsPresentation.setImageViewBitmap(
+                            R.id.favicon,
+                            password.favicon.value
+                        )
+
+                        fillResponse.addDataset(
+                            Dataset.Builder()
+                                .setValue(
+                                    usernameId.last(),
+                                    AutofillValue.forText(password.username),
+                                    credentialsPresentation
+                                )
+                                .setValue(
+                                    passwordId.last(),
+                                    AutofillValue.forText(password.password),
+                                    credentialsPresentation
+                                ).build()
+                        )
+
+                        ready = true
                     }
-                ) {
-                    val credentialsPresentation =
-                        RemoteViews(packageName, R.layout.autofill_list_item)
-                    credentialsPresentation.setTextViewText(R.id.label, password.label)
-                    credentialsPresentation.setTextViewText(R.id.username, password.username)
-                    credentialsPresentation.setImageViewBitmap(R.id.favicon, password.favicon.value)
-
-                    fillResponse.addDataset(
-                        Dataset.Builder()
-                            .setValue(
-                                usernameId.last(),
-                                AutofillValue.forText(password.username),
-                                credentialsPresentation
-                            )
-                            .setValue(
-                                passwordId.last(),
-                                AutofillValue.forText(password.password),
-                                credentialsPresentation
-                            ).build()
-                    )
-
-                    ready = true
                 }
+            }
+
+            if (usernameHints.any { viewNode.hint?.lowercase()?.contains(it) == true } &&
+                !usernameId.contains(element = viewNode.autofillId)
+            ) {
+                usernameId.add(element = viewNode.autofillId!!)
+                if (passwordId.size == usernameId.size) ready = false
+            }
+
+            if (viewNode.hint?.lowercase()?.contains("password") == true &&
+                !passwordId.contains(element = viewNode.autofillId)
+            ) {
+                passwordId.add(element = viewNode.autofillId!!)
+                if (passwordId.size < usernameId.size) ready = false
+            }
+        } else {
+            if (usernameHints.any { viewNode.hint?.contains(it, ignoreCase = true) == true } &&
+                viewNode.text?.isNotEmpty() == true
+            ) {
+                saveUsername = viewNode.text.toString()
+                saveIdPackage = viewNode.idPackage.toString()
+            }
+
+            if (viewNode.hint?.contains("password", ignoreCase = true) == true &&
+                viewNode.text?.isNotEmpty() == true
+            ) {
+                savePassword = viewNode.text.toString()
+                saveIdPackage = viewNode.idPackage.toString()
             }
         }
 
-        if (usernameHints.any { viewNode.hint?.lowercase()?.contains(it) == true } &&
-            !usernameId.contains(element = viewNode.autofillId)
-        ) {
-            usernameId.add(element = viewNode.autofillId!!)
-            if (passwordId.size == usernameId.size) ready = false
-        }
-
-        if (viewNode.hint?.lowercase()?.contains("password") == true &&
-            !passwordId.contains(element = viewNode.autofillId)
-        ) {
-            passwordId.add(element = viewNode.autofillId!!)
-            if (passwordId.size < usernameId.size) ready = false
-        }
-
         val children = viewNode.run { (0 until childCount).map { getChildAt(it) } }
-
-        children.forEach { childNode -> traverseNode(viewNode = childNode, callback = callback) }
+        children.forEach { childNode -> traverseNode(viewNode = childNode, mode = mode) }
     }
 }

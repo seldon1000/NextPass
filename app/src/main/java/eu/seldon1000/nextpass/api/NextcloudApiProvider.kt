@@ -244,7 +244,6 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun createPasswordRequest(params: MutableMap<String, String>) {
-        println("CIAO")
         viewModelScope.launch(Dispatchers.IO) {
             val createRequest = NextcloudRequest.Builder()
                 .setMethod("POST")
@@ -266,7 +265,7 @@ object NextcloudApiProvider : ViewModel() {
                     .setParameter(mapOf("id" to response))
                     .build()
 
-                val newPassword = JsonParser.parseString(
+                val newPasswordData = JsonParser.parseString(
                     nextcloudApi!!.performNetworkRequest(listRequest)
                         .bufferedReader()
                         .lines()
@@ -274,8 +273,11 @@ object NextcloudApiProvider : ViewModel() {
                 ).asJsonObject
 
                 val data = storedPasswordsState.value
+                val newPassword = Password(passwordData = newPasswordData)
 
-                data.add(element = Password(passwordData = newPassword))
+                faviconRequest(data = newPassword)
+
+                data.add(element = newPassword)
                 data.sortBy { it.label.lowercase() }
                 data.forEachIndexed { index, password -> password.index = index }
 
