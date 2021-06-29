@@ -18,6 +18,7 @@ package eu.seldon1000.nextpass.api
 
 import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.fasterxml.jackson.core.type.TypeReference
@@ -38,10 +39,14 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
     val hash: String = passwordData.get("hash").asString
     val folder: String = passwordData.get("folder").asString
     var customFields: SnapshotStateList<SnapshotStateMap<String, String>> =
-        ObjectMapper().readValue(
-            passwordData.get("customFields").asString,
-            object : TypeReference<SnapshotStateList<SnapshotStateMap<String, String>>>() {}
-        )
+        try {
+            ObjectMapper().readValue(
+                passwordData.get("customFields").asString,
+                object : TypeReference<SnapshotStateList<SnapshotStateMap<String, String>>>() {}
+            )
+        } catch (e: Exception) {
+            mutableStateListOf()
+        }
 
     val created: String = formatter.format(Date(passwordData.get("created").asLong * 1000))
     val edited: String = formatter.format(Date(passwordData.get("edited").asLong * 1000))
