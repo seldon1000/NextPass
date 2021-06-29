@@ -277,14 +277,16 @@ class NextPassAutofillService : AutofillService() {
                 viewNode.text?.isNotEmpty() == true
             ) {
                 saveUsername = viewNode.text.toString()
-                saveIdPackage = viewNode.idPackage.toString()
+                if (viewNode.idPackage?.contains(".") == true)
+                    saveIdPackage = viewNode.idPackage.toString()
             }
 
             if (viewNode.hint?.contains("password", ignoreCase = true) == true &&
                 viewNode.text?.isNotEmpty() == true
             ) {
                 savePassword = viewNode.text.toString()
-                saveIdPackage = viewNode.idPackage.toString()
+                if (viewNode.idPackage?.contains(".") == true)
+                    saveIdPackage = viewNode.idPackage.toString()
             }
         }
 
