@@ -482,7 +482,7 @@ object NextcloudApiProvider : ViewModel() {
         when (data) {
             is Password -> viewModelScope.launch(Dispatchers.IO) {
                 val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
-                    .setUrl("$endpoint/service/favicon/${Uri.parse(data.url).host ?: data.url}/144")
+                    .setUrl("$endpoint/service/favicon/${Uri.parse(data.url).host ?: data.url}/256")
                     .build()
 
                 try {
@@ -497,7 +497,7 @@ object NextcloudApiProvider : ViewModel() {
             is String -> viewModelScope.launch(Dispatchers.IO) {
                 if (data.isNotEmpty()) {
                     val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
-                        .setUrl("$endpoint/service/favicon/${Uri.parse(data).host ?: data}/144")
+                        .setUrl("$endpoint/service/favicon/${Uri.parse(data).host ?: data}/256")
                         .build()
 
                     try {
@@ -511,7 +511,7 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    private fun Bitmap.toRoundedCorners(cornerRadius: Float = 24F): Bitmap? {
+    private fun Bitmap.toRoundedCorners(cornerRadius: Float = 32F): Bitmap? {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         Canvas(bitmap).apply {
             clipPath(Path().apply {
