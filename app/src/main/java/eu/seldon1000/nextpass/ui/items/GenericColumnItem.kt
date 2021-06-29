@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.items
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,12 +53,14 @@ fun GenericColumnItem(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold
             )
-            Text(
-                text = body,
-                fontSize = 14.sp,
-                overflow = TextOverflow.Clip,
-                color = Color.Gray
-            )
+            Crossfade(targetState = body) { state ->
+                Text(
+                    text = state,
+                    fontSize = 14.sp,
+                    overflow = TextOverflow.Clip,
+                    color = Color.Gray
+                )
+            }
         }
         item?.invoke()
     }
