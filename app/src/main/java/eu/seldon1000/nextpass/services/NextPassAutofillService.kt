@@ -22,7 +22,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.assist.AssistStructure
 import android.app.assist.AssistStructure.ViewNode
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.CancellationSignal
@@ -77,7 +76,7 @@ class NextPassAutofillService : AutofillService() {
 
             isServiceStarted = true
 
-            wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+            wakeLock = getSystemService(PowerManager::class.java).run {
                 newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NextPassAutofill::lock").apply {
                     acquire()
                 }
@@ -97,8 +96,7 @@ class NextPassAutofillService : AutofillService() {
     }
 
     private fun createNotification(): Notification { // TODO: temporary, the notification is showed for test purposes
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NotificationManager::class.java)
         val channel = NotificationChannel(
             "NextPass Autofill Service",
             "NextPass Autofill Service",
