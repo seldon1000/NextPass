@@ -60,6 +60,7 @@ fun Settings() {
     val protected by MainViewModel.pinProtected.collectAsState()
     val biometricProtected by MainViewModel.biometricProtected.collectAsState()
     val lockTimeout by MainViewModel.lockTimeout.collectAsState()
+    val screenProtection by MainViewModel.screenProtection.collectAsState()
     val autofill by MainViewModel.autofill.collectAsState()
     val autostart by MainViewModel.autostart.collectAsState()
 
@@ -277,6 +278,23 @@ fun Settings() {
                     title = context.getString(R.string.lock_now),
                     body = context.getString(R.string.lock_now_tip)
                 ) { if (protected) MainViewModel.lock(shouldRaiseBiometric = false) }
+            }
+            item {
+                GenericColumnItem(
+                    title = "Prevent screen capture",
+                    body = "If enabled, this will prevent user from capturing the screen when using NextPass (i.e. screenshots...).",
+                    item = {
+                        Checkbox(
+                            checked = screenProtection,
+                            onCheckedChange = {
+                                if (screenProtection) MainViewModel.disableScreenProtection()
+                                else MainViewModel.enableScreenProtection()
+                            },
+                            enabled = true,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                    }
+                ) {}
             }
             item {
                 Text(

@@ -21,6 +21,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.content.SharedPreferences
+import android.view.WindowManager
 import android.view.autofill.AutofillManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
@@ -48,6 +49,11 @@ object MainViewModel : ViewModel() {
     private var snackbarHostState: SnackbarHostState? = null
 
     private var autofillManager: AutofillManager? = null
+
+    private var pendingUnlockAction = {}
+
+    private val screenProtectionState = MutableStateFlow(value = false)
+    val screenProtection = screenProtectionState
 
     private val autofillState = MutableStateFlow(value = false)
     val autofill = autofillState
@@ -109,6 +115,13 @@ object MainViewModel : ViewModel() {
             this.context!!.getSystemService(FragmentActivity.CLIPBOARD_SERVICE) as ClipboardManager
         autofillManager = this.context!!.getSystemService(AutofillManager::class.java)
 
+        screenProtectionState.value = sharedPreferences!!.contains("prevent")
+
+        if (screenProtectionState.value) context.window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
+
         autostartState.value = sharedPreferences!!.contains("autostart")
 
         if (sharedPreferences!!.contains("PIN")) {
@@ -132,6 +145,30 @@ object MainViewModel : ViewModel() {
 
             true
         } else false
+    }
+
+    fun enableScreenProtection() {
+        sharedPreferences!!.edit().putBoolean("screen", true).apply()
+
+        context!!.window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
+
+        screenProtectionState.value = true
+    }
+
+    fun disableScreenProtection() {
+        if (pinProtectedState.value) {
+            sharedPreferences!!.edit().remove("screen").apply()
+
+            lock(shouldRaiseBiometric = true)
+            pendingUnlockAction = {
+                context!!.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            }
+
+            screenProtectionState.value = false
+        }
     }
 
     fun enableAutofill() {
@@ -235,6 +272,9 @@ object MainViewModel : ViewModel() {
                 inclusive = true
             )
         } else openApp()
+
+        pendingUnlockAction()
+        pendingUnlockAction = {}
     }
 
     fun setSnackbarHostState(snackbar: SnackbarHostState) {
