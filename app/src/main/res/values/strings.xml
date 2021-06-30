@@ -11,6 +11,7 @@
     <string name="confirm">Confirm</string>
     <string name="dismiss">Dismiss</string>
     <string name="delete">Delete</string>
+    <string name="link_broken_snack">Could\'t open the link. Is it broken?</string>
     <string name="confirm_new_pin">Confirm new PIN</string>
     <string name="create_new_pin">Create new PIN</string>
     <string name="insert_current_pin">Insert current PIN</string>

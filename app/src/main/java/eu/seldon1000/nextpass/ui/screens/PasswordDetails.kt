@@ -269,9 +269,20 @@ fun PasswordDetails(passwordData: Password) {
                         enabled = edit
                     ) {
                         IconButton(onClick = {
-                            context.startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                            )
+                            try {
+                                context.startActivity(
+                                    Intent(
+                                        Intent.ACTION_VIEW, Uri.parse(
+                                            if (!(url.startsWith("https") ||
+                                                        url.startsWith("www") ||
+                                                        url.startsWith("http"))
+                                            ) "https://$url" else url
+                                        )
+                                    )
+                                )
+                            } catch (e: Exception) {
+                                MainViewModel.showSnackbar(message = context.getString(R.string.link_broken_snack))
+                            }
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_public_24),
