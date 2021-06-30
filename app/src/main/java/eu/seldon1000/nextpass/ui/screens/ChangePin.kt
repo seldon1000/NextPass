@@ -17,26 +17,25 @@
 package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.BottomAppBar
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 
@@ -179,16 +178,15 @@ fun ChangePin(change: Boolean) {
                     else context.getString(R.string.create_new_pin)
                 }
             ) {}
-            TextField(
-                value = pin,
-                onValueChange = { pin = it },
-                label = { Text(text = "PIN") },
-                isError = pin.length < 4,
-                shape = RoundedCornerShape(size = 8.dp),
-                singleLine = true,
-                visualTransformation = if (showed) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                trailingIcon = {
+            Box(modifier = Modifier.padding(start = 128.dp, top = 200.dp, end = 128.dp)) {
+                TextFieldItem(
+                    text = pin,
+                    onTextChanged = { pin = it },
+                    label = "PIN",
+                    required = pin.length < 4,
+                    protected = true,
+                    showed = showed
+                ) {
                     IconButton(onClick = { showed = !showed }) {
                         Crossfade(targetState = showed) { state ->
                             Icon(
@@ -200,17 +198,8 @@ fun ChangePin(change: Boolean) {
                             )
                         }
                     }
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    errorIndicatorColor = Color.Transparent
-                ),
-                modifier = Modifier
-                    .width(width = 200.dp)
-                    .padding(top = 192.dp),
-            )
+                }
+            }
         }
     }
 }

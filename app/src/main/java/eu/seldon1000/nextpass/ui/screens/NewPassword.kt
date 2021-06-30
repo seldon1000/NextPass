@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -32,10 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.google.gson.JsonParser
 import eu.seldon1000.nextpass.R
@@ -44,6 +39,7 @@ import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
 import eu.seldon1000.nextpass.ui.items.Favicon
 import eu.seldon1000.nextpass.ui.items.FavoriteIcon
+import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import kotlinx.coroutines.launch
@@ -181,202 +177,123 @@ fun NewPassword() {
                         DropdownFolderList(folder = selectedFolder)
                         FavoriteIcon(favorite = favorite) { favorite = !favorite }
                     }
-                    TextField(
-                        value = url,
-                        onValueChange = {
-                            if (it.length >= url.length || it.isEmpty())
-                                NextcloudApiProvider.faviconRequest(data = it)
+                    TextFieldItem(text = url, onTextChanged = {
+                        if (it.length >= url.length || it.isEmpty())
+                            NextcloudApiProvider.faviconRequest(data = it)
 
-                            url = it
-                        },
-                        label = { Text(text = LocalContext.current.getString(R.string.url)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    TextField(
-                        value = label,
-                        onValueChange = { label = it },
-                        label = { Text(text = context.getString(R.string.label)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        isError = label.isEmpty(),
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    TextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        label = { Text(text = context.getString(R.string.username)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    TextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text(text = context.getString(R.string.password)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        isError = password.isEmpty(),
-                        visualTransformation = if (showed) VisualTransformation.None else PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        trailingIcon = {
-                            Row {
-                                IconButton(onClick = {
-                                    coroutineScope.launch {
-                                        password = NextcloudApiProvider.generatePassword()
-                                    }
-                                }) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_round_autorenew_24),
-                                        contentDescription = "generate_password",
-                                        tint = Color.White
-                                    )
-                                }
-                                IconButton(onClick = { showed = !showed }) {
-                                    Crossfade(targetState = showed) { state ->
-                                        Icon(
-                                            painter = painterResource(
-                                                id = if (state) R.drawable.ic_round_visibility_24
-                                                else R.drawable.ic_round_visibility_off_24
-                                            ),
-                                            contentDescription = "show_password",
-                                            tint = Color.White
-                                        )
-                                    }
-                                }
+                        url = it
+                    }, label = context.getString(R.string.url)) {}
+                    TextFieldItem(
+                        text = label,
+                        onTextChanged = { label = it },
+                        label = context.getString(R.string.label),
+                        required = true,
+                        capitalized = true
+                    ) {}
+                    TextFieldItem(
+                        text = username,
+                        onTextChanged = { username = it },
+                        label = context.getString(R.string.username)
+                    ) {}
+                    TextFieldItem(
+                        text = password,
+                        onTextChanged = { password = it },
+                        label = context.getString(R.string.password),
+                        required = true,
+                        protected = true,
+                        showed = showed
+                    ) {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                password = NextcloudApiProvider.generatePassword()
                             }
-                        },
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    TextField(
-                        value = notes,
-                        onValueChange = { notes = it },
-                        label = { Text(text = context.getString(R.string.notes)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_round_autorenew_24),
+                                contentDescription = "generate_password",
+                                tint = Color.White
+                            )
+                        }
+                        IconButton(onClick = { showed = !showed }) {
+                            Crossfade(targetState = showed) { state ->
+                                Icon(
+                                    painter = painterResource(
+                                        id = if (state) R.drawable.ic_round_visibility_24
+                                        else R.drawable.ic_round_visibility_off_24
+                                    ),
+                                    contentDescription = "show_password",
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                    }
+                    TextFieldItem(
+                        text = notes,
+                        onTextChanged = { notes = it },
+                        label = context.getString(R.string.notes),
+                        capitalized = true
+                    ) {}
                     customFields.forEach { customField ->
                         if (customField.containsKey(key = "value"))
-                            TextField(
-                                value = customField["value"]!!,
-                                onValueChange = { customField["value"] = it },
-                                label = { Text(text = customField["label"]!!) },
-                                shape = RoundedCornerShape(size = 8.dp),
-                                visualTransformation = if (customField["type"]!! == "secret") PasswordVisualTransformation() else VisualTransformation.None,
-                                trailingIcon = {
-                                    Row {
-                                        IconButton(onClick = {
-                                            if (customField["type"]!! == "secret")
-                                                customField["type"] = "text"
-                                            else customField["type"] = "secret"
-                                        }) {
-                                            Crossfade(targetState = customField["type"]!! == "text") { state ->
-                                                Icon(
-                                                    painter = if (state) painterResource(
-                                                        id = R.drawable.ic_round_lock_open_24
-                                                    ) else painterResource(id = R.drawable.ic_round_lock_24),
-                                                    contentDescription = "make_field_secret",
-                                                    tint = Color.White
-                                                )
-                                            }
-                                        }
-                                        IconButton(onClick = { customFields.remove(element = customField) }) {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.ic_round_delete_forever_24),
-                                                contentDescription = "delete_custom_field",
-                                                tint = Color.Red
-                                            )
-                                        }
-                                    }
-                                },
-                                colors = TextFieldDefaults.textFieldColors(
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                    disabledIndicatorColor = Color.Transparent
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                            )
-                        else TextField(
-                            value = customField["label"]!!,
-                            onValueChange = { customField["label"] = it },
-                            label = { Text(text = context.getString(R.string.custom_field)) },
-                            shape = RoundedCornerShape(size = 8.dp),
-                            isError = customField["label"]!!.isEmpty(),
-                            trailingIcon = {
-                                Row {
-                                    IconButton(onClick = {
-                                        if (customField["label"]!!.isNotEmpty()) {
-                                            customField["type"] = "text"
-                                            customField["value"] = ""
-                                        } else MainViewModel.showDialog(
-                                            title = context.getString(R.string.missing_info),
-                                            body = context.getString(R.string.missing_info_body)
-                                        ) {}
-                                    }) {
+                            TextFieldItem(
+                                text = customField["value"]!!,
+                                onTextChanged = { customField["value"] = it },
+                                label = customField["label"]!!,
+                                protected = customField["type"]!! != "secret",
+                                showed = customField["type"]!! != "secret"
+                            ) {
+                                IconButton(onClick = {
+                                    if (customField["type"]!! == "secret")
+                                        customField["type"] = "text"
+                                    else customField["type"] = "secret"
+                                }) {
+                                    Crossfade(targetState = customField["type"]!! == "text") { state ->
                                         Icon(
-                                            painter = painterResource(id = R.drawable.ic_round_done_24),
-                                            contentDescription = "confirm_new_custom_label",
-                                            tint = Color.White
-                                        )
-                                    }
-                                    IconButton(onClick = { customFields.remove(element = customField) }) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_round_close_24),
-                                            contentDescription = "delete_custom_field",
+                                            painter = if (state) painterResource(
+                                                id = R.drawable.ic_round_lock_open_24
+                                            ) else painterResource(id = R.drawable.ic_round_lock_24),
+                                            contentDescription = "make_field_secret",
                                             tint = Color.White
                                         )
                                     }
                                 }
-                            },
-                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                            colors = TextFieldDefaults.textFieldColors(
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent,
-                                errorIndicatorColor = Color.Transparent
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                        )
+                                IconButton(onClick = { customFields.remove(element = customField) }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_round_delete_forever_24),
+                                        contentDescription = "delete_custom_field",
+                                        tint = Color.Red
+                                    )
+                                }
+                            }
+                        else TextFieldItem(
+                            text = customField["label"]!!,
+                            onTextChanged = { customField["label"] = it },
+                            label = context.getString(R.string.custom_field),
+                            required = true
+                        ) {
+                            IconButton(onClick = {
+                                if (customField["label"]!!.isNotEmpty()) {
+                                    customField["type"] = "text"
+                                    customField["value"] = ""
+                                } else MainViewModel.showDialog(
+                                    title = context.getString(R.string.missing_info),
+                                    body = context.getString(R.string.missing_info_body)
+                                ) {}
+                            }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_round_done_24),
+                                    contentDescription = "confirm_new_custom_label",
+                                    tint = Color.White
+                                )
+                            }
+                            IconButton(onClick = { customFields.remove(element = customField) }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_round_close_24),
+                                    contentDescription = "delete_custom_field",
+                                    tint = Color.White
+                                )
+                            }
+                        }
                     }
                     Box(
                         contentAlignment = Alignment.CenterEnd,

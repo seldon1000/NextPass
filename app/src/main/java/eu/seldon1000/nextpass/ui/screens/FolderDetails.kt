@@ -42,6 +42,7 @@ import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.CopyButton
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
 import eu.seldon1000.nextpass.ui.items.FavoriteIcon
+import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
@@ -130,49 +131,30 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                             FavoriteIcon(favorite = folder.favorite) {} /*TODO: add updateFolderRequest, needs PATCH support from SSO*/
                         }
                     }
-                    TextField(
-                        value = label,
-                        onValueChange = {},
+                    TextFieldItem(
+                        text = label,
+                        onTextChanged = {},
+                        label = context.getString(R.string.label),
                         enabled = false,
-                        label = { Text(text = context.getString(R.string.label)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        isError = label.isEmpty(),
-                        trailingIcon = {
-                            CopyButton(
-                                label = context.getString(R.string.folder_label),
-                                clip = label
-                            )
-                        },
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    TextField(
-                        value = folder.parent,
-                        onValueChange = {},
-                        enabled = false,
-                        label = { Text(text = context.getString(R.string.parent)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        trailingIcon = {
-                            CopyButton(
-                                label = context.getString(R.string.parent),
-                                clip = folder.parent
-                            )
-                        },
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
+                        required = true,
+                        capitalized = true
+                    ) {
+                        CopyButton(
+                            label = context.getString(R.string.folder_label),
+                            clip = label
+                        )
+                    }
+                    TextFieldItem(
+                        text = folder.parent,
+                        onTextChanged = {},
+                        label = context.getString(R.string.parent),
+                        enabled = false
+                    ) {
+                        CopyButton(
+                            label = context.getString(R.string.parent),
+                            clip = folder.parent
+                        )
+                    }
                     TextButton(onClick = {
                         MainViewModel.showDialog(
                             title = context.getString(R.string.delete_folder),

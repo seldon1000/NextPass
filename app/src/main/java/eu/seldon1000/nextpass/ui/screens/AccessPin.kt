@@ -18,21 +18,19 @@ package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.theme.Orange500
 
@@ -54,19 +52,24 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
     ) {
         Header(expanded = false, title = context.getString(R.string.authenticate)) {}
         Column(
-            verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
-            TextField(
-                value = pin,
-                onValueChange = { pin = it },
-                label = { Text(text = "PIN") },
-                shape = RoundedCornerShape(size = 8.dp),
-                singleLine = true,
-                visualTransformation = if (showed) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                trailingIcon = {
+            Box(
+                modifier = Modifier.padding(
+                    start = 128.dp,
+                    top = 200.dp,
+                    end = 128.dp,
+                    bottom = 100.dp
+                )
+            ) {
+                TextFieldItem(
+                    text = pin,
+                    onTextChanged = { pin = it },
+                    label = "PIN",
+                    protected = true,
+                    showed = showed
+                ) {
                     IconButton(onClick = { showed = !showed }) {
                         Crossfade(targetState = showed) { state ->
                             Icon(
@@ -78,14 +81,8 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                             )
                         }
                     }
-                },
-                colors = TextFieldDefaults.textFieldColors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                ),
-                modifier = Modifier.width(width = 200.dp)
-            )
+                }
+            }
             Row {
                 if (MainViewModel.biometricProtected.value) {
                     FloatingActionButton(
