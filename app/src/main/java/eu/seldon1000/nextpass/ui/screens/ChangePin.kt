@@ -17,10 +17,7 @@
 package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.FloatingActionButton
@@ -178,7 +175,11 @@ fun ChangePin(change: Boolean) {
                     else context.getString(R.string.create_new_pin)
                 }
             ) {}
-            Box(modifier = Modifier.padding(start = 128.dp, top = 200.dp, end = 128.dp)) {
+            Box(
+                modifier = Modifier
+                    .width(width = 176.dp)
+                    .padding(top = 200.dp)
+            ) {
                 TextFieldItem(
                     text = pin,
                     onTextChanged = { pin = it },

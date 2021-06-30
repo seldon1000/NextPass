@@ -56,12 +56,9 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
             modifier = Modifier.fillMaxSize()
         ) {
             Box(
-                modifier = Modifier.padding(
-                    start = 128.dp,
-                    top = 200.dp,
-                    end = 128.dp,
-                    bottom = 100.dp
-                )
+                modifier = Modifier
+                    .width(width = 176.dp)
+                    .padding(top = 200.dp, bottom = 100.dp)
             ) {
                 TextFieldItem(
                     text = pin,
