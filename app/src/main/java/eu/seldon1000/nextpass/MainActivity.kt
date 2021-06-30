@@ -88,8 +88,7 @@ class MainActivity : FragmentActivity() {
         super.onDestroy()
 
         coroutineScope.cancel()
-        MainViewModel.lock()
-        NextcloudApiProvider.stopNextcloudApi()
+        if (!MainViewModel.autofill.value) NextcloudApiProvider.stopNextcloudApi()
     }
 
     override fun onBackPressed() {

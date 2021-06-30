@@ -105,6 +105,9 @@ object MainViewModel : ViewModel() {
     private val dialogConfirmState = MutableStateFlow(value = false)
     val dialogConfirm = dialogConfirmState
 
+    private var promptInfo: BiometricPrompt.PromptInfo? = null
+    private var biometricPrompt: BiometricPrompt? = null
+
     fun setContext(context: FragmentActivity) {
         this.context = context
 
@@ -126,6 +129,34 @@ object MainViewModel : ViewModel() {
             if (lockTimeoutState.value != (-1).toLong()) unlockedState.value = false
             biometricProtectedState.value = sharedPreferences!!.contains("biometric")
         }
+
+        promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle(MainViewModel.context!!.getString(R.string.access_nextpass))
+            .setSubtitle(MainViewModel.context!!.getString(R.string.access_nextpass_body))
+            .setNegativeButtonText(MainViewModel.context!!.getString(R.string.cancel))
+            .build()
+
+        biometricPrompt = BiometricPrompt(
+            MainViewModel.context!!,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(
+                    errorCode: Int,
+                    errString: CharSequence
+                ) {
+                    biometricDismissedState.value = true
+                }
+
+                override fun onAuthenticationSucceeded(
+                    result: BiometricPrompt.AuthenticationResult
+                ) {
+                    unlock()
+                }
+
+                override fun onAuthenticationFailed() {
+                    biometricDismissedState.value = true
+                }
+            }
+        )
     }
 
     fun setPrimaryClip(label: String, clip: String) {
@@ -307,35 +338,7 @@ object MainViewModel : ViewModel() {
     }
 
     fun showBiometricPrompt() {
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(context!!.getString(R.string.access_nextpass))
-            .setSubtitle(context!!.getString(R.string.access_nextpass_body))
-            .setNegativeButtonText(context!!.getString(R.string.cancel))
-            .build()
-
-        val biometricPrompt = BiometricPrompt(
-            context!!,
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(
-                    errorCode: Int,
-                    errString: CharSequence
-                ) {
-                    biometricDismissedState.value = true
-                }
-
-                override fun onAuthenticationSucceeded(
-                    result: BiometricPrompt.AuthenticationResult
-                ) {
-                    unlock()
-                }
-
-                override fun onAuthenticationFailed() {
-                    biometricDismissedState.value = true
-                }
-            }
-        )
-
-        biometricPrompt.authenticate(promptInfo)
+        biometricPrompt!!.authenticate(promptInfo!!)
     }
 
     fun setLockTimeout(timeout: Long) {
@@ -372,11 +375,11 @@ object MainViewModel : ViewModel() {
             currentScreenState.value = route
             navController?.navigate(route = route)
 
-            if (navController?.currentDestination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
-                navController?.currentDestination?.route!! == "welcome" ||
-                navController?.currentDestination?.route!! == "settings" ||
-                navController?.currentDestination?.route!! == "about" ||
-                navController?.currentDestination?.route!! == "pin"
+            if (navController?.currentBackStackEntry?.destination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
+                navController?.currentBackStackEntry?.destination?.route!! == "welcome" ||
+                navController?.currentBackStackEntry?.destination?.route!! == "settings" ||
+                navController?.currentBackStackEntry?.destination?.route!! == "about" ||
+                navController?.currentBackStackEntry?.destination?.route!! == "pin"
             ) refreshingState.value = false
         }
 
@@ -387,9 +390,9 @@ object MainViewModel : ViewModel() {
         try {
             return if (navController?.previousBackStackEntry?.destination?.route!! == "welcome" ||
                 navController?.previousBackStackEntry?.destination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
-                navController?.currentDestination?.route!! == "welcome" ||
-                navController?.currentDestination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
-                navController?.currentDestination?.route!! == "passwords"
+                navController?.currentBackStackEntry?.destination?.route!! == "welcome" ||
+                navController?.currentBackStackEntry?.destination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
+                navController?.currentBackStackEntry?.destination?.route!! == "passwords"
             )
                 if (currentFolderState.value != 0) {
                     setCurrentFolder()

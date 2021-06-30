@@ -538,6 +538,7 @@ object NextcloudApiProvider : ViewModel() {
 
     fun stopNextcloudApi() {
         viewModelScope.coroutineContext.cancelChildren()
+        context = null
         nextcloudApi?.stop()
     }
 }
