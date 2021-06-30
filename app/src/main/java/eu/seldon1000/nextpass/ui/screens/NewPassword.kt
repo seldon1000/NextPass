@@ -43,6 +43,7 @@ import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
 import eu.seldon1000.nextpass.ui.items.Favicon
+import eu.seldon1000.nextpass.ui.items.FavoriteIcon
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import kotlinx.coroutines.launch
@@ -178,16 +179,7 @@ fun NewPassword() {
                             .padding(vertical = 16.dp)
                     ) {
                         DropdownFolderList(folder = selectedFolder)
-                        IconButton({ favorite = !favorite }) {
-                            Icon(
-                                painter = if (favorite)
-                                    painterResource(id = R.drawable.ic_round_star_24)
-                                else
-                                    painterResource(id = R.drawable.ic_round_star_border_24),
-                                contentDescription = "is_favorite",
-                                tint = if (favorite) Color.Yellow else Color.White
-                            )
-                        }
+                        FavoriteIcon(favorite = favorite) { favorite = !favorite }
                     }
                     TextField(
                         value = url,
