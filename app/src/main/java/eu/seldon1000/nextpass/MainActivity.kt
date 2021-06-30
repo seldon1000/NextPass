@@ -75,7 +75,9 @@ class MainActivity : FragmentActivity() {
 
         coroutineScope.launch {
             if (!MainViewModel.unlocked.value) MainViewModel.lock()
-            else if (MainViewModel.lockTimeout.value == (-1).toLong()) return@launch
+            else if (MainViewModel.lockTimeout.value == (-1).toLong() ||
+                MainViewModel.lockTimeout.value == (-2).toLong()
+            ) return@launch
             else {
                 delay(MainViewModel.lockTimeout.value)
                 MainViewModel.lock()

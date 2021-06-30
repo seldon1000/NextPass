@@ -36,7 +36,7 @@
     <string name="stop_service_now">Stop service now</string>
     <string name="stop_service_now_tip">Click here to manually terminate the background autofill service. Note that it will automatically restart if you restart NextPass. You can disable it completely in your device\'s settings.</string>
     <string name="lock_timeout">Lock timeout</string>
-    <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock, If you choose \'Never\', the app will remain unlocked till next restart or forced interruption.</string>
+    <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock.</string>
     <string name="special_thanks">Special thanks and mentions</string>
     <string name="special_thanks_tip">NextPass was made possible thanks to the work of many people and some amazing tools. Click here to learn more about them.</string>
     <string name="parent">Parent ID</string>

@@ -119,9 +119,9 @@ object MainViewModel : ViewModel() {
         autostartState.value = sharedPreferences!!.contains("autostart")
 
         if (sharedPreferences!!.contains("PIN")) {
-            unlockedState.value = false
             pinProtectedState.value = true
             lockTimeoutState.value = sharedPreferences!!.getLong("timeout", 0)
+            if (lockTimeoutState.value != (-1).toLong()) unlockedState.value = false
             biometricProtectedState.value = sharedPreferences!!.contains("biometric")
         }
     }

@@ -74,6 +74,7 @@ fun Settings() {
         1800000,
         3600000,
         86400000,
+        -2,
         -1
     )
 
@@ -233,6 +234,7 @@ fun Settings() {
                                 text = when (lockTimeout) {
                                     0.toLong() -> context.getString(R.string.immediately)
                                     (-1).toLong() -> context.getString(R.string.never)
+                                    (-2).toLong() -> "On restart"
                                     else -> when {
                                         lockTimeout < 3600000 -> "${lockTimeout / 60000} minutes"
                                         else -> "${lockTimeout / 3600000} hours"
@@ -260,6 +262,7 @@ fun Settings() {
                                         text = when (option) {
                                             0.toLong() -> context.getString(R.string.immediately)
                                             (-1).toLong() -> context.getString(R.string.never)
+                                            (-2).toLong() -> "On restart"
                                             else -> when {
                                                 option < 3600000 -> "${option / 60000} minutes"
                                                 else -> "${option / 3600000} hours"
