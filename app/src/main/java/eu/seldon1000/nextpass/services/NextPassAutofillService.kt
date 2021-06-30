@@ -118,11 +118,16 @@ class NextPassAutofillService : AutofillService() {
             .build()
     }
 
-    override fun onFillRequest(
-        request: FillRequest,
-        cancellationSignal: CancellationSignal,
-        callback: FillCallback
-    ) {
+    override fun onConnected() {
+        super.onConnected()
+
+        if (NextcloudApiProvider.storedPasswords.value.isEmpty() && NextcloudApiProvider.attemptLogin())
+            NextcloudApiProvider.refreshServerList()
+    }
+
+    override fun onDisconnected() {
+        super.onDisconnected()
+
         saveUsername = ""
         savePassword = ""
         saveIdPackage = ""
@@ -131,7 +136,13 @@ class NextPassAutofillService : AutofillService() {
         usernameId = mutableListOf()
         passwordId = mutableListOf()
         ready = false
+    }
 
+    override fun onFillRequest(
+        request: FillRequest,
+        cancellationSignal: CancellationSignal,
+        callback: FillCallback
+    ) {
         val context = request.fillContexts
         val structure = context.last().structure
 
