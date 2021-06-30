@@ -40,7 +40,6 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        NextcloudApiProvider.setContext(context = this)
         MainViewModel.setContext(context = this)
 
         setContent {

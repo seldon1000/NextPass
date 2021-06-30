@@ -108,6 +108,8 @@ object MainViewModel : ViewModel() {
     fun setContext(context: FragmentActivity) {
         this.context = context
 
+        NextcloudApiProvider.setContext(context = this.context!!)
+
         sharedPreferences = this.context!!.getSharedPreferences("nextpass", 0)
 
         clipboardManager = this.context!!.getSystemService(ClipboardManager::class.java)
