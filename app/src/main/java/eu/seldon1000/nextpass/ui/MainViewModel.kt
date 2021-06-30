@@ -134,6 +134,13 @@ object MainViewModel : ViewModel() {
         showSnackbar(message = context!!.getString(R.string.copy_snack_message, label))
     }
 
+    fun setAutofillIntent(intent: Intent): Boolean {
+        return if (autofillIntent == null) {
+            autofillIntent = intent
+            true
+        } else false
+    }
+
     fun setNavController(controller: NavController) {
         navController = controller
     }
@@ -179,12 +186,11 @@ object MainViewModel : ViewModel() {
 
     private fun startAutofillService(): Boolean {
         return if (autofillManager!!.hasEnabledAutofillServices() &&
-            NextcloudApiProvider.attemptLogin()
+            NextcloudApiProvider.attemptLogin() && setAutofillIntent(
+                intent = Intent(context, NextPassAutofillService::class.java)
+            )
         ) {
             autofillState.value = true
-
-            if (autofillIntent == null)
-                autofillIntent = Intent(context, NextPassAutofillService::class.java)
 
             context!!.startForegroundService(autofillIntent)
 

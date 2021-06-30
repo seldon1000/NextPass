@@ -23,8 +23,8 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import android.service.autofill.AutofillService
 import android.view.autofill.AutofillManager
+import eu.seldon1000.nextpass.ui.MainViewModel
 
 class StartupBroadcastReceiver : BroadcastReceiver() {
     private val networkRequest = NetworkRequest.Builder()
@@ -39,16 +39,19 @@ class StartupBroadcastReceiver : BroadcastReceiver() {
         if (autofillManager.hasEnabledAutofillServices() &&
             context.getSharedPreferences("nextpass", 0).contains("autostart")
         ) {
-            (context.getSystemService(AutofillService.CONNECTIVITY_SERVICE) as ConnectivityManager)
+            (context.getSystemService(ConnectivityManager::class.java))
                 .registerNetworkCallback(
                     networkRequest,
                     object : ConnectivityManager.NetworkCallback() {
                         override fun onAvailable(network: Network) {
                             super.onAvailable(network)
 
-                            context.startForegroundService(
+                            val autofillIntent =
                                 Intent(context, NextPassAutofillService::class.java)
-                            )
+
+                            MainViewModel.setAutofillIntent(intent = autofillIntent)
+
+                            context.startForegroundService(autofillIntent)
                         }
                     }
                 )
