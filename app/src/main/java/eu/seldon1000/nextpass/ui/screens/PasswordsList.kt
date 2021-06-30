@@ -16,6 +16,8 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,6 +47,7 @@ import eu.seldon1000.nextpass.ui.layout.DefaultFab
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 
+@SuppressLint("UnusedCrossfadeTargetStateParameter")
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
@@ -80,32 +83,38 @@ fun PasswordList() {
                     Header(expanded = true, title = context.getString(R.string.passwords)) {
                         Row {
                             if (folderMode) {
-                                IconButton(
-                                    onClick = { MainViewModel.setCurrentFolder(folder = 0) },
-                                    enabled = currentFolder != 0
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_round_home_24),
-                                        contentDescription = "base_folder"
-                                    )
+                                Crossfade(targetState = folderMode) {
+                                    IconButton(
+                                        onClick = { MainViewModel.setCurrentFolder(folder = 0) },
+                                        enabled = currentFolder != 0
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_round_home_24),
+                                            contentDescription = "base_folder"
+                                        )
+                                    }
                                 }
-                                IconButton(onClick = { MainViewModel.navigate(route = "new_folder") }) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_round_create_new_folder_24),
-                                        contentDescription = "new_folder"
-                                    )
+                                Crossfade(targetState = folderMode) {
+                                    IconButton(onClick = { MainViewModel.navigate(route = "new_folder") }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_round_create_new_folder_24),
+                                            contentDescription = "new_folder"
+                                        )
+                                    }
                                 }
                             }
-                            Card(shape = CircleShape, elevation = if (folderMode) 8.dp else 0.dp) {
-                                IconButton(onClick = {
-                                    if (folderMode)
-                                        MainViewModel.setCurrentFolder(folder = 0)
-                                    MainViewModel.setFolderMode()
-                                }) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_round_folder_24),
-                                        contentDescription = "folder_mode"
-                                    )
+                            Crossfade(targetState = folderMode) { state ->
+                                Card(shape = CircleShape, elevation = if (state) 8.dp else 0.dp) {
+                                    IconButton(onClick = {
+                                        if (folderMode)
+                                            MainViewModel.setCurrentFolder(folder = 0)
+                                        MainViewModel.setFolderMode()
+                                    }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_round_folder_24),
+                                            contentDescription = "folder_mode"
+                                        )
+                                    }
                                 }
                             }
                         }

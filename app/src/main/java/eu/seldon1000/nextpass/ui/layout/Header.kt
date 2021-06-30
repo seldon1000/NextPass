@@ -16,12 +16,14 @@
 
 package eu.seldon1000.nextpass.ui.layout
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -48,10 +50,14 @@ fun Header(expanded: Boolean, title: String, item: @Composable () -> Unit) {
             }
         }
     } else {
-        Text(
-            text = title,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.SemiBold
-        )
+        Crossfade(targetState = title) { state ->
+            Text(
+                text = state,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }

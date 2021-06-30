@@ -16,12 +16,16 @@
 
 package eu.seldon1000.nextpass.ui.items
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -42,8 +46,20 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
     var expanded by remember { mutableStateOf(value = false) }
     var folderChanged by remember { mutableStateOf(value = false) }
 
+    var isRotated by remember { mutableStateOf(value = false) }
+    val angle by animateFloatAsState(
+        targetValue = if (isRotated) 180F else 0F,
+        animationSpec = tween(
+            durationMillis = 500,
+            easing = FastOutSlowInEasing
+        )
+    )
+
     Card(
-        onClick = { expanded = true },
+        onClick = {
+            isRotated = !isRotated
+            expanded = true
+        },
         shape = RoundedCornerShape(size = 8.dp),
         elevation = if (enabled) 8.dp else 0.dp,
         backgroundColor = if (enabled) Color.DarkGray else Color.Unspecified,
@@ -59,25 +75,27 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
                 modifier = Modifier.padding(start = 8.dp, end = 16.dp)
             )
             Icon(
-                painter = painterResource(
-                    id = if (expanded) R.drawable.ic_round_arrow_drop_up_24
-                    else R.drawable.ic_round_arrow_drop_down_24
-                ),
-                contentDescription = "expand_folder_menu"
+                painter = painterResource(id = R.drawable.ic_round_arrow_drop_up_24),
+                contentDescription = "expand_folder_menu",
+                modifier = Modifier.rotate(degrees = angle)
             )
         }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenu(expanded = expanded, onDismissRequest = {
+            isRotated = !isRotated
+            expanded = false
+        }) {
             storedFolders.forEachIndexed { index, folder ->
                 DropdownMenuItem(onClick = {
+                    isRotated = !isRotated
                     expanded = false
                     folderChanged = true
                     MainViewModel.setSelectedFolder(folder = index)
-                }) {
-                    Text(text = folder.label)
-                }
+                }) { Text(text = folder.label) }
             }
             if (canAdd) DropdownMenuItem(onClick = {
+                isRotated = !isRotated
                 expanded = false
+
                 MainViewModel.navigate(route = "new_folder")
             }) {
                 Text(text = context.getString(R.string.add_new_folder))

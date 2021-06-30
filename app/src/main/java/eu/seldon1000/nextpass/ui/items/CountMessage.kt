@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.items
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
@@ -37,13 +38,15 @@ fun CountMessage(message: String) {
 
     val refreshing by MainViewModel.refreshing.collectAsState()
 
-    Text(
-        text = if (refreshing) context.getString(R.string.waiting_server) else message,
-        fontSize = 14.sp,
-        textAlign = TextAlign.Center,
-        color = Color.Gray,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp)
-    )
+    Crossfade(targetState = refreshing) { state ->
+        Text(
+            text = if (state) context.getString(R.string.waiting_server) else message,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+            color = Color.Gray,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        )
+    }
 }

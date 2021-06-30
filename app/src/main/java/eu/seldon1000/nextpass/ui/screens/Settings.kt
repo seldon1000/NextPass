@@ -21,6 +21,9 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.biometric.BiometricManager
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -29,6 +32,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -65,6 +69,15 @@ fun Settings() {
     val autostart by MainViewModel.autostart.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
+
+    var isRotated by remember { mutableStateOf(value = false) }
+    val angle by animateFloatAsState(
+        targetValue = if (isRotated) 180F else 0F,
+        animationSpec = tween(
+            durationMillis = 500,
+            easing = FastOutSlowInEasing
+        )
+    )
 
     val timeoutOptions = listOf<Long>(
         0,
@@ -222,7 +235,10 @@ fun Settings() {
                         item = {}
                     ) {}
                     Card(
-                        onClick = { expanded = true },
+                        onClick = {
+                            isRotated = !isRotated
+                            expanded = true
+                        },
                         enabled = protected,
                         shape = RoundedCornerShape(size = 8.dp),
                         modifier = Modifier
@@ -242,21 +258,25 @@ fun Settings() {
                                 },
                                 modifier = Modifier.padding(start = 8.dp, end = 16.dp)
                             )
+
                             Icon(
-                                painter = painterResource(
-                                    id = if (expanded) R.drawable.ic_round_arrow_drop_up_24
-                                    else R.drawable.ic_round_arrow_drop_down_24
-                                ),
-                                contentDescription = "expand_timeout_menu"
+                                painter = painterResource(id = R.drawable.ic_round_arrow_drop_up_24),
+                                contentDescription = "expand_timeout_menu",
+                                modifier = Modifier.rotate(degrees = angle)
                             )
                         }
                         DropdownMenu(
                             expanded = expanded,
-                            onDismissRequest = { expanded = false }) {
+                            onDismissRequest = {
+                                expanded = false
+                                isRotated = !isRotated
+                            }) {
                             timeoutOptions.forEach { option ->
                                 DropdownMenuItem(onClick = {
-                                    MainViewModel.setLockTimeout(timeout = option)
+                                    isRotated = !isRotated
                                     expanded = false
+
+                                    MainViewModel.setLockTimeout(timeout = option)
                                 }, enabled = lockTimeout != option) {
                                     Text(
                                         text = when (option) {
