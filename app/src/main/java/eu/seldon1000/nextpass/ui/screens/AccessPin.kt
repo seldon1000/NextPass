@@ -42,7 +42,11 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
 
     val biometricDismissed by MainViewModel.biometricDismissed.collectAsState()
 
-    if (MainViewModel.biometricProtected.value && shouldRaiseBiometric && !biometricDismissed) MainViewModel.showBiometricPrompt()
+    if (MainViewModel.biometricProtected.value && shouldRaiseBiometric && !biometricDismissed)
+        MainViewModel.showBiometricPrompt()
+
+    var showed by remember { mutableStateOf(value = false) }
+    var pin by remember { mutableStateOf(value = "") }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -54,9 +58,6 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
-            var showed by remember { mutableStateOf(value = false) }
-            var pin by remember { mutableStateOf(value = "") }
-
             TextField(
                 value = pin,
                 onValueChange = { pin = it },
