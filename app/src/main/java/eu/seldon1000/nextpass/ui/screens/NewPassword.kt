@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -260,14 +261,16 @@ fun NewPassword() {
                                     )
                                 }
                                 IconButton(onClick = { showed = !showed }) {
-                                    Icon(
-                                        painter = painterResource(
-                                            id = if (showed) R.drawable.ic_round_visibility_24
-                                            else R.drawable.ic_round_visibility_off_24
-                                        ),
-                                        contentDescription = "show_password",
-                                        tint = Color.White
-                                    )
+                                    Crossfade(targetState = showed) { state ->
+                                        Icon(
+                                            painter = painterResource(
+                                                id = if (state) R.drawable.ic_round_visibility_24
+                                                else R.drawable.ic_round_visibility_off_24
+                                            ),
+                                            contentDescription = "show_password",
+                                            tint = Color.White
+                                        )
+                                    }
                                 }
                             }
                         },
@@ -311,13 +314,15 @@ fun NewPassword() {
                                                 customField["type"] = "text"
                                             else customField["type"] = "secret"
                                         }) {
-                                            Icon(
-                                                painter = if (customField["type"]!! == "text") painterResource(
-                                                    id = R.drawable.ic_round_lock_open_24
-                                                ) else painterResource(id = R.drawable.ic_round_lock_24),
-                                                contentDescription = "make_field_secret",
-                                                tint = Color.White
-                                            )
+                                            Crossfade(targetState = customField["type"]!! == "text") { state ->
+                                                Icon(
+                                                    painter = if (state) painterResource(
+                                                        id = R.drawable.ic_round_lock_open_24
+                                                    ) else painterResource(id = R.drawable.ic_round_lock_24),
+                                                    contentDescription = "make_field_secret",
+                                                    tint = Color.White
+                                                )
+                                            }
                                         }
                                         IconButton(onClick = { customFields.remove(element = customField) }) {
                                             Icon(

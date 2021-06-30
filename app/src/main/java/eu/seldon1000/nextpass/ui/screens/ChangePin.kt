@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -178,7 +179,7 @@ fun ChangePin(change: Boolean) {
                     else context.getString(R.string.create_new_pin)
                 }
             ) {}
-            OutlinedTextField(
+            TextField(
                 value = pin,
                 onValueChange = { pin = it },
                 label = { Text(text = "PIN") },
@@ -189,15 +190,23 @@ fun ChangePin(change: Boolean) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 trailingIcon = {
                     IconButton(onClick = { showed = !showed }) {
-                        Icon(
-                            painter = painterResource(
-                                id = if (showed) R.drawable.ic_round_visibility_24
-                                else R.drawable.ic_round_visibility_off_24
-                            ),
-                            contentDescription = "show_password"
-                        )
+                        Crossfade(targetState = showed) { state ->
+                            Icon(
+                                painter = painterResource(
+                                    id = if (state) R.drawable.ic_round_visibility_24
+                                    else R.drawable.ic_round_visibility_off_24
+                                ),
+                                contentDescription = "show_password"
+                            )
+                        }
                     }
                 },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent,
+                    errorIndicatorColor = Color.Transparent
+                ),
                 modifier = Modifier
                     .width(width = 200.dp)
                     .padding(top = 192.dp),

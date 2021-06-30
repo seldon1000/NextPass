@@ -18,6 +18,7 @@ package eu.seldon1000.nextpass.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -133,16 +134,15 @@ fun PasswordDetails(passwordData: Password) {
                 ) {}
             } else edit = true
         }) {
-            if (edit) Icon(
-                painter = painterResource(id = R.drawable.ic_round_save_24),
-                contentDescription = "save",
-                tint = Color.White
-            )
-            else Icon(
-                painter = painterResource(id = R.drawable.ic_round_edit_24),
-                contentDescription = "edit",
-                tint = Color.White
-            )
+            Crossfade(targetState = edit) { state ->
+                Icon(
+                    painter = if (state) painterResource(id = R.drawable.ic_round_save_24)
+                    else painterResource(id = R.drawable.ic_round_edit_24),
+                    contentDescription = "save",
+                    tint = Color.White
+                )
+            }
+
         }
     }, bottomBar = {
         BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
@@ -166,14 +166,13 @@ fun PasswordDetails(passwordData: Password) {
                     }
                 },
             ) {
-                if (edit) Icon(
-                    painter = painterResource(id = R.drawable.ic_round_settings_backup_restore_24),
-                    contentDescription = "restore"
-                )
-                else Icon(
-                    painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
-                    contentDescription = "back"
-                )
+                Crossfade(targetState = edit) { state ->
+                    Icon(
+                        painter = if (state) painterResource(id = R.drawable.ic_round_settings_backup_restore_24)
+                        else painterResource(id = R.drawable.ic_round_back_arrow_24),
+                        contentDescription = "restore"
+                    )
+                }
             }
         }
     }) { paddingValues ->
@@ -256,9 +255,11 @@ fun PasswordDetails(passwordData: Password) {
                                 .fillMaxWidth()
                                 .padding(vertical = 16.dp)
                         ) {
-                            DropdownFolderList(
-                                enabled = edit,
-                                folder = storedFolders.indexOfFirst { passwordData.folder == it.id })
+                            Crossfade(targetState = edit) { state ->
+                                DropdownFolderList(
+                                    enabled = state,
+                                    folder = storedFolders.indexOfFirst { passwordData.folder == it.id })
+                            }
                             FavoriteIcon(favorite = passwordData.favorite) {
                                 MainViewModel.setRefreshing(refreshing = true)
 
@@ -269,205 +270,221 @@ fun PasswordDetails(passwordData: Password) {
                             }
                         }
                     }
-                    TextField(
-                        value = url,
-                        onValueChange = { url = it },
-                        enabled = edit,
-                        label = { Text(text = context.getString(R.string.url)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        trailingIcon = {
-                            Row {
-                                IconButton(onClick = {
-                                    context.startActivity(
-                                        Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                                    )
-                                }) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_round_public_24),
-                                        contentDescription = "browse_url",
-                                        tint = Color.White
-                                    )
-                                }
-                                CopyButton(label = context.getString(R.string.url), clip = url)
-                            }
-                        },
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    TextField(
-                        value = label,
-                        onValueChange = { label = it },
-                        enabled = edit,
-                        label = { Text(text = context.getString(R.string.label)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        isError = label.isEmpty(),
-                        trailingIcon = {
-                            CopyButton(
-                                label = context.getString(R.string.label),
-                                clip = label
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    TextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        enabled = edit,
-                        label = { Text(text = context.getString(R.string.username)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        trailingIcon = {
-                            CopyButton(
-                                label = context.getString(R.string.username),
-                                clip = username
-                            )
-                        },
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    TextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        enabled = edit,
-                        label = { Text(text = context.getString(R.string.password)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        isError = password.isEmpty(),
-                        visualTransformation = if (showed) VisualTransformation.None else PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        trailingIcon = {
-                            Row {
-                                IconButton(onClick = {
-                                    coroutineScope.launch {
-                                        password = NextcloudApiProvider.generatePassword()
-                                    }
-                                }, enabled = edit) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_round_autorenew_24),
-                                        contentDescription = "generate_password",
-                                        tint = if (edit) Color.White else Color.Gray
-                                    )
-                                }
-                                IconButton(onClick = { showed = !showed }) {
-                                    Icon(
-                                        painter = painterResource(
-                                            id = if (showed) R.drawable.ic_round_visibility_24
-                                            else R.drawable.ic_round_visibility_off_24
-                                        ),
-                                        contentDescription = "show_password",
-                                        tint = Color.White
-                                    )
-                                }
-                                CopyButton(
-                                    label = context.getString(R.string.password),
-                                    clip = password
-                                )
-                            }
-                        },
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                            errorIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    TextField(
-                        value = notes,
-                        onValueChange = { notes = it },
-                        enabled = edit,
-                        label = { Text(text = context.getString(R.string.notes)) },
-                        shape = RoundedCornerShape(size = 8.dp),
-                        trailingIcon = {
-                            CopyButton(
-                                label = context.getString(R.string.notes),
-                                clip = notes
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                        colors = TextFieldDefaults.textFieldColors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                    )
-                    customFields.forEach { customField ->
-                        if (customField.containsKey(key = "value"))
-                            TextField(
-                                value = customField["value"]!!,
-                                onValueChange = { customField["value"] = it },
-                                label = { Text(text = customField["label"]!!) },
-                                shape = RoundedCornerShape(size = 8.dp),
-                                enabled = edit,
-                                visualTransformation = if (customField["type"] == "secret")
-                                    PasswordVisualTransformation() else VisualTransformation.None,
-                                trailingIcon = {
-                                    Row {
-                                        IconButton(
-                                            onClick = {
-                                                if (customField["type"] == "secret")
-                                                    customField["type"] = "text"
-                                                else customField["type"] = "secret"
-                                            },
-                                            enabled = edit
-                                        ) {
-                                            Icon(
-                                                painter = if (customField["type"] != "secret")
-                                                    painterResource(id = R.drawable.ic_round_lock_open_24)
-                                                else painterResource(id = R.drawable.ic_round_lock_24),
-                                                contentDescription = "make_field_secret",
-                                                tint = if (edit) Color.White else Color.Gray
-                                            )
-                                        }
-                                        IconButton(
-                                            onClick = { customFields.remove(element = customField) },
-                                            enabled = edit
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.ic_round_delete_forever_24),
-                                                contentDescription = "delete_custom_field",
-                                                tint = if (edit) Color.Red else Color.Gray
-                                            )
-                                        }
-                                        CopyButton(
-                                            label = context.getString(R.string.custom_field),
-                                            clip = customField["value"]!!
+                    Crossfade(targetState = edit) { state ->
+                        TextField(
+                            value = url,
+                            onValueChange = { url = it },
+                            enabled = state,
+                            label = { Text(text = context.getString(R.string.url)) },
+                            shape = RoundedCornerShape(size = 8.dp),
+                            trailingIcon = {
+                                Row {
+                                    IconButton(onClick = {
+                                        context.startActivity(
+                                            Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                        )
+                                    }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_round_public_24),
+                                            contentDescription = "browse_url",
+                                            tint = Color.White
                                         )
                                     }
-                                },
-                                colors = TextFieldDefaults.textFieldColors(
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent,
-                                    disabledIndicatorColor = Color.Transparent
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                            )
+                                    CopyButton(label = context.getString(R.string.url), clip = url)
+                                }
+                            },
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                        )
+                    }
+                    Crossfade(targetState = edit) { state ->
+                        TextField(
+                            value = label,
+                            onValueChange = { label = it },
+                            enabled = state,
+                            label = { Text(text = context.getString(R.string.label)) },
+                            shape = RoundedCornerShape(size = 8.dp),
+                            isError = label.isEmpty(),
+                            trailingIcon = {
+                                CopyButton(
+                                    label = context.getString(R.string.label),
+                                    clip = label
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                errorIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                        )
+                    }
+                    Crossfade(targetState = edit) { state ->
+                        TextField(
+                            value = username,
+                            onValueChange = { username = it },
+                            enabled = state,
+                            label = { Text(text = context.getString(R.string.username)) },
+                            shape = RoundedCornerShape(size = 8.dp),
+                            trailingIcon = {
+                                CopyButton(
+                                    label = context.getString(R.string.username),
+                                    clip = username
+                                )
+                            },
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                        )
+                    }
+                    Crossfade(targetState = edit) { state ->
+                        TextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            enabled = state,
+                            label = { Text(text = context.getString(R.string.password)) },
+                            shape = RoundedCornerShape(size = 8.dp),
+                            isError = password.isEmpty(),
+                            visualTransformation = if (showed) VisualTransformation.None else PasswordVisualTransformation(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            trailingIcon = {
+                                Row {
+                                    IconButton(onClick = {
+                                        coroutineScope.launch {
+                                            password = NextcloudApiProvider.generatePassword()
+                                        }
+                                    }, enabled = state) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_round_autorenew_24),
+                                            contentDescription = "generate_password",
+                                            tint = if (state) Color.White else Color.Gray
+                                        )
+                                    }
+                                    IconButton(onClick = { showed = !showed }) {
+                                        Crossfade(targetState = showed) { state1 ->
+                                            Icon(
+                                                painter = painterResource(
+                                                    id = if (state1) R.drawable.ic_round_visibility_24
+                                                    else R.drawable.ic_round_visibility_off_24
+                                                ),
+                                                contentDescription = "show_password",
+                                                tint = Color.White
+                                            )
+                                        }
+                                    }
+                                    CopyButton(
+                                        label = context.getString(R.string.password),
+                                        clip = password
+                                    )
+                                }
+                            },
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent,
+                                errorIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                        )
+                    }
+                    Crossfade(targetState = edit) { state ->
+                        TextField(
+                            value = notes,
+                            onValueChange = { notes = it },
+                            enabled = state,
+                            label = { Text(text = context.getString(R.string.notes)) },
+                            shape = RoundedCornerShape(size = 8.dp),
+                            trailingIcon = {
+                                CopyButton(
+                                    label = context.getString(R.string.notes),
+                                    clip = notes
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                            colors = TextFieldDefaults.textFieldColors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                        )
+                    }
+                    customFields.forEach { customField ->
+                        if (customField.containsKey(key = "value"))
+                            Crossfade(targetState = edit) { state ->
+                                TextField(
+                                    value = customField["value"]!!,
+                                    onValueChange = { customField["value"] = it },
+                                    label = { Text(text = customField["label"]!!) },
+                                    shape = RoundedCornerShape(size = 8.dp),
+                                    enabled = state,
+                                    visualTransformation = if (customField["type"] == "secret")
+                                        PasswordVisualTransformation() else VisualTransformation.None,
+                                    trailingIcon = {
+                                        Row {
+                                            IconButton(
+                                                onClick = {
+                                                    if (customField["type"] == "secret")
+                                                        customField["type"] = "text"
+                                                    else customField["type"] = "secret"
+                                                },
+                                                enabled = state
+                                            ) {
+                                                Crossfade(targetState = customField["type"] != "secret") { state1 ->
+                                                    Icon(
+                                                        painter = if (state1)
+                                                            painterResource(id = R.drawable.ic_round_lock_open_24)
+                                                        else painterResource(id = R.drawable.ic_round_lock_24),
+                                                        contentDescription = "make_field_secret",
+                                                        tint = if (state) Color.White else Color.Gray
+                                                    )
+                                                }
+                                            }
+                                            IconButton(
+                                                onClick = { customFields.remove(element = customField) },
+                                                enabled = state
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.ic_round_delete_forever_24),
+                                                    contentDescription = "delete_custom_field",
+                                                    tint = if (state) Color.Red else Color.Gray
+                                                )
+                                            }
+                                            CopyButton(
+                                                label = context.getString(R.string.custom_field),
+                                                clip = customField["value"]!!
+                                            )
+                                        }
+                                    },
+                                    colors = TextFieldDefaults.textFieldColors(
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        disabledIndicatorColor = Color.Transparent
+                                    ),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                )
+                            }
                         else TextField(
                             value = customField["label"]!!,
                             onValueChange = { customField["label"] = it },
@@ -532,11 +549,13 @@ fun PasswordDetails(passwordData: Password) {
                                 color = Color.Red
                             )
                         }
-                        TextButton(
-                            onClick = { customFields.add(element = mutableStateMapOf("label" to "")) },
-                            enabled = edit
-                        ) {
-                            Text(text = context.getString(R.string.add_custom_field))
+                        Crossfade(targetState = edit) { state ->
+                            TextButton(
+                                onClick = { customFields.add(element = mutableStateMapOf("label" to "")) },
+                                enabled = state
+                            ) {
+                                Text(text = context.getString(R.string.add_custom_field))
+                            }
                         }
                     }
                 }

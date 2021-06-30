@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -56,7 +57,7 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
             var showed by remember { mutableStateOf(value = false) }
             var pin by remember { mutableStateOf(value = "") }
 
-            OutlinedTextField(
+            TextField(
                 value = pin,
                 onValueChange = { pin = it },
                 label = { Text(text = "PIN") },
@@ -66,15 +67,22 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 trailingIcon = {
                     IconButton(onClick = { showed = !showed }) {
-                        Icon(
-                            painter = painterResource(
-                                id = if (showed) R.drawable.ic_round_visibility_24
-                                else R.drawable.ic_round_visibility_off_24
-                            ),
-                            contentDescription = "show_password"
-                        )
+                        Crossfade(targetState = showed) { state ->
+                            Icon(
+                                painter = painterResource(
+                                    id = if (state) R.drawable.ic_round_visibility_24
+                                    else R.drawable.ic_round_visibility_off_24
+                                ),
+                                contentDescription = "show_password"
+                            )
+                        }
                     }
                 },
+                colors = TextFieldDefaults.textFieldColors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                ),
                 modifier = Modifier.width(width = 200.dp)
             )
             Row {
