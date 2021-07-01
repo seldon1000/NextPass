@@ -18,6 +18,7 @@ package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -34,6 +35,7 @@ import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.theme.Orange500
 
+@ExperimentalMaterialApi
 @Composable
 fun AccessPin(shouldRaiseBiometric: Boolean) {
     val context = LocalContext.current
