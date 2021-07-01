@@ -4,7 +4,6 @@
     package="eu.seldon1000.nextpass">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <queries>
@@ -44,7 +43,7 @@
 
         <service
             android:name=".services.NextPassAutofillService"
-            android:label="NextPass autofill Service"
+            android:label="NextPass Autofill Service"
             android:permission="android.permission.BIND_AUTOFILL_SERVICE">
             <intent-filter>
                 <action android:name="android.service.autofill.AutofillService" />
