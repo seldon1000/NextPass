@@ -22,6 +22,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Surface
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.fragment.app.FragmentActivity
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
@@ -46,7 +47,9 @@ class MainActivity : FragmentActivity() {
             rememberCoroutineScope().launch { MainViewModel.openApp() }
 
             NextPassTheme {
-                CentralScreenControl()
+                Surface {
+                    CentralScreenControl()
+                }
             }
         }
     }

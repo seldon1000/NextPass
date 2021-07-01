@@ -16,10 +16,9 @@
 
 package eu.seldon1000.nextpass.ui.items
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
@@ -47,20 +46,25 @@ fun FavoriteIcon(favorite: Boolean, action: (Boolean) -> Unit) {
         action(it)
         isRotated = !isRotated
     }) {
-        val tint by animateColorAsState(if (favorite) Color.Yellow else Color.White)
-
-        Icon(
-            painter = if (favorite) painterResource(id = R.drawable.ic_round_star_24)
-            else painterResource(id = R.drawable.ic_round_star_border_24),
-            contentDescription = "favorite",
-            tint = tint,
-            modifier = Modifier
-                .rotate(degrees = angle)
-                .shadow(
-                    elevation = 8.dp,
-                    RoundedCornerShape(size = 8.dp),
-                    clip = true
-                )
+        val tint by animateColorAsState(
+            targetValue = if (favorite) Color.Yellow else Color.White,
+            animationSpec = tween(durationMillis = 200, easing = LinearEasing)
         )
+
+        Crossfade(
+            targetState = favorite, modifier = Modifier.shadow(
+                elevation = 8.dp,
+                RoundedCornerShape(size = 8.dp),
+                clip = true
+            )
+        ) { state ->
+            Icon(
+                painter = if (state) painterResource(id = R.drawable.ic_round_star_24)
+                else painterResource(id = R.drawable.ic_round_star_border_24),
+                contentDescription = "favorite",
+                tint = tint,
+                modifier = Modifier.rotate(degrees = angle)
+            )
+        }
     }
 }

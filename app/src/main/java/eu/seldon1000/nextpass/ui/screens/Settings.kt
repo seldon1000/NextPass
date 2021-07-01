@@ -21,7 +21,9 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.biometric.BiometricManager
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -33,10 +35,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.AUTOFILL_SETTINGS_CODE
@@ -234,62 +238,76 @@ fun Settings() {
                         body = context.getString(R.string.lock_timeout_tip),
                         item = {}
                     ) {}
-                    Card(
-                        onClick = {
-                            isRotated = !isRotated
-                            expanded = true
-                        },
-                        enabled = protected,
-                        shape = RoundedCornerShape(size = 8.dp),
+                    Surface(
                         modifier = Modifier
                             .padding(end = 16.dp)
-                            .align(Alignment.End)
+                            .align(alignment = Alignment.End)
+                            .shadow(
+                                elevation = if (protected) 8.dp else Dp.Unspecified,
+                                RoundedCornerShape(size = 8.dp),
+                                clip = true
+                            )
+                            .animateContentSize(
+                                animationSpec = tween(
+                                    durationMillis = 500,
+                                    easing = LinearOutSlowInEasing
+                                )
+                            )
                     ) {
-                        Row(modifier = Modifier.padding(all = 8.dp)) {
-                            Text(
-                                text = when (lockTimeout) {
-                                    0.toLong() -> context.getString(R.string.immediately)
-                                    (-1).toLong() -> context.getString(R.string.never)
-                                    (-2).toLong() -> "On restart"
-                                    else -> when {
-                                        lockTimeout < 3600000 -> "${lockTimeout / 60000} minutes"
-                                        else -> "${lockTimeout / 3600000} hours"
-                                    }
-                                },
-                                modifier = Modifier.padding(start = 8.dp, end = 16.dp)
-                            )
-
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_round_arrow_drop_up_24),
-                                contentDescription = "expand_timeout_menu",
-                                modifier = Modifier.rotate(degrees = angle)
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = {
-                                expanded = false
+                        Card(
+                            onClick = {
                                 isRotated = !isRotated
-                            }) {
-                            timeoutOptions.forEach { option ->
-                                DropdownMenuItem(onClick = {
-                                    isRotated = !isRotated
-                                    expanded = false
+                                expanded = true
+                            },
+                            enabled = protected,
+                            shape = RoundedCornerShape(size = 8.dp)
+                        ) {
+                            Row(modifier = Modifier.padding(all = 8.dp)) {
+                                Text(
+                                    text = when (lockTimeout) {
+                                        0.toLong() -> context.getString(R.string.immediately)
+                                        (-1).toLong() -> context.getString(R.string.never)
+                                        (-2).toLong() -> "On restart"
+                                        else -> when {
+                                            lockTimeout < 3600000 -> "${lockTimeout / 60000} minutes"
+                                            else -> "${lockTimeout / 3600000} hours"
+                                        }
+                                    },
+                                    modifier = Modifier.padding(start = 8.dp, end = 16.dp)
+                                )
 
-                                    MainViewModel.setLockTimeout(timeout = option)
-                                }, enabled = lockTimeout != option) {
-                                    Text(
-                                        text = when (option) {
-                                            0.toLong() -> context.getString(R.string.immediately)
-                                            (-1).toLong() -> context.getString(R.string.never)
-                                            (-2).toLong() -> "On restart"
-                                            else -> when {
-                                                option < 3600000 -> "${option / 60000} minutes"
-                                                else -> "${option / 3600000} hours"
-                                            }
-                                        },
-                                        color = if (lockTimeout == option) Color.Gray else Color.White
-                                    )
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_round_arrow_drop_up_24),
+                                    contentDescription = "expand_timeout_menu",
+                                    modifier = Modifier.rotate(degrees = angle)
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = {
+                                    expanded = false
+                                    isRotated = !isRotated
+                                }) {
+                                timeoutOptions.forEach { option ->
+                                    DropdownMenuItem(onClick = {
+                                        isRotated = !isRotated
+                                        expanded = false
+
+                                        MainViewModel.setLockTimeout(timeout = option)
+                                    }, enabled = lockTimeout != option) {
+                                        Text(
+                                            text = when (option) {
+                                                0.toLong() -> context.getString(R.string.immediately)
+                                                (-1).toLong() -> context.getString(R.string.never)
+                                                (-2).toLong() -> "On restart"
+                                                else -> when {
+                                                    option < 3600000 -> "${option / 60000} minutes"
+                                                    else -> "${option / 3600000} hours"
+                                                }
+                                            },
+                                            color = if (lockTimeout == option) Color.Gray else Color.White
+                                        )
+                                    }
                                 }
                             }
                         }
