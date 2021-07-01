@@ -59,7 +59,7 @@ fun TextFieldItem(
                 value = text,
                 onValueChange = onTextChanged,
                 enabled = enabledState,
-                label = { Text(text = label) },
+                label = { Text(text = "$label${if (required) " *" else ""}") },
                 shape = RoundedCornerShape(size = 8.dp),
                 isError = required && text.isEmpty(),
                 trailingIcon = { Row { trailingIcon() } },

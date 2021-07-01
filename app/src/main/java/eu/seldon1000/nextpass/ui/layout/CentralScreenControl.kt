@@ -18,6 +18,7 @@ package eu.seldon1000.nextpass.ui.layout
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -150,7 +151,8 @@ fun MyAlertDialog() {
                 )
             },
             text = { Text(text = dialogText, fontSize = 14.sp) },
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.width(width = 300.dp)
         )
     }
 }

@@ -20,13 +20,16 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 
 @Composable
@@ -51,7 +54,13 @@ fun FavoriteIcon(favorite: Boolean, action: (Boolean) -> Unit) {
             else painterResource(id = R.drawable.ic_round_star_border_24),
             contentDescription = "favorite",
             tint = tint,
-            modifier = Modifier.rotate(degrees = angle)
+            modifier = Modifier
+                .rotate(degrees = angle)
+                .shadow(
+                    elevation = 8.dp,
+                    RoundedCornerShape(size = 8.dp),
+                    clip = true
+                )
         )
     }
 }

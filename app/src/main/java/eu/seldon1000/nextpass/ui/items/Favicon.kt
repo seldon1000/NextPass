@@ -21,24 +21,38 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun Favicon(favicon: Bitmap?, size: Dp) {
-    Crossfade(
-        targetState = favicon,
-        animationSpec = tween(durationMillis = 300)
-    ) {
-        Image(
-            bitmap = it?.asImageBitmap() ?: ImageBitmap(1, 1),
-            contentDescription = "favicon",
-            alignment = Alignment.Center,
-            modifier = Modifier.size(size = size)
+    Surface(
+        modifier = Modifier.shadow(
+            elevation = if (favicon != null) 8.dp else 0.dp,
+            RoundedCornerShape(size = 8.dp),
+            clip = true
         )
+    ) {
+        Crossfade(
+            targetState = favicon,
+            animationSpec = tween(durationMillis = 300)
+        ) {
+            Image(
+                bitmap = it?.asImageBitmap() ?: ImageBitmap(width = 1, height = 1),
+                contentDescription = "favicon",
+                alignment = Alignment.Center,
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier.size(size = size)
+            )
+        }
     }
 }

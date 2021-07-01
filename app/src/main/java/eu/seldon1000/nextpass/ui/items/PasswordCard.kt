@@ -23,6 +23,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -58,7 +59,7 @@ fun PasswordCard(password: Password) {
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp)
+            .padding(bottom = 12.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -89,8 +90,10 @@ fun PasswordCard(password: Password) {
             if (!folderMode && password.folder != storedFolders[0].id)
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_drive_file_move_24),
-                    contentDescription = "security_status",
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    contentDescription = "folder",
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .shadow(elevation = 8.dp, RoundedCornerShape(size = 8.dp), clip = true)
                 )
             Status(password = password)
             FavoriteIcon(favorite = password.favorite) {
@@ -98,7 +101,7 @@ fun PasswordCard(password: Password) {
 
                 NextcloudApiProvider.updatePasswordRequest(
                     index = password.index,
-                    params = if (!password.favorite) mutableMapOf("favorite" to "true") else mutableMapOf()
+                    params = mutableMapOf("favorite" to if (it) it.toString() else "")
                 )
             }
         }
@@ -212,6 +215,8 @@ fun Status(password: Password) {
         painter = painter,
         contentDescription = "security_status",
         tint = if (password.status == 0) Color.Green else if (password.status == 1) Color.Yellow else Color.Red,
-        modifier = Modifier.padding(start = 8.dp)
+        modifier = Modifier
+            .padding(start = 8.dp)
+            .shadow(elevation = 8.dp, RoundedCornerShape(size = 8.dp), clip = true)
     )
 }
