@@ -32,7 +32,6 @@ import java.math.BigInteger
 import java.security.MessageDigest
 
 class NextPassAutofillService : AutofillService() {
-    private var isServiceStarted = false
     private var usernameHints = arrayOf<String>()
 
     private var saveUsername = ""
@@ -53,28 +52,12 @@ class NextPassAutofillService : AutofillService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (NextcloudApiProvider.attemptLogin()) startService()
-        else stopService()
-
-        return START_STICKY
-    }
-
-    private fun startService() {
-        if (!isServiceStarted) {
+        if (NextcloudApiProvider.attemptLogin()) {
             if (NextcloudApiProvider.storedPasswords.value.isEmpty())
                 NextcloudApiProvider.refreshServerList()
+        } else stopSelf()
 
-            isServiceStarted = true
-        }
-    }
-
-    private fun stopService() {
-        try {
-            stopSelf()
-        } catch (e: Exception) {
-        }
-
-        isServiceStarted = false
+        return START_STICKY
     }
 
     override fun onConnected() {
