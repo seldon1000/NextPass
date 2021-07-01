@@ -51,7 +51,7 @@ class StartupBroadcastReceiver : BroadcastReceiver() {
 
                             MainViewModel.setAutofillIntent(intent = autofillIntent)
 
-                            context.startForegroundService(autofillIntent)
+                            context.startService(autofillIntent)
                         }
                     }
                 )

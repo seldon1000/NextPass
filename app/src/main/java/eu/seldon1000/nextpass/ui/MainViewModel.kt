@@ -225,7 +225,7 @@ object MainViewModel : ViewModel() {
         ) {
             autofillState.value = true
 
-            context!!.startForegroundService(autofillIntent)
+            context!!.startService(autofillIntent)
 
             true
         } else false

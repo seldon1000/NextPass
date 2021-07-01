@@ -16,22 +16,16 @@
 
 package eu.seldon1000.nextpass.services
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.assist.AssistStructure
 import android.app.assist.AssistStructure.ViewNode
 import android.content.Intent
 import android.net.Uri
 import android.os.CancellationSignal
-import android.os.PowerManager
 import android.service.autofill.*
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
 import com.google.gson.JsonParser
-import eu.seldon1000.nextpass.MainActivity
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import java.math.BigInteger
@@ -39,7 +33,6 @@ import java.security.MessageDigest
 
 class NextPassAutofillService : AutofillService() {
     private var isServiceStarted = false
-    private var wakeLock: PowerManager.WakeLock? = null
     private var usernameHints = arrayOf<String>()
 
     private var saveUsername = ""
@@ -57,9 +50,6 @@ class NextPassAutofillService : AutofillService() {
         NextcloudApiProvider.setContext(context = this)
 
         usernameHints = resources.getStringArray(R.array.username_hints)
-
-        val notification = createNotification()
-        startForeground(1, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -75,47 +65,16 @@ class NextPassAutofillService : AutofillService() {
                 NextcloudApiProvider.refreshServerList()
 
             isServiceStarted = true
-
-            wakeLock = getSystemService(PowerManager::class.java).run {
-                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NextPassAutofill::lock").apply {
-                    acquire()
-                }
-            }
         }
     }
 
     private fun stopService() {
         try {
-            wakeLock?.let { if (it.isHeld) it.release() }
-            stopForeground(true)
             stopSelf()
         } catch (e: Exception) {
         }
 
         isServiceStarted = false
-    }
-
-    private fun createNotification(): Notification { // TODO: temporary, the notification is showed for test purposes
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        val channel = NotificationChannel(
-            "NextPass Autofill Service",
-            "NextPass Autofill Service",
-            NotificationManager.IMPORTANCE_MIN
-        ).apply { description = "NextPass Autofill Service" }
-
-        notificationManager.createNotificationChannel(channel)
-
-        val pendingIntent: PendingIntent =
-            Intent(this, MainActivity::class.java).let { notificationIntent ->
-                PendingIntent.getActivity(this, 0, notificationIntent, 0)
-            }
-
-        return Notification.Builder(this, channel.id)
-            .setContentTitle("NextPass Autofill Service")
-            .setContentText("Provide login suggestions when needed.")
-            .setContentIntent(pendingIntent)
-            .setSmallIcon(R.drawable.ic_passwords_icon)
-            .build()
     }
 
     override fun onConnected() {
