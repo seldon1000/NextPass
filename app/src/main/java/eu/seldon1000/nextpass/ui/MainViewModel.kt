@@ -395,6 +395,9 @@ object MainViewModel : ViewModel() {
             else {
                 navController?.popBackStack()
 
+                if (navController?.currentBackStackEntry?.destination?.route!! != "new_password")
+                    NextcloudApiProvider.faviconRequest(data = "")
+
                 setKeyboardMode()
 
                 true
