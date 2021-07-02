@@ -109,12 +109,11 @@ class NextPassAutofillService : AutofillService() {
         traverseStructure(structure = structure, mode = true)
 
         if (saveUsername.isNotEmpty() && savePassword.isNotEmpty()) {
-            val md = MessageDigest.getInstance("SHA-1")
-                .digest(savePassword.toByteArray())
-            var hash = BigInteger(1, md).toString(16)
-            while (hash.length < 32) {
-                hash = "0$hash"
-            }
+            var hash = BigInteger(
+                1,
+                MessageDigest.getInstance("SHA-1").digest(savePassword.toByteArray())
+            ).toString(16)
+            while (hash.length < 32) hash = "0$hash"
 
             val appName = saveIdPackage.substringAfter(".").substringBefore(".")
 

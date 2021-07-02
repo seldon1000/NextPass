@@ -77,12 +77,11 @@ fun NewPassword() {
                     body = context.getString(R.string.create_password_body),
                     confirm = true
                 ) {
-                    val md = MessageDigest.getInstance("SHA-1")
-                        .digest(password.toByteArray())
-                    var hash = BigInteger(1, md).toString(16)
-                    while (hash.length < 32) {
-                        hash = "0$hash"
-                    }
+                    var hash = BigInteger(
+                        1, MessageDigest.getInstance("SHA-1")
+                            .digest(password.toByteArray())
+                    ).toString(16)
+                    while (hash.length < 32) hash = "0$hash"
 
                     val concreteCustomFields = mutableListOf<Map<String, String>>()
                     customFields.forEach { customField ->
