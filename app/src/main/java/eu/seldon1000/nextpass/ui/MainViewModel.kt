@@ -158,13 +158,10 @@ object MainViewModel : ViewModel() {
     }
 
     fun resetUserSettings() {
-        disablePin()
         stopAutofillService()
-
-        sharedPreferences!!.edit().remove("autostart").apply()
-        autostartState.value = false
-        sharedPreferences!!.edit().remove("screen").apply()
-        screenProtectionState.value = false
+        disablePin()
+        disableAutostart()
+        disableScreenProtection()
     }
 
     fun setPrimaryClip(label: String, clip: String) {
@@ -321,13 +318,12 @@ object MainViewModel : ViewModel() {
     }
 
     fun disablePin() {
-        sharedPreferences!!.edit().remove("biometric").apply()
         sharedPreferences!!.edit().remove("PIN").apply()
-        sharedPreferences!!.edit().remove("timeout").apply()
-
-        biometricProtectedState.value = false
         pinProtectedState.value = false
+        sharedPreferences!!.edit().remove("timeout").apply()
         lockTimeoutState.value = (-1).toLong()
+        disableBiometric()
+
         unlock()
     }
 
