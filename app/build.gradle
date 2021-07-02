@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         def versionMajor = 1
-        def versionMinor = 3
+        def versionMinor = 4
         def versionPatch = 0
 
         applicationId "eu.seldon1000.nextpass"
