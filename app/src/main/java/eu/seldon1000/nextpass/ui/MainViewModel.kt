@@ -157,6 +157,16 @@ object MainViewModel : ViewModel() {
         )
     }
 
+    fun resetUserSettings() {
+        disablePin()
+        stopAutofillService()
+
+        sharedPreferences!!.edit().remove("autostart").apply()
+        autostartState.value = false
+        sharedPreferences!!.edit().remove("screen").apply()
+        screenProtectionState.value = false
+    }
+
     fun setPrimaryClip(label: String, clip: String) {
         viewModelScope.launch {
             clipboardManager!!.setPrimaryClip(ClipData.newPlainText(label, clip))
@@ -311,6 +321,7 @@ object MainViewModel : ViewModel() {
     }
 
     fun disablePin() {
+        sharedPreferences!!.edit().remove("biometric").apply()
         sharedPreferences!!.edit().remove("PIN").apply()
         sharedPreferences!!.edit().remove("timeout").apply()
 
