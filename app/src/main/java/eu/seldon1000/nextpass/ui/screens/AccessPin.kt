@@ -107,7 +107,7 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                     }
                 }, modifier = Modifier.padding(bottom = 64.dp)) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_round_done_24),
+                        painter = painterResource(id = R.drawable.ic_round_arrow_forward_24),
                         contentDescription = "access",
                         tint = Color.White
                     )
