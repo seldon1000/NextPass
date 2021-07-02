@@ -217,7 +217,10 @@ object MainViewModel : ViewModel() {
         }
 
         if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
-        else pendingUnlockAction()
+        else {
+            pendingUnlockAction()
+            pendingUnlockAction = {}
+        }
     }
 
     private fun startAutofillService(): Boolean {
@@ -252,13 +255,11 @@ object MainViewModel : ViewModel() {
 
     fun enableAutostart() {
         sharedPreferences!!.edit().putBoolean("autostart", true).apply()
-
         autostartState.value = true
     }
 
     fun disableAutostart() {
         sharedPreferences!!.edit().remove("autostart").apply()
-
         autostartState.value = false
     }
 
@@ -329,13 +330,11 @@ object MainViewModel : ViewModel() {
 
     fun enableBiometric() {
         sharedPreferences!!.edit().putBoolean("biometric", true).apply()
-
         biometricProtectedState.value = true
     }
 
     fun disableBiometric() {
         sharedPreferences!!.edit().remove("biometric").apply()
-
         biometricProtectedState.value = false
     }
 
@@ -345,7 +344,6 @@ object MainViewModel : ViewModel() {
 
     fun setLockTimeout(timeout: Long) {
         sharedPreferences!!.edit().putLong("timeout", timeout).apply()
-
         lockTimeoutState.value = timeout
     }
 
