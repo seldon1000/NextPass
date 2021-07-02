@@ -22,6 +22,7 @@ import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
@@ -36,7 +37,7 @@ import kotlinx.coroutines.launch
 fun DefaultBottomBar(lazyListState: LazyListState) {
     val coroutineScope = rememberCoroutineScope()
 
-    val currentScreen by MainViewModel.navController!!.currentBackStackEntryAsState()
+    val currentScreen by MainViewModel.navController.collectAsState().value!!.currentBackStackEntryAsState()
 
     BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
         BottomNavigationItem(

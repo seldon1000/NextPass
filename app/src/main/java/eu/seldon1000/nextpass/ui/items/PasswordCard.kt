@@ -46,7 +46,7 @@ fun PasswordCard(password: Password) {
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val currentScreen by MainViewModel.navController!!.currentBackStackEntryAsState()
+    val currentScreen by MainViewModel.navController.collectAsState().value!!.currentBackStackEntryAsState()
     val folderMode by MainViewModel.folderMode.collectAsState()
     val currentFolder by MainViewModel.currentFolder.collectAsState()
 

@@ -44,7 +44,7 @@ import eu.seldon1000.nextpass.ui.screens.*
 @Composable
 fun CentralScreenControl() {
     val navController = rememberNavController()
-    if (MainViewModel.navController == null) MainViewModel.navController = navController
+    MainViewModel.setNavController(navController = navController)
     val currentScreen by navController.currentBackStackEntryAsState()
 
     val scaffoldState = rememberScaffoldState()
