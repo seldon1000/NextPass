@@ -61,8 +61,12 @@ fun TextFieldItem(
                 label = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = label)
-                        if (required && text.isEmpty())
-                            BadgeBox(modifier = Modifier.padding(start = 8.dp)) {}
+                        Crossfade(targetState = required && text.isEmpty()) { state ->
+                            BadgeBox(
+                                backgroundColor = if (state) Color(0xFFB85F6F) else Color.Transparent,
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {}
+                        }
                     }
                 },
                 shape = RoundedCornerShape(size = 8.dp),
