@@ -203,16 +203,14 @@ object MainViewModel : ViewModel() {
     }
 
     fun disableScreenProtection() {
-        if (pinProtectedState.value) {
+        pendingUnlockAction = {
+            context!!.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             sharedPreferences!!.edit().remove("screen").apply()
-
-            lock(shouldRaiseBiometric = true)
-            pendingUnlockAction = {
-                context!!.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
-
             screenProtectionState.value = false
         }
+
+        if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
+        else pendingUnlockAction()
     }
 
     private fun startAutofillService(): Boolean {
