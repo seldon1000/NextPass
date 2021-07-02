@@ -46,7 +46,7 @@ object MainViewModel : ViewModel() {
 
     private var autofillIntent: Intent? = null
 
-    private var navController: NavController? = null
+    var navController: NavController? = null
     private var snackbarHostState: SnackbarHostState? = null
 
     private var pendingUnlockAction = {}
@@ -77,9 +77,6 @@ object MainViewModel : ViewModel() {
 
     private val refreshingState = MutableStateFlow(value = false)
     val refreshing: StateFlow<Boolean> = refreshingState
-
-    private val currentScreenState = MutableStateFlow(value = "passwords")
-    val currentScreen = currentScreenState
 
     private val folderModeState = MutableStateFlow(value = false)
     val folderMode = folderModeState
@@ -172,10 +169,6 @@ object MainViewModel : ViewModel() {
             autofillIntent = intent
             true
         } else false
-    }
-
-    fun setNavController(controller: NavController) {
-        navController = controller
     }
 
     fun setSnackbarHostState(snackbar: SnackbarHostState) {
@@ -274,7 +267,6 @@ object MainViewModel : ViewModel() {
         unlockedState.value = true
 
         if (navController?.previousBackStackEntry?.destination?.route != "welcome") {
-            currentScreenState.value = navController?.previousBackStackEntry?.destination?.route!!
             navController?.popBackStack(
                 route = navController?.currentBackStackEntry?.destination?.route!!,
                 inclusive = true
@@ -372,8 +364,10 @@ object MainViewModel : ViewModel() {
         if (navController?.currentDestination?.route!!.substringBefore("/") !=
             route.substringBefore("/")
         ) {
-            currentScreenState.value = route
-            navController?.navigate(route = route)
+            navController?.navigate(route = route) {
+                launchSingleTop = true
+                restoreState = true
+            }
 
             if (navController?.currentBackStackEntry?.destination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
                 navController?.currentBackStackEntry?.destination?.route!! == "welcome" ||
@@ -399,8 +393,6 @@ object MainViewModel : ViewModel() {
                     true
                 } else false
             else {
-                currentScreenState.value =
-                    navController?.previousBackStackEntry?.destination?.route!!
                 navController?.popBackStack()
 
                 setKeyboardMode()

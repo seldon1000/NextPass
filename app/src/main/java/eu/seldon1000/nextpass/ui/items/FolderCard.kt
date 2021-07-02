@@ -64,7 +64,7 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
                     painter = icon ?: painterResource(id = R.drawable.ic_round_folder_24),
                     contentDescription = "folder_icon",
                     tint = if (icon == null) NextcloudBlue else Color.White,
-                    modifier = if (icon == null) Modifier.size(44.dp) else Modifier
+                    modifier = if (icon == null) Modifier.size(size = 44.dp) else Modifier
                 )
             }
             Text(
@@ -89,9 +89,7 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
                 DropdownMenuItem({
                     MainViewModel.setFolderMode(mode = true)
                     MainViewModel.setCurrentFolder(folder = folder.index)
-
-                    if (MainViewModel.currentScreen.value != "passwords")
-                        MainViewModel.navigate(route = "passwords")
+                    MainViewModel.navigate(route = "passwords")
 
                     expanded = false
                 }) {

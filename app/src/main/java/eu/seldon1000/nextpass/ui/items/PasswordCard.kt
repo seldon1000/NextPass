@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.api.Password
@@ -45,7 +46,7 @@ fun PasswordCard(password: Password) {
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val currentScreen by MainViewModel.currentScreen.collectAsState()
+    val currentScreen by MainViewModel.navController!!.currentBackStackEntryAsState()
     val folderMode by MainViewModel.folderMode.collectAsState()
     val currentFolder by MainViewModel.currentFolder.collectAsState()
 
@@ -159,11 +160,11 @@ fun PasswordCard(password: Password) {
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
-            if (password.folder != storedFolders[currentFolder].id || currentScreen != "passwords")
+            if (password.folder != storedFolders[currentFolder].id || currentScreen?.destination?.route != "passwords")
                 DropdownMenuItem(onClick = {
                     MainViewModel.setFolderMode(mode = true)
                     MainViewModel.setCurrentFolder(folder = storedFolders.indexOfFirst { password.folder == it.id })
-                    if (currentScreen != "passwords") MainViewModel.navigate(route = "passwords")
+                    MainViewModel.navigate(route = "passwords")
 
                     expanded = false
                 }) {

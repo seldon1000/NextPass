@@ -22,11 +22,11 @@ import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
@@ -36,12 +36,12 @@ import kotlinx.coroutines.launch
 fun DefaultBottomBar(lazyListState: LazyListState) {
     val coroutineScope = rememberCoroutineScope()
 
-    val selected by MainViewModel.currentScreen.collectAsState()
+    val currentScreen by MainViewModel.navController!!.currentBackStackEntryAsState()
 
     BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
         BottomNavigationItem(
-            selected = selected == "search",
-            onClick = { if (selected != "search") MainViewModel.navigate(route = "search") },
+            selected = currentScreen?.destination?.route == "search",
+            onClick = { if (currentScreen?.destination?.route != "search") MainViewModel.navigate(route = "search") },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_search_24),
@@ -52,9 +52,9 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = Color.White
         )
         BottomNavigationItem(
-            selected = selected == "passwords",
+            selected = currentScreen?.destination?.route == "passwords",
             onClick = {
-                if (selected != "passwords") MainViewModel.navigate(route = "passwords")
+                if (currentScreen?.destination?.route != "passwords") MainViewModel.navigate(route = "passwords")
                 else {
                     MainViewModel.setCurrentFolder(folder = 0)
                     coroutineScope.launch { lazyListState.scrollToItem(0) }
@@ -70,9 +70,9 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = Color.White
         )
         BottomNavigationItem(
-            selected = selected == "favorites",
+            selected = currentScreen?.destination?.route == "favorites",
             onClick = {
-                if (selected != "favorites") MainViewModel.navigate(route = "favorites")
+                if (currentScreen?.destination?.route != "favorites") MainViewModel.navigate(route = "favorites")
                 else coroutineScope.launch { lazyListState.scrollToItem(0) }
             },
             icon = {
@@ -85,9 +85,9 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = Color.White
         )
         BottomNavigationItem(
-            selected = selected == "settings",
+            selected = currentScreen?.destination?.route == "settings",
             onClick = {
-                if (selected != "settings") MainViewModel.navigate(route = "settings")
+                if (currentScreen?.destination?.route != "settings") MainViewModel.navigate(route = "settings")
                 else coroutineScope.launch { lazyListState.scrollToItem(0) }
             },
             icon = {

@@ -31,10 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navArgument
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.seldon1000.nextpass.R
@@ -47,7 +44,8 @@ import eu.seldon1000.nextpass.ui.screens.*
 @Composable
 fun CentralScreenControl() {
     val navController = rememberNavController()
-    MainViewModel.setNavController(controller = navController)
+    if (MainViewModel.navController == null) MainViewModel.navController = navController
+    val currentScreen by navController.currentBackStackEntryAsState()
 
     val scaffoldState = rememberScaffoldState()
     MainViewModel.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
@@ -55,7 +53,6 @@ fun CentralScreenControl() {
     val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val currentScreen by MainViewModel.currentScreen.collectAsState()
     val refreshing by MainViewModel.refreshing.collectAsState()
     val refreshState = rememberSwipeRefreshState(isRefreshing = refreshing)
 
@@ -66,11 +63,11 @@ fun CentralScreenControl() {
         SwipeRefresh(
             state = refreshState,
             onRefresh = { NextcloudApiProvider.refreshServerList() },
-            swipeEnabled = currentScreen != "access_pin/{shouldRaiseBiometric}" &&
-                    currentScreen != "welcome" &&
-                    currentScreen != "settings" &&
-                    currentScreen != "about" &&
-                    currentScreen != "pin"
+            swipeEnabled = currentScreen?.destination?.route != "access_pin/{shouldRaiseBiometric}" &&
+                    currentScreen?.destination?.route != "welcome" &&
+                    currentScreen?.destination?.route != "settings" &&
+                    currentScreen?.destination?.route != "about" &&
+                    currentScreen?.destination?.route != "pin"
         ) {
             NavHost(navController = navController, startDestination = "welcome")
             {
