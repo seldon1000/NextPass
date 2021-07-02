@@ -61,7 +61,8 @@ fun TextFieldItem(
                 label = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = label)
-                        if (required) BadgeBox(modifier = Modifier.padding(start = 8.dp)) {}
+                        if (required && text.isEmpty())
+                            BadgeBox(modifier = Modifier.padding(start = 8.dp)) {}
                     }
                 },
                 shape = RoundedCornerShape(size = 8.dp),
