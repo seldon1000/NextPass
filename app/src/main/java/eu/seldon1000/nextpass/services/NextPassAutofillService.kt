@@ -35,14 +35,15 @@ import java.security.MessageDigest
 class NextPassAutofillService : AutofillService() {
     private var usernameHints = arrayOf<String>()
 
+    private var idPackage = ""
+    private var viewWebDomain = ""
+
     private var saveUsername = ""
     private var savePassword = ""
-    private var saveIdPackage = ""
 
     private var fillResponse = FillResponse.Builder()
     private var usernameId = mutableListOf<AutofillId>()
     private var passwordId = mutableListOf<AutofillId>()
-    private var viewWebDomain = ""
     private var ready = false
 
     override fun onCreate() {
@@ -75,14 +76,15 @@ class NextPassAutofillService : AutofillService() {
         cancellationSignal: CancellationSignal,
         callback: FillCallback
     ) {
+        idPackage = ""
+        viewWebDomain = ""
+
         saveUsername = ""
         savePassword = ""
-        saveIdPackage = ""
 
         fillResponse = FillResponse.Builder()
         usernameId = mutableListOf()
         passwordId = mutableListOf()
-        viewWebDomain = ""
         ready = false
 
         val context = request.fillContexts
@@ -103,14 +105,15 @@ class NextPassAutofillService : AutofillService() {
     }
 
     override fun onSaveRequest(request: SaveRequest, callback: SaveCallback) {
+        idPackage = ""
+        viewWebDomain = ""
+
         saveUsername = ""
         savePassword = ""
-        saveIdPackage = ""
 
         fillResponse = FillResponse.Builder()
         usernameId = mutableListOf()
         passwordId = mutableListOf()
-        viewWebDomain = ""
         ready = false
 
         val context = request.fillContexts
@@ -125,7 +128,7 @@ class NextPassAutofillService : AutofillService() {
             ).toString(16)
             while (hash.length < 32) hash = "0$hash"
 
-            val appName = saveIdPackage.substringAfter(".").substringBefore(".")
+            val appName = idPackage.substringAfter(".").substringBefore(".")
 
             val params = mutableMapOf(
                 "password" to savePassword,
@@ -133,11 +136,11 @@ class NextPassAutofillService : AutofillService() {
                     viewWebDomain.isNotEmpty() -> viewWebDomain.removePrefix("www.")
                         .substringBefore(".")
                         .replaceFirstChar { it.titlecase() }
-                    saveIdPackage.isNotEmpty() -> {
+                    idPackage.isNotEmpty() -> {
                         try {
                             packageManager.getApplicationLabel(
                                 packageManager.getApplicationInfo(
-                                    saveIdPackage,
+                                    idPackage,
                                     0
                                 )
                             ).toString()
@@ -158,7 +161,7 @@ class NextPassAutofillService : AutofillService() {
                         mapOf(
                             "label" to "\"Android app\"",
                             "type" to "text",
-                            "value" to "\"$saveIdPackage\""
+                            "value" to "\"$idPackage\""
                         )
                     ).toString()
                 ).asJsonArray.toString()
@@ -180,7 +183,7 @@ class NextPassAutofillService : AutofillService() {
         if (viewNode.webDomain != null && viewWebDomain.isEmpty())
             viewWebDomain = viewNode.webDomain!!
         if (viewNode.idPackage?.contains(".") == true)
-            saveIdPackage = viewNode.idPackage.toString()
+            idPackage = viewNode.idPackage.toString()
 
         if (!mode) {
             if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
