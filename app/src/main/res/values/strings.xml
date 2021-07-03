@@ -35,7 +35,7 @@
     <string name="passwords">Passwords</string>
     <string name="autofill">Autofill</string>
     <string name="stop_service_now">Stop service now</string>
-    <string name="stop_service_now_tip">Click here to manually terminate the background autofill service. Note that it will automatically restart if you restart NextPass. You can disable it completely in your device\'s settings.</string>
+    <string name="stop_service_now_tip">Click here to manually terminate the background autofill service. Note that it will automatically restart if you restart NextPass.</string>
     <string name="lock_timeout">Lock timeout</string>
     <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock.</string>
     <string name="special_thanks">Special thanks and mentions</string>
@@ -108,7 +108,7 @@
     <string name="password_deleted">Password deleted</string>
     <string name="details">Details</string>
     <string name="autofill_title">Warning!</string>
-    <string name="autofill_body">Autofill services expose your credentials to apps and web pages. If you trust the apps you installed, click on \'Confirm\' to enable the autofill service. You can disable it anytime in your device\' s settings.</string>
+    <string name="autofill_body">Autofill services expose your credentials to apps and web pages. If you trust the apps you installed, click on \'Confirm\' to enable the autofill service.</string>
     <string name="folder_label">Folder label</string>
     <string name="copy_folder_label">Copy folder label</string>
     <string name="password_shared">Shared password: %1$s</string>

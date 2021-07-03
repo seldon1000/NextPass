@@ -354,27 +354,31 @@ fun Settings() {
                     item = {
                         Checkbox(
                             checked = autofill,
-                            onCheckedChange = null,
-                            enabled = !autofill,
+                            onCheckedChange = {
+                                if (autofill) MainViewModel.disableAutofill()
+                                else {
+                                    MainViewModel.showDialog(
+                                        title = context.getString(R.string.autofill_title),
+                                        body = context.getString(R.string.autofill_body),
+                                        confirm = true
+                                    ) {
+                                        (context as Activity).startActivityForResult(
+                                            Intent(
+                                                Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE,
+                                                Uri.parse("package:eu.seldon1000.nextpass")
+                                            ),
+                                            AUTOFILL_SETTINGS_CODE
+                                        )
+                                    }
+                                }
+                            },
+                            enabled = true,
+                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
                 ) {
-                    if (!autofill) {
-                        MainViewModel.showDialog(
-                            title = context.getString(R.string.autofill_title),
-                            body = context.getString(R.string.autofill_body),
-                            confirm = true
-                        ) {
-                            (context as Activity).startActivityForResult(
-                                Intent(
-                                    Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE,
-                                    Uri.parse("package:eu.seldon1000.nextpass")
-                                ),
-                                AUTOFILL_SETTINGS_CODE
-                            )
-                        }
-                    }
+
                 }
             }
             item {

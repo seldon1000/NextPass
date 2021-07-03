@@ -255,6 +255,16 @@ object MainViewModel : ViewModel() {
         startAutofillService()
     }
 
+    fun disableAutofill() {
+        stopAutofillService()
+
+        autofillManager!!.disableAutofillServices()
+
+        autofill.value = false
+
+        disableAutostart()
+    }
+
     fun enableAutostart() {
         sharedPreferences!!.edit().putBoolean("autostart", true).apply()
         autostartState.value = true
