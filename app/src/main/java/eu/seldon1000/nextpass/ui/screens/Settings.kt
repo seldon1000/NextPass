@@ -355,18 +355,26 @@ fun Settings() {
                         Checkbox(
                             checked = autofill,
                             onCheckedChange = null,
-                            enabled = false,
+                            enabled = !autofill,
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
                 ) {
-                    (context as Activity).startActivityForResult(
-                        Intent(
-                            Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE,
-                            Uri.parse("package:eu.seldon1000.nextpass")
-                        ),
-                        AUTOFILL_SETTINGS_CODE
-                    )
+                    if (!autofill) {
+                        MainViewModel.showDialog(
+                            title = context.getString(R.string.autofill_title),
+                            body = context.getString(R.string.autofill_body),
+                            confirm = true
+                        ) {
+                            (context as Activity).startActivityForResult(
+                                Intent(
+                                    Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE,
+                                    Uri.parse("package:eu.seldon1000.nextpass")
+                                ),
+                                AUTOFILL_SETTINGS_CODE
+                            )
+                        }
+                    }
                 }
             }
             item {
@@ -382,7 +390,7 @@ fun Settings() {
                             },
                             enabled = autofill,
                             colors = CheckboxDefaults.colors(checkedColor = Orange500),
-                            modifier = Modifier.padding(end = 16.dp)
+                            modifier = Modifier.padding(all = 16.dp)
                         )
                     }
                 ) {}

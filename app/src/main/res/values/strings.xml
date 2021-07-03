@@ -107,6 +107,8 @@
     <string name="delete_password">Delete password?</string>
     <string name="password_deleted">Password deleted</string>
     <string name="details">Details</string>
+    <string name="autofill_title">Warning!</string>
+    <string name="autofill_body">Autofill services expose your credentials to apps and web pages. If you trust the apps you installed, click on \'Confirm\' to enable the autofill service. You can disable it anytime in your device\' s settings.</string>
     <string name="folder_label">Folder label</string>
     <string name="copy_folder_label">Copy folder label</string>
     <string name="password_shared">Shared password: %1$s</string>
