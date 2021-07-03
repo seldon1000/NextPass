@@ -101,6 +101,16 @@ class NextPassAutofillService : AutofillService() {
     }
 
     override fun onSaveRequest(request: SaveRequest, callback: SaveCallback) {
+        saveUsername = ""
+        savePassword = ""
+        saveIdPackage = ""
+
+        fillResponse = FillResponse.Builder()
+        usernameId = mutableListOf()
+        passwordId = mutableListOf()
+        viewWebDomain = ""
+        ready = false
+
         val context = request.fillContexts
         val structure = context.last().structure
 
