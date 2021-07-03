@@ -274,7 +274,6 @@ fun PasswordDetails(passwordData: Password) {
                                     Intent(
                                         Intent.ACTION_VIEW, Uri.parse(
                                             if (!(url.startsWith("https") ||
-                                                        url.startsWith("www") ||
                                                         url.startsWith("http"))
                                             ) "https://$url" else url
                                         )
