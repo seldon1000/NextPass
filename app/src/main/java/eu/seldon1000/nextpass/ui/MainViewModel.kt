@@ -119,7 +119,9 @@ object MainViewModel : ViewModel() {
         screenProtectionState.value = sharedPreferences!!.contains("screen")
         if (screenProtectionState.value) enableScreenProtection()
 
-        autostartState.value = sharedPreferences!!.contains("autostart")
+        if (autofillManager!!.hasEnabledAutofillServices())
+            autostartState.value = sharedPreferences!!.contains("autostart")
+        else sharedPreferences!!.edit().remove("autostart").apply()
 
         if (sharedPreferences!!.contains("PIN")) {
             pinProtectedState.value = true
