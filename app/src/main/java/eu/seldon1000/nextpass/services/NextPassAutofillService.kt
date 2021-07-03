@@ -28,6 +28,7 @@ import android.widget.RemoteViews
 import com.google.gson.JsonParser
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.Password
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -41,6 +42,7 @@ class NextPassAutofillService : AutofillService() {
     private var fillResponse = FillResponse.Builder()
     private var usernameId = mutableListOf<AutofillId>()
     private var passwordId = mutableListOf<AutofillId>()
+    private var viewWebDomain = ""
     private var ready = false
 
     override fun onCreate() {
@@ -125,24 +127,33 @@ class NextPassAutofillService : AutofillService() {
 
             val appName = saveIdPackage.substringAfter(".").substringBefore(".")
 
-            val params = mapOf(
+            val params = mutableMapOf(
                 "password" to savePassword,
-                "label" to if (saveIdPackage.isNotEmpty()) {
-                    try {
-                        packageManager.getApplicationLabel(
-                            packageManager.getApplicationInfo(
-                                saveIdPackage,
-                                0
-                            )
-                        ).toString()
-                    } catch (e: Exception) {
-                        appName.replaceFirstChar { it.titlecase() }
+                "label" to when {
+                    viewWebDomain.isNotEmpty() -> viewWebDomain.removePrefix("www.")
+                        .substringBefore(".")
+                        .replaceFirstChar { it.titlecase() }
+                    saveIdPackage.isNotEmpty() -> {
+                        try {
+                            packageManager.getApplicationLabel(
+                                packageManager.getApplicationInfo(
+                                    saveIdPackage,
+                                    0
+                                )
+                            ).toString()
+                        } catch (e: Exception) {
+                            appName.replaceFirstChar { it.titlecase() }
+                        }
                     }
-                } else "Unknown",
+                    else -> "Unknown"
+                },
                 "username" to saveUsername,
-                "url" to "$appName.com",
-                "hash" to hash,
-                "customFields" to JsonParser.parseString(
+                "url" to if (viewWebDomain.isNotEmpty()) viewWebDomain else "$appName.com",
+                "hash" to hash
+            )
+
+            if (viewWebDomain.isEmpty()) {
+                params["customFields"] = JsonParser.parseString(
                     listOf(
                         mapOf(
                             "label" to "\"Android app\"",
@@ -151,7 +162,7 @@ class NextPassAutofillService : AutofillService() {
                         )
                     ).toString()
                 ).asJsonArray.toString()
-            )
+            }
 
             NextcloudApiProvider.createPasswordRequest(params = params)
 
@@ -166,29 +177,15 @@ class NextPassAutofillService : AutofillService() {
     }
 
     private fun traverseNode(viewNode: ViewNode, mode: Boolean) {
+        if (viewNode.webDomain != null && viewWebDomain.isEmpty())
+            viewWebDomain = viewNode.webDomain!!
+        if (viewNode.idPackage?.contains(".") == true)
+            saveIdPackage = viewNode.idPackage.toString()
+
         if (!mode) {
             if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
                 NextcloudApiProvider.storedPasswords.value.forEach { password ->
-                    if (viewNode.idPackage?.contains(
-                            password.label,
-                            ignoreCase = true
-                        ) == true || try {
-                            viewNode.idPackage?.contains(
-                                Uri.parse(password.url).host!!,
-                                ignoreCase = true
-                            ) == true
-                        } catch (e: Exception) {
-                            false
-                        } || password.customFields.any { customField ->
-                            customField.values.any {
-                                try {
-                                    it.contains(viewNode.idPackage!!, ignoreCase = true)
-                                } catch (e: Exception) {
-                                    false
-                                }
-                            }
-                        }
-                    ) {
+                    if (checkSuggestions(viewNode = viewNode, password = password)) {
                         val credentialsPresentation =
                             RemoteViews(packageName, R.layout.autofill_list_item)
                         credentialsPresentation.setTextViewText(R.id.label, password.label)
@@ -223,29 +220,19 @@ class NextPassAutofillService : AutofillService() {
                 usernameId.add(element = viewNode.autofillId!!)
 
                 if (passwordId.size == usernameId.size) ready = false
-            }
-
-            if (checkPasswordHints(viewNode = viewNode) &&
+            } else if (checkPasswordHints(viewNode = viewNode) &&
                 !passwordId.contains(element = viewNode.autofillId)
             ) {
                 passwordId.add(element = viewNode.autofillId!!)
 
                 if (passwordId.size < usernameId.size) ready = false
-            }
+            } else fillResponse.setIgnoredIds(viewNode.autofillId)
         } else {
-            if (checkUsernameHints(viewNode = viewNode) && viewNode.text?.isNotEmpty() == true) {
+            if (checkUsernameHints(viewNode = viewNode) && viewNode.text?.isNotEmpty() == true)
                 saveUsername = viewNode.text.toString()
-
-                if (viewNode.idPackage?.contains(".") == true)
-                    saveIdPackage = viewNode.idPackage.toString()
-            }
-
-            if (checkPasswordHints(viewNode = viewNode) && viewNode.text?.isNotEmpty() == true) {
+            else if (checkPasswordHints(viewNode = viewNode) && viewNode.text?.isNotEmpty() == true)
                 savePassword = viewNode.text.toString()
-
-                if (viewNode.idPackage?.contains(".") == true)
-                    saveIdPackage = viewNode.idPackage.toString()
-            }
+            else fillResponse.setIgnoredIds(viewNode.autofillId)
         }
 
         val children = viewNode.run { (0 until childCount).map { getChildAt(it) } }
@@ -263,5 +250,33 @@ class NextPassAutofillService : AutofillService() {
         return viewNode.autofillHints?.any {
             it.contains("password", ignoreCase = true)
         } == true || viewNode.hint?.contains("password", ignoreCase = true) == true
+    }
+
+    private fun checkSuggestions(viewNode: ViewNode, password: Password): Boolean {
+        return (viewNode.webDomain != null && (password.url.contains(
+            viewWebDomain.removePrefix("www.").substringBefore("."),
+            ignoreCase = true
+        ) || viewWebDomain.removePrefix("www.").substringBefore(".").contains(
+            password.label,
+            ignoreCase = true
+        ))) || viewWebDomain.isEmpty() && (viewNode.idPackage?.contains(
+            password.label,
+            ignoreCase = true
+        ) == true || try {
+            viewNode.idPackage?.contains(
+                Uri.parse(password.url).host!!,
+                ignoreCase = true
+            ) == true
+        } catch (e: Exception) {
+            false
+        } || password.customFields.any { customField ->
+            customField.values.any {
+                try {
+                    it.contains(viewNode.idPackage!!, ignoreCase = true)
+                } catch (e: Exception) {
+                    false
+                }
+            }
+        })
     }
 }
