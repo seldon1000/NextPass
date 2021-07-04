@@ -52,7 +52,7 @@ fun About() {
     val greetings = context.resources.getStringArray(R.array.greetings)
 
     MyScaffoldLayout(fab = {}, bottomBar = {
-        BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
+        BottomAppBar(cutoutShape = CircleShape) {
             IconButton(onClick = { MainViewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
@@ -112,7 +112,7 @@ fun About() {
             }
             Card(
                 elevation = 6.dp,
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
                 Column(
                     modifier = Modifier

@@ -17,6 +17,7 @@
 package eu.seldon1000.nextpass.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
@@ -43,16 +44,18 @@ private val LightColorPalette = lightColors(
     */
 )
 
+var colors: Colors? = null
+
 @Composable
 fun NextPassTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
-    val colors = /*if (darkTheme) {*/
+    colors = /*if (darkTheme) {*/
         DarkColorPalette
     //} else {
     //    LightColorPalette
     //}
 
     MaterialTheme(
-        colors = colors,
+        colors = colors!!,
         typography = Typography,
         shapes = Shapes,
         content = content

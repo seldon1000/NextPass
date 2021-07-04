@@ -32,6 +32,7 @@ import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
+import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @Composable
@@ -138,7 +139,7 @@ fun ChangePin(change: Boolean) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_done_24),
                 contentDescription = "save",
-                tint = Color.White
+                tint = colors!!.onBackground
             )
         }
     }, bottomBar = {

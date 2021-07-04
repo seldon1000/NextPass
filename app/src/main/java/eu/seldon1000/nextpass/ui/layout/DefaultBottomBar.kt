@@ -25,12 +25,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
+import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
 
 @Composable
@@ -39,7 +40,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
 
     val currentScreen by MainViewModel.navController.collectAsState().value!!.currentBackStackEntryAsState()
 
-    BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
+    BottomAppBar(cutoutShape = CircleShape, elevation = 8.dp) {
         BottomNavigationItem(
             selected = currentScreen?.destination?.route == "search",
             onClick = { if (currentScreen?.destination?.route != "search") MainViewModel.navigate(route = "search") },
@@ -50,7 +51,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
                 )
             },
             selectedContentColor = NextcloudBlue,
-            unselectedContentColor = Color.White
+            unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
             selected = currentScreen?.destination?.route == "passwords",
@@ -68,7 +69,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
                 )
             },
             selectedContentColor = NextcloudBlue,
-            unselectedContentColor = Color.White
+            unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
             selected = currentScreen?.destination?.route == "favorites",
@@ -83,7 +84,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
                 )
             },
             selectedContentColor = NextcloudBlue,
-            unselectedContentColor = Color.White
+            unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
             selected = currentScreen?.destination?.route == "settings",
@@ -98,7 +99,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
                 )
             },
             selectedContentColor = NextcloudBlue,
-            unselectedContentColor = Color.White
+            unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(selected = false, onClick = {}, enabled = false, icon = {})
     }

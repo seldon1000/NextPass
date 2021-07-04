@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.NextPass" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.NextPass" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/nextcloud_blue</item>
         <item name="colorPrimaryVariant">@color/nextcloud_blue</item>
@@ -10,9 +10,12 @@
         <item name="colorSecondaryVariant">@color/orange_500</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">#FF121212</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
         <!-- Customize your theme here. -->
         <item name="android:textColorPrimary">@color/white</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="windowActionBar">false</item>
 
     </style>
 </resources>

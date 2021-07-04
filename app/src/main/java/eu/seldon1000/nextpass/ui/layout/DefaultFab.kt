@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.theme.colors
 
 @Composable
 fun DefaultFab() {
@@ -30,7 +31,7 @@ fun DefaultFab() {
         Icon(
             painter = painterResource(id = R.drawable.ic_round_add_24),
             contentDescription = "add",
-            tint = Color.White
+            tint = colors!!.onBackground
         )
     }
 }

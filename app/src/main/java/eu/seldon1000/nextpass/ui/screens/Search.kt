@@ -37,6 +37,7 @@ import eu.seldon1000.nextpass.ui.items.FolderCard
 import eu.seldon1000.nextpass.ui.items.PasswordCard
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
+import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
@@ -65,11 +66,11 @@ fun Search() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_search_off_24),
                 contentDescription = "restore_search",
-                tint = Color.White
+                tint = colors!!.onBackground
             )
         }
     }, bottomBar = {
-        BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
+        BottomAppBar(cutoutShape = CircleShape) {
             IconButton(onClick = { MainViewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
@@ -82,7 +83,7 @@ fun Search() {
                 label = { Text(text = context.getString(R.string.search_hint)) },
                 singleLine = true,
                 colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.Black,
+                    backgroundColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent

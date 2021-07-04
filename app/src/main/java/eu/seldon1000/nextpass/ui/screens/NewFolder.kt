@@ -37,6 +37,7 @@ import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
+import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @Composable
@@ -80,11 +81,11 @@ fun NewFolder() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_save_24),
                 contentDescription = "save",
-                tint = Color.White
+                tint = colors!!.onBackground
             )
         }
     }, bottomBar = {
-        BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
+        BottomAppBar(cutoutShape = CircleShape) {
             IconButton(onClick = { MainViewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
@@ -114,7 +115,7 @@ fun NewFolder() {
             }
             Card(
                 elevation = 6.dp,
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(

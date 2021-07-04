@@ -34,6 +34,7 @@ import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.theme.Orange500
+import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @Composable
@@ -109,7 +110,7 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_round_arrow_forward_24),
                         contentDescription = "access",
-                        tint = Color.White
+                        tint = colors!!.onBackground
                     )
                 }
             }

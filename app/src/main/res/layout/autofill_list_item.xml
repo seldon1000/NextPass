@@ -45,13 +45,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="?android:textColorPrimary"
-                android:textFontWeight="600" />
+                android:textSize="15sp"
+                android:textFontWeight="700" />
 
             <ImageView
                 android:id="@+id/lock_icon"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:layout_marginStart="8dp"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginStart="6dp"
                 android:src="@drawable/ic_round_lock_nextcloudblue_24" />
         </LinearLayout>
 

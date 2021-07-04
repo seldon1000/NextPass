@@ -72,7 +72,7 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
                 expanded = true
             },
             shape = RoundedCornerShape(size = 8.dp),
-            backgroundColor = if (enabled) Color.DarkGray else Color.Unspecified,
+            backgroundColor = if (enabled) Color.DarkGray else Color.Transparent,
             enabled = enabled,
             modifier = Modifier.animateContentSize(
                 animationSpec = tween(
@@ -113,9 +113,7 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
                     expanded = false
 
                     MainViewModel.navigate(route = "new_folder")
-                }) {
-                    Text(text = context.getString(R.string.add_new_folder))
-                }
+                }) { Text(text = context.getString(R.string.add_new_folder)) }
             }
         }
     }

@@ -46,6 +46,7 @@ import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
+import eu.seldon1000.nextpass.ui.theme.colors
 
 @Composable
 @ExperimentalAnimationApi
@@ -58,7 +59,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
     val label by remember { mutableStateOf(value = folder.label) }
 
     MyScaffoldLayout(fab = {}, bottomBar = {
-        BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
+        BottomAppBar(cutoutShape = CircleShape) {
             IconButton(
                 onClick = { MainViewModel.popBackStack() },
             ) {

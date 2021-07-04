@@ -53,6 +53,7 @@ import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 import eu.seldon1000.nextpass.ui.theme.Orange500
+import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
@@ -100,7 +101,7 @@ fun Settings() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_help_outline_24),
                 contentDescription = "about",
-                tint = Color.White
+                tint = colors!!.onBackground
             )
         }
     }, bottomBar = { DefaultBottomBar(lazyListState = lazyListState) }) { paddingValues ->

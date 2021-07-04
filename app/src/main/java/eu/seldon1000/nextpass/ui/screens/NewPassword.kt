@@ -42,6 +42,7 @@ import eu.seldon1000.nextpass.ui.items.FavoriteIcon
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
+import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -130,11 +131,11 @@ fun NewPassword() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_save_24),
                 contentDescription = "save",
-                tint = Color.White
+                tint = colors!!.onBackground
             )
         }
     }, bottomBar = {
-        BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
+        BottomAppBar(cutoutShape = CircleShape) {
             IconButton(onClick = { MainViewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
@@ -157,7 +158,7 @@ fun NewPassword() {
             ) { Favicon(favicon = favicon, size = 144.dp) }
             Card(
                 elevation = 6.dp,
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(
@@ -210,7 +211,7 @@ fun NewPassword() {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_autorenew_24),
                                 contentDescription = "generate_password",
-                                tint = Color.White
+                                tint = colors!!.onBackground
                             )
                         }
                         IconButton(onClick = { showed = !showed }) {
@@ -221,7 +222,7 @@ fun NewPassword() {
                                         else R.drawable.ic_round_visibility_off_24
                                     ),
                                     contentDescription = "show_password",
-                                    tint = Color.White
+                                    tint = colors!!.onBackground
                                 )
                             }
                         }
@@ -252,7 +253,7 @@ fun NewPassword() {
                                                 id = R.drawable.ic_round_lock_open_24
                                             ) else painterResource(id = R.drawable.ic_round_lock_24),
                                             contentDescription = "make_field_secret",
-                                            tint = Color.White
+                                            tint = colors!!.onBackground
                                         )
                                     }
                                 }
@@ -282,14 +283,14 @@ fun NewPassword() {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_round_done_24),
                                     contentDescription = "confirm_new_custom_label",
-                                    tint = Color.White
+                                    tint = colors!!.onBackground
                                 )
                             }
                             IconButton(onClick = { customFields.remove(element = customField) }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_round_close_24),
                                     contentDescription = "delete_custom_field",
-                                    tint = Color.White
+                                    tint = colors!!.onBackground
                                 )
                             }
                         }
