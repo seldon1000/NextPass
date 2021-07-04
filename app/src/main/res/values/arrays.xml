@@ -38,5 +38,7 @@
         <item>mail</item>
         <item>phone</item>
         <item>number</item>
+        <item>tax</item>
+        <item>zip</item>
     </string-array>
 </resources>
