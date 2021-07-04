@@ -179,7 +179,7 @@ fun PasswordDetails(passwordData: Password) {
             Header(expanded = false, title = context.getString(R.string.password_details)) {}
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.padding(all = 62.dp)
+                modifier = Modifier.padding(all = 72.dp)
             ) { Favicon(favicon = favicon, size = 144.dp) }
             Card(
                 elevation = 6.dp,
