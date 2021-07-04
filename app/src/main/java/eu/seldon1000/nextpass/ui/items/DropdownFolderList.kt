@@ -17,10 +17,7 @@
 package eu.seldon1000.nextpass.ui.items
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -73,15 +70,18 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
             },
             shape = RoundedCornerShape(size = 8.dp),
             backgroundColor = if (enabled) Color.DarkGray else Color.Transparent,
-            enabled = enabled,
-            modifier = Modifier.animateContentSize(
-                animationSpec = tween(
-                    durationMillis = 500,
-                    easing = LinearOutSlowInEasing
-                )
-            )
+            enabled = enabled
         ) {
-            Row(modifier = Modifier.padding(all = 8.dp)) {
+            Row(
+                modifier = Modifier
+                    .padding(all = 8.dp)
+                    .animateContentSize(
+                        animationSpec = tween(
+                            durationMillis = 200,
+                            easing = LinearEasing
+                        )
+                    )
+            ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_folder_24),
                     contentDescription = "folder"

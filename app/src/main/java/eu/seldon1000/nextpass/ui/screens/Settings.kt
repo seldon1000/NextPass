@@ -22,10 +22,7 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.biometric.BiometricManager
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -248,12 +245,6 @@ fun Settings() {
                                 RoundedCornerShape(size = 8.dp),
                                 clip = true
                             )
-                            .animateContentSize(
-                                animationSpec = tween(
-                                    durationMillis = 500,
-                                    easing = LinearOutSlowInEasing
-                                )
-                            )
                     ) {
                         Card(
                             onClick = {
@@ -263,7 +254,16 @@ fun Settings() {
                             enabled = protected,
                             shape = RoundedCornerShape(size = 8.dp)
                         ) {
-                            Row(modifier = Modifier.padding(all = 8.dp)) {
+                            Row(
+                                modifier = Modifier
+                                    .padding(all = 8.dp)
+                                    .animateContentSize(
+                                        animationSpec = tween(
+                                            durationMillis = 200,
+                                            easing = LinearEasing
+                                        )
+                                    )
+                            ) {
                                 Text(
                                     text = when (lockTimeout) {
                                         0.toLong() -> context.getString(R.string.immediately)
