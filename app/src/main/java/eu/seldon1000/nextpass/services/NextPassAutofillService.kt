@@ -188,7 +188,7 @@ class NextPassAutofillService : AutofillService() {
         if (!mode) {
             if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
                 NextcloudApiProvider.storedPasswords.value.forEach { password ->
-                    if (checkSuggestions(viewNode = viewNode, password = password)) {
+                    if (checkSuggestions(password = password)) {
                         val credentialsPresentation =
                             RemoteViews(packageName, R.layout.autofill_list_item)
                         credentialsPresentation.setTextViewText(R.id.label, password.label)
@@ -255,31 +255,38 @@ class NextPassAutofillService : AutofillService() {
         } == true || viewNode.hint?.contains("password", ignoreCase = true) == true
     }
 
-    private fun checkSuggestions(viewNode: ViewNode, password: Password): Boolean {
-        return (viewNode.webDomain != null && (password.url.contains(
-            viewWebDomain.removePrefix("www.").substringBefore("."),
-            ignoreCase = true
-        ) || viewWebDomain.removePrefix("www.").substringBefore(".").contains(
-            password.label,
-            ignoreCase = true
-        ))) || viewWebDomain.isEmpty() && (viewNode.idPackage?.contains(
-            password.label,
-            ignoreCase = true
-        ) == true || try {
-            viewNode.idPackage?.contains(
-                Uri.parse(password.url).host!!,
-                ignoreCase = true
-            ) == true
-        } catch (e: Exception) {
-            false
-        } || password.customFields.any { customField ->
-            customField.values.any {
-                try {
-                    it.contains(viewNode.idPackage!!, ignoreCase = true)
+    private fun checkSuggestions(password: Password): Boolean {
+        val domain = viewWebDomain.removePrefix("www.")
+
+        return ((domain.isNotEmpty() && (password.url.contains(domain, ignoreCase = true) ||
+                domain.contains(password.label, ignoreCase = true) ||
+                domain.contains(password.url, ignoreCase = true) ||
+                password.url.contains(
+                    domain.substringBefore("."),
+                    ignoreCase = true
+                ) ||
+                domain.substringBefore(".").contains(
+                    password.label,
+                    ignoreCase = true
+                ))) ||
+                (domain.isEmpty() && idPackage.isNotEmpty() && (idPackage.contains(
+                    password.label,
+                    ignoreCase = true
+                ) || try {
+                    idPackage.contains(
+                        Uri.parse(password.url).host!!,
+                        ignoreCase = true
+                    )
                 } catch (e: Exception) {
                     false
-                }
-            }
-        })
+                } || password.customFields.any { customField ->
+                    customField.values.any {
+                        try {
+                            it.contains(idPackage, ignoreCase = true)
+                        } catch (e: Exception) {
+                            false
+                        }
+                    }
+                })))
     }
 }
