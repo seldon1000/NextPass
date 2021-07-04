@@ -26,7 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
@@ -40,7 +39,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
 
     val currentScreen by MainViewModel.navController.collectAsState().value!!.currentBackStackEntryAsState()
 
-    BottomAppBar(cutoutShape = CircleShape, elevation = 8.dp) {
+    BottomAppBar(cutoutShape = CircleShape) {
         BottomNavigationItem(
             selected = currentScreen?.destination?.route == "search",
             onClick = { if (currentScreen?.destination?.route != "search") MainViewModel.navigate(route = "search") },
