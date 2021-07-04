@@ -26,6 +26,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.CancellationSignal
 import android.service.autofill.*
+import android.text.InputType
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.InlineSuggestionsRequest
@@ -291,14 +292,23 @@ class NextPassAutofillService : AutofillService() {
     private fun checkUsernameHints(viewNode: ViewNode): Boolean {
         return usernameHints.any { hint ->
             viewNode.autofillHints?.any { it.contains(hint, ignoreCase = true) } == true ||
-                    viewNode.hint?.contains(hint, ignoreCase = true) == true
+                    viewNode.hint?.contains(hint, ignoreCase = true) == true ||
+                    viewNode.idEntry?.contains(
+                        hint,
+                        ignoreCase = true
+                    ) == true
         }
     }
 
     private fun checkPasswordHints(viewNode: ViewNode): Boolean {
-        return viewNode.autofillHints?.any {
+        return (viewNode.autofillHints?.any {
             it.contains("password", ignoreCase = true)
-        } == true || viewNode.hint?.contains("password", ignoreCase = true) == true
+        } == true || viewNode.hint?.contains("password", ignoreCase = true) == true ||
+                viewNode.idEntry?.contains("password", ignoreCase = true) == true) &&
+                (viewNode.autofillType == 1 || viewNode.inputType == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+                        viewNode.inputType == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
+                        viewNode.inputType == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
+                        viewNode.inputType == InputType.TYPE_NUMBER_VARIATION_PASSWORD)
     }
 
     private fun checkSuggestions(password: Password): Boolean {
