@@ -193,10 +193,10 @@ fun Settings() {
                     title = context.getString(R.string.pin_protection),
                     body = context.getString(R.string.pin_protection_tip),
                     item = {
-                        Checkbox(
+                        Switch(
                             checked = protected,
                             onCheckedChange = { MainViewModel.navigate(route = "pin/false") },
-                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
+                            colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
@@ -216,7 +216,7 @@ fun Settings() {
                     title = context.getString(R.string.biometric_protection),
                     body = context.getString(R.string.biometric_protection_tip),
                     item = {
-                        Checkbox(
+                        Switch(
                             checked = biometricProtected && protected,
                             onCheckedChange = {
                                 if (protected && !biometricProtected) MainViewModel.enableBiometric()
@@ -225,7 +225,7 @@ fun Settings() {
                             enabled = protected && BiometricManager.from(context).canAuthenticate(
                                 BiometricManager.Authenticators.BIOMETRIC_WEAK
                             ) == BiometricManager.BIOMETRIC_SUCCESS,
-                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
+                            colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
@@ -325,14 +325,14 @@ fun Settings() {
                     title = context.getString(R.string.prevent_screen_capture),
                     body = context.getString(R.string.prevent_screen_capture_tip),
                     item = {
-                        Checkbox(
+                        Switch(
                             checked = screenProtection,
                             onCheckedChange = {
                                 if (screenProtection) MainViewModel.disableScreenProtection()
                                 else MainViewModel.enableScreenProtection()
                             },
                             enabled = true,
-                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
+                            colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
@@ -352,7 +352,7 @@ fun Settings() {
                     title = context.getString(R.string.autofill_service),
                     body = context.getString(R.string.autofill_service_tip),
                     item = {
-                        Checkbox(
+                        Switch(
                             checked = autofill,
                             onCheckedChange = {
                                 if (autofill) MainViewModel.disableAutofill()
@@ -373,7 +373,7 @@ fun Settings() {
                                 }
                             },
                             enabled = true,
-                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
+                            colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
@@ -386,14 +386,14 @@ fun Settings() {
                     title = context.getString(R.string.autostart_service),
                     body = context.getString(R.string.autostart_service_tip),
                     item = {
-                        Checkbox(
+                        Switch(
                             checked = autostart,
                             onCheckedChange = {
                                 if (autostart) MainViewModel.disableAutostart()
                                 else MainViewModel.enableAutostart()
                             },
                             enabled = autofill,
-                            colors = CheckboxDefaults.colors(checkedColor = Orange500),
+                            colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(all = 16.dp)
                         )
                     }
