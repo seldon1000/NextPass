@@ -45,8 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="?android:textColorPrimary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textFontWeight="600" />
 
             <ImageView
                 android:id="@+id/lock_icon"
@@ -59,6 +58,7 @@
         <TextView
             android:id="@+id/username"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="13sp" />
     </LinearLayout>
 </LinearLayout>
