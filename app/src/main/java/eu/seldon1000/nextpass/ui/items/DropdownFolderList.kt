@@ -78,7 +78,7 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
                     .animateContentSize(
                         animationSpec = tween(
                             durationMillis = 200,
-                            easing = LinearEasing
+                            easing = FastOutSlowInEasing
                         )
                     )
             ) {

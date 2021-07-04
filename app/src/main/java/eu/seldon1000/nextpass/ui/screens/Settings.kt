@@ -260,7 +260,7 @@ fun Settings() {
                                     .animateContentSize(
                                         animationSpec = tween(
                                             durationMillis = 200,
-                                            easing = LinearEasing
+                                            easing = FastOutSlowInEasing
                                         )
                                     )
                             ) {
