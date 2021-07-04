@@ -12,6 +12,9 @@
 #   public *;
 #}
 
+-keep class com.nextcloud.android.sso.** {*;}
+-dontwarn java.beans.Transient
+
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable
