@@ -34,11 +34,11 @@
         <item>user</item>
         <item>nick</item>
         <item>name</item>
-        <item>email</item>
         <item>mail</item>
         <item>phone</item>
         <item>number</item>
         <item>tax</item>
         <item>zip</item>
+        <item>client</item>
     </string-array>
 </resources>
