@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
@@ -36,11 +37,13 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Favicon(favicon: Bitmap?, size: Dp) {
     Surface(
-        modifier = Modifier.shadow(
-            elevation = if (favicon != null) 8.dp else 0.dp,
-            RoundedCornerShape(size = 8.dp),
-            clip = true
-        )
+        modifier = Modifier
+            .padding(all = 10.dp)
+            .shadow(
+                elevation = if (favicon != null) 8.dp else 0.dp,
+                RoundedCornerShape(size = 8.dp),
+                clip = true
+            )
     ) {
         Crossfade(
             targetState = favicon,
