@@ -16,15 +16,21 @@
 
 package eu.seldon1000.nextpass.services
 
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.app.assist.AssistStructure
 import android.app.assist.AssistStructure.ViewNode
 import android.content.Intent
+import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import android.os.CancellationSignal
 import android.service.autofill.*
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
+import android.view.inputmethod.InlineSuggestionsRequest
 import android.widget.RemoteViews
+import androidx.autofill.inline.v1.InlineSuggestionUi
 import com.google.gson.JsonParser
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
@@ -45,6 +51,9 @@ class NextPassAutofillService : AutofillService() {
     private var usernameId = mutableListOf<AutofillId>()
     private var passwordId = mutableListOf<AutofillId>()
     private var ready = false
+
+    private var inlineRequest: InlineSuggestionsRequest? = null
+    private var inlineCount = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -89,6 +98,11 @@ class NextPassAutofillService : AutofillService() {
 
         val context = request.fillContexts
         val structure = context.last().structure
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && request.inlineSuggestionsRequest != null) {
+            inlineRequest = request.inlineSuggestionsRequest
+            inlineCount = inlineRequest!!.maxSuggestionCount
+        }
 
         traverseStructure(structure = structure, mode = false)
 
@@ -179,6 +193,7 @@ class NextPassAutofillService : AutofillService() {
         windowNodes.forEach { traverseNode(viewNode = it.rootViewNode, mode = mode) }
     }
 
+    @SuppressLint("RestrictedApi")
     private fun traverseNode(viewNode: ViewNode, mode: Boolean) {
         if (viewNode.webDomain != null && viewWebDomain.isEmpty())
             viewWebDomain = viewNode.webDomain!!
@@ -192,25 +207,56 @@ class NextPassAutofillService : AutofillService() {
                         val credentialsPresentation =
                             RemoteViews(packageName, R.layout.autofill_list_item)
                         credentialsPresentation.setTextViewText(R.id.label, password.label)
-                        credentialsPresentation.setTextViewText(R.id.username, password.username)
+                        credentialsPresentation.setTextViewText(
+                            R.id.username,
+                            password.username
+                        )
                         credentialsPresentation.setImageViewBitmap(
                             R.id.favicon,
                             password.favicon.value
                         )
 
-                        fillResponse.addDataset(
-                            Dataset.Builder()
-                                .setValue(
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && inlineRequest != null && inlineCount > 0) {
+                            val inlinePresentation = InlinePresentation(
+                                InlineSuggestionUi.newContentBuilder(
+                                    PendingIntent.getActivity(this, 8, Intent(), 0)
+                                ).setTitle(password.label).setSubtitle(password.username)
+                                    .setStartIcon(Icon.createWithBitmap(password.favicon.value))
+                                    .build().slice,
+                                inlineRequest!!.inlinePresentationSpecs.first(),
+                                password.favorite
+                            )
+
+                            fillResponse.addDataset(
+                                Dataset.Builder().setValue(
                                     usernameId.last(),
                                     AutofillValue.forText(password.username),
-                                    credentialsPresentation
-                                )
-                                .setValue(
+                                    credentialsPresentation,
+                                    inlinePresentation
+                                ).setValue(
                                     passwordId.last(),
                                     AutofillValue.forText(password.password),
-                                    credentialsPresentation
+                                    credentialsPresentation,
+                                    inlinePresentation
                                 ).build()
-                        )
+                            )
+
+                            inlineCount--
+                        } else {
+                            fillResponse.addDataset(
+                                Dataset.Builder()
+                                    .setValue(
+                                        usernameId.last(),
+                                        AutofillValue.forText(password.username),
+                                        credentialsPresentation
+                                    )
+                                    .setValue(
+                                        passwordId.last(),
+                                        AutofillValue.forText(password.password),
+                                        credentialsPresentation
+                                    ).build()
+                            )
+                        }
 
                         ready = true
                     }

@@ -44,7 +44,8 @@
         <service
             android:name=".services.NextPassAutofillService"
             android:label="NextPass Autofill Service"
-            android:permission="android.permission.BIND_AUTOFILL_SERVICE">
+            android:permission="android.permission.BIND_AUTOFILL_SERVICE"
+            android:supportsInlineSuggestions="true">
             <intent-filter>
                 <action android:name="android.service.autofill.AutofillService" />
             </intent-filter>
