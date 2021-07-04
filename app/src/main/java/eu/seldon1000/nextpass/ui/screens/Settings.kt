@@ -168,7 +168,7 @@ fun Settings() {
             }
             item {
                 GenericColumnItem(
-                    title = context.getString(R.string.random_password),
+                    title = context.getString(R.string.generate_random_password),
                     body = context.getString(R.string.random_password_tip)
                 ) {
                     coroutineScope.launch {
