@@ -293,10 +293,10 @@ class NextPassAutofillService : AutofillService() {
         return usernameHints.any { hint ->
             viewNode.autofillHints?.any { it.contains(hint, ignoreCase = true) } == true ||
                     viewNode.hint?.contains(hint, ignoreCase = true) == true ||
-                    viewNode.idEntry?.contains(
+                    (viewNode.idEntry?.contains(
                         hint,
                         ignoreCase = true
-                    ) == true
+                    ) == true && viewNode.isFocusable)
         }
     }
 
@@ -304,7 +304,10 @@ class NextPassAutofillService : AutofillService() {
         return (viewNode.autofillHints?.any {
             it.contains("password", ignoreCase = true)
         } == true || viewNode.hint?.contains("password", ignoreCase = true) == true ||
-                viewNode.idEntry?.contains("password", ignoreCase = true) == true) &&
+                (viewNode.idEntry?.contains(
+                    "password",
+                    ignoreCase = true
+                ) == true && viewNode.isFocusable)) &&
                 (viewNode.autofillType == 1 || viewNode.inputType == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
                         viewNode.inputType == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
                         viewNode.inputType == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
