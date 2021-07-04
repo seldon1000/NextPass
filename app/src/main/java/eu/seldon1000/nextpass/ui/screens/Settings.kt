@@ -190,8 +190,8 @@ fun Settings() {
             }
             item {
                 GenericColumnItem(
-                    title = context.getString(R.string.pin_protection),
-                    body = context.getString(R.string.pin_protection_tip),
+                    title = context.getString(R.string.pin_authentication),
+                    body = context.getString(R.string.pin_authentication_tip),
                     item = {
                         Switch(
                             checked = protected,
@@ -213,8 +213,8 @@ fun Settings() {
             }
             item {
                 GenericColumnItem(
-                    title = context.getString(R.string.biometric_protection),
-                    body = context.getString(R.string.biometric_protection_tip),
+                    title = context.getString(R.string.biometric_authentication),
+                    body = context.getString(R.string.biometric_authentication_tip),
                     item = {
                         Switch(
                             checked = biometricProtected && protected,
