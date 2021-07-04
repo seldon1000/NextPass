@@ -18,7 +18,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:paddingEnd="16dp">
 
     <ImageView
         android:id="@+id/favicon"
@@ -44,6 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="?android:textColorPrimary"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <ImageView
@@ -51,13 +53,12 @@
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:layout_marginStart="8dp"
-                android:src="@drawable/ic_round_lock_green_24" />
+                android:src="@drawable/ic_round_lock_nextcloudblue_24" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/username"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="13sp" />
+            android:layout_height="wrap_content" />
     </LinearLayout>
 </LinearLayout>
