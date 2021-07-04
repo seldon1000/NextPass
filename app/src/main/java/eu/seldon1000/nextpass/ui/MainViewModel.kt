@@ -135,28 +135,6 @@ object MainViewModel : ViewModel() {
             .setSubtitle(MainViewModel.context!!.getString(R.string.access_nextpass_body))
             .setNegativeButtonText(MainViewModel.context!!.getString(R.string.cancel))
             .build()
-
-        biometricPrompt = BiometricPrompt(
-            MainViewModel.context!!,
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(
-                    errorCode: Int,
-                    errString: CharSequence
-                ) {
-                    biometricDismissedState.value = true
-                }
-
-                override fun onAuthenticationSucceeded(
-                    result: BiometricPrompt.AuthenticationResult
-                ) {
-                    unlock()
-                }
-
-                override fun onAuthenticationFailed() {
-                    biometricDismissedState.value = true
-                }
-            }
-        )
     }
 
     fun resetUserSettings() {
@@ -341,8 +319,7 @@ object MainViewModel : ViewModel() {
     }
 
     fun enableBiometric() {
-        sharedPreferences!!.edit().putBoolean("biometric", true).apply()
-        biometricProtectedState.value = true
+        showBiometricPrompt(toEnable = true)
     }
 
     fun disableBiometric() {
@@ -350,7 +327,31 @@ object MainViewModel : ViewModel() {
         biometricProtectedState.value = false
     }
 
-    fun showBiometricPrompt() {
+    fun showBiometricPrompt(toEnable: Boolean = false) {
+        biometricPrompt = BiometricPrompt(
+            context!!,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(
+                    errorCode: Int,
+                    errString: CharSequence
+                ) {
+                    biometricDismissedState.value = true
+                }
+
+                override fun onAuthenticationSucceeded(
+                    result: BiometricPrompt.AuthenticationResult
+                ) {
+                    if (toEnable) {
+                        sharedPreferences!!.edit().putBoolean("biometric", true).apply()
+                        biometricProtectedState.value = true
+                    } else unlock()
+                }
+
+                override fun onAuthenticationFailed() {
+                    biometricDismissedState.value = true
+                }
+            }
+        )
         biometricPrompt!!.authenticate(promptInfo!!)
     }
 
