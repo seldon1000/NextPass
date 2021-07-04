@@ -2,7 +2,7 @@
 <resources>
     <color name="orange_500">#FFFF9800</color>
     <color name="orange_700">#FFF57C00</color>
-    <color name="nextcloud_blue">#FF1CAFFF</color>
+    <color name="nextcloud_blue">#FF13A1EE</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
