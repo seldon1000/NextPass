@@ -123,7 +123,7 @@ fun Settings() {
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = NextcloudBlue,
-                    modifier = Modifier.padding(start = 16.dp)
+                    modifier = Modifier.padding(start = 16.dp, top = 16.dp)
                 )
                 GenericColumnItem(
                     title = context.getString(R.string.current_account),
