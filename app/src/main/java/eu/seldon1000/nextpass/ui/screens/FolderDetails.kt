@@ -46,7 +46,6 @@ import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
-import eu.seldon1000.nextpass.ui.theme.colors
 
 @Composable
 @ExperimentalAnimationApi
