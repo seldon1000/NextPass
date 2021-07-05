@@ -16,8 +16,6 @@ NextPass was made possibile thanks to the amazing work of many people. This is a
 
 **Gson library** (https://github.com/google/gson)
 
-**Jackson library** (https://github.com/FasterXML/jackson)
-
 **Material Design guidelines** (https://material.io)
 
 
