@@ -28,9 +28,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,9 +37,7 @@ import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
-import eu.seldon1000.nextpass.ui.items.CountMessage
-import eu.seldon1000.nextpass.ui.items.FolderCard
-import eu.seldon1000.nextpass.ui.items.PasswordCard
+import eu.seldon1000.nextpass.ui.items.*
 import eu.seldon1000.nextpass.ui.layout.DefaultBottomBar
 import eu.seldon1000.nextpass.ui.layout.DefaultFab
 import eu.seldon1000.nextpass.ui.layout.Header
@@ -61,6 +57,16 @@ fun PasswordList() {
 
     val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+
+    var currentTag by remember { mutableStateOf(value = "") }
+
+    val showedPasswords = storedPasswords.filter { password ->
+        (if (currentTag.isNotEmpty()) password.tags.any { it.containsValue(currentTag) }
+        else true) && (!folderMode || password.folder == storedFolders[currentFolder].id)
+    }
+    val showedFolders = storedFolders.filter { password ->
+        !folderMode || password.parent == storedFolders[currentFolder].id
+    }
 
     MyScaffoldLayout(
         fab = { DefaultFab() },
@@ -121,19 +127,18 @@ fun PasswordList() {
                     }
                 }
             }
+            item { TagsRow { currentTag = if (it == currentTag) "" else it } }
             if (currentFolder != 0 && folderMode) item {
                 FolderCard(
                     folder = storedFolders[currentFolder],
                     icon = painterResource(id = R.drawable.ic_round_back_arrow_24)
                 )
             }
-            if (folderMode && storedFolders.size > 1) items(items = storedFolders) { folder ->
-                if (folder.parent == storedFolders[currentFolder].id)
-                    FolderCard(folder = folder)
+            if (folderMode && storedFolders.size > 1) items(items = showedFolders) { folder ->
+                FolderCard(folder = folder)
             }
-            items(storedPasswords) { password ->
-                if (!folderMode || password.folder == storedFolders[currentFolder].id)
-                    PasswordCard(password = password)
+            items(showedPasswords) { password ->
+                PasswordCard(password = password)
             }
             item {
                 CountMessage(

@@ -37,9 +37,7 @@ fun Header(expanded: Boolean, title: String, item: @Composable () -> Unit) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = title,

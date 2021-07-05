@@ -69,6 +69,9 @@ object NextcloudApiProvider : ViewModel() {
     private val storedFoldersState = MutableStateFlow(value = mutableStateListOf(baseFolder))
     val storedFolders = storedFoldersState
 
+    private val storedTagsState = MutableStateFlow(value = mutableStateListOf<Tag>())
+    val storedTags = storedTagsState
+
     private val currentRequestedFaviconState = MutableStateFlow<Bitmap?>(value = null)
     val currentRequestedFavicon = currentRequestedFaviconState
 
@@ -172,8 +175,9 @@ object NextcloudApiProvider : ViewModel() {
 
     private fun listPasswordsRequest(): JsonArray {
         val listRequest = NextcloudRequest.Builder()
-            .setMethod("GET")
+            .setMethod("POST")
             .setUrl("$endpoint/password/list")
+            .setParameter(mapOf("details" to "model+tags"))
             .build()
 
         return try {
@@ -194,6 +198,26 @@ object NextcloudApiProvider : ViewModel() {
         val listRequest = NextcloudRequest.Builder()
             .setMethod("GET")
             .setUrl("$endpoint/folder/list")
+            .build()
+
+        return try {
+            JsonParser.parseString(
+                nextcloudApi!!.performNetworkRequest(listRequest)
+                    .bufferedReader()
+                    .lines()
+                    .collect(Collectors.joining("\n"))
+            ).asJsonArray
+        } catch (e: Exception) {
+            showError()
+
+            JsonArray()
+        }
+    }
+
+    private fun listTagsRequest(): JsonArray {
+        val listRequest = NextcloudRequest.Builder()
+            .setMethod("GET")
+            .setUrl("$endpoint/tag/list")
             .build()
 
         return try {
@@ -240,6 +264,18 @@ object NextcloudApiProvider : ViewModel() {
             data.add(index = 0, element = baseFolder)
 
             storedFoldersState.value = data
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val folders = listTagsRequest()
+            val data = mutableStateListOf<Tag>()
+
+            folders.sortedBy { it.asJsonObject.get("label").asString.lowercase() }
+                .forEachIndexed { index, folder ->
+                    data.add(Tag(tagData = folder.asJsonObject, index = index + 1))
+                }
+
+            storedTagsState.value = data
         }
     }
 
@@ -394,6 +430,11 @@ object NextcloudApiProvider : ViewModel() {
             if (!params.containsKey(key = "url")) params["url"] = password.url
             if (!params.containsKey(key = "notes")) params["notes"] = password.notes
             if (!params.containsKey(key = "folder")) params["folder"] = password.folder
+            /*if (!params.containsKey(key = "tags")) {
+                val tags = JsonArray()
+                password.tags.forEach { tags.add(JsonParser.parseString(it["id"]!!)) }
+                params["tags"] = tags.toString()
+            }*/
             if (!params.containsKey(key = "customFields"))
                 params["customFields"] = JsonParser.parseString(
                     password.customFields.toList().toString()
@@ -414,6 +455,7 @@ object NextcloudApiProvider : ViewModel() {
                         .collect(Collectors.joining("\n"))
                 ).asJsonObject.get("id").asString
 
+                params["details"] = "model+tags"
                 val showRequest = NextcloudRequest.Builder()
                     .setMethod("POST")
                     .setUrl("$endpoint/password/show")
@@ -436,20 +478,18 @@ object NextcloudApiProvider : ViewModel() {
                 storedPasswordsState.value[index] = updatedPassword
 
                 MainViewModel.setRefreshing(refreshing = false)
-            } catch (e: Exception) {
-                showError()
-            }
-        }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val deleteRequest = NextcloudRequest.Builder()
-                .setMethod("DELETE")
-                .setUrl("$endpoint/password/delete")
-                .setParameter(mapOf("id" to password.id))
-                .build()
+                val deleteRequest = NextcloudRequest.Builder()
+                    .setMethod("DELETE")
+                    .setUrl("$endpoint/password/delete")
+                    .setParameter(mapOf("id" to password.id))
+                    .build()
 
-            try {
-                nextcloudApi!!.performNetworkRequest(deleteRequest)
+                try {
+                    nextcloudApi!!.performNetworkRequest(deleteRequest)
+                } catch (e: Exception) {
+                    showError()
+                }
             } catch (e: Exception) {
                 showError()
             }

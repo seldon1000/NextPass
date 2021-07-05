@@ -40,6 +40,12 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
     val notes: String = passwordData.get("notes").asString
     val hash: String = passwordData.get("hash").asString
     val folder: String = passwordData.get("folder").asString
+    var tags: SnapshotStateList<SnapshotStateMap<String, String>> =
+        try {
+            Gson().fromJson(passwordData.get("tags").asJsonArray, typeToken)
+        } catch (e: Exception) {
+            mutableStateListOf()
+        }
     var customFields: SnapshotStateList<SnapshotStateMap<String, String>> =
         try {
             Gson().fromJson(passwordData.get("customFields").asString, typeToken)
