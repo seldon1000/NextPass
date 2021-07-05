@@ -21,13 +21,15 @@ import android.icu.text.SimpleDateFormat
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 
 data class Password(val passwordData: JsonObject, var index: Int = -1) {
+    private val typeToken =
+        object : TypeToken<SnapshotStateList<SnapshotStateMap<String, String>>>() {}.type
     private val formatter = SimpleDateFormat.getDateTimeInstance()
 
     val id: String = passwordData.get("id").asString
@@ -40,10 +42,7 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
     val folder: String = passwordData.get("folder").asString
     var customFields: SnapshotStateList<SnapshotStateMap<String, String>> =
         try {
-            ObjectMapper().readValue(
-                passwordData.get("customFields").asString,
-                object : TypeReference<SnapshotStateList<SnapshotStateMap<String, String>>>() {}
-            )
+            Gson().fromJson(passwordData.get("customFields").asString, typeToken)
         } catch (e: Exception) {
             mutableStateListOf()
         }
@@ -64,9 +63,6 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
     }
 
     fun restoreCustomFields() {
-        customFields = ObjectMapper().readValue(
-            passwordData.get("customFields").asString,
-            object : TypeReference<SnapshotStateList<SnapshotStateMap<String, String>>>() {}
-        )
+        customFields = Gson().fromJson(passwordData.get("customFields").asString, typeToken)
     }
 }
