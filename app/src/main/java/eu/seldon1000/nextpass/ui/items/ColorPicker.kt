@@ -17,13 +17,11 @@
 package eu.seldon1000.nextpass.ui.items
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
@@ -37,8 +35,6 @@ import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 
-@ExperimentalMaterialApi
-@ExperimentalFoundationApi
 @Composable
 fun ColorPicker(onClickAction: (color: Color) -> Unit) {
     val colors = remember {
