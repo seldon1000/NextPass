@@ -60,7 +60,7 @@ fun Favorites() {
     var currentTag by remember { mutableStateOf(value = "") }
 
     val showedPasswords = storedPasswords.filter { password ->
-        (if (currentTag.isNotEmpty()) password.tags.any { it.containsValue(currentTag) }
+        (if (currentTag.isNotEmpty()) password.tags.any { it.id == currentTag }
         else true) && password.favorite
     }
     val showedFolders = storedFolders.filter { folder -> folder.favorite }

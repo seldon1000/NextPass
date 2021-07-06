@@ -29,7 +29,7 @@ import java.util.*
 
 data class Password(val passwordData: JsonObject, var index: Int = -1) {
     private val typeToken =
-        object : TypeToken<SnapshotStateList<SnapshotStateMap<String, String>>>() {}.type
+        object : TypeToken<SnapshotStateList<Tag>>() {}.type
     private val formatter = SimpleDateFormat.getDateTimeInstance()
 
     val id: String = passwordData.get("id").asString
@@ -40,7 +40,7 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
     val notes: String = passwordData.get("notes").asString
     val hash: String = passwordData.get("hash").asString
     val folder: String = passwordData.get("folder").asString
-    var tags: SnapshotStateList<SnapshotStateMap<String, String>> =
+    var tags: SnapshotStateList<Tag> =
         try {
             Gson().fromJson(passwordData.get("tags").asJsonArray, typeToken)
         } catch (e: Exception) {

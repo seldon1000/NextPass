@@ -61,7 +61,7 @@ fun Search() {
     var currentTag by remember { mutableStateOf(value = "") }
 
     val showedPasswords = storedPasswords.filter { password ->
-        (if (currentTag.isNotEmpty()) password.tags.any { it.containsValue(currentTag) }
+        (if (currentTag.isNotEmpty()) password.tags.any { it.id == currentTag }
         else true) && (password.url.contains(searchedText, ignoreCase = true) ||
                 password.label.contains(searchedText, ignoreCase = true) ||
                 password.username.contains(searchedText, ignoreCase = true) ||

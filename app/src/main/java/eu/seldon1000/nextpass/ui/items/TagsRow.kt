@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,13 +44,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun TagsRow(tagClickAction: (tag: String) -> Unit) {
+fun TagsRow(
+    tags: SnapshotStateList<Tag>? = null,
+    alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
+    tagClickAction: (tag: String) -> Unit
+) {
     val context = LocalContext.current
 
     val storedTags by NextcloudApiProvider.storedTags.collectAsState()
@@ -62,10 +68,10 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
     SimpleFlowRow(
         verticalGap = 8.dp,
         horizontalGap = 8.dp,
-        alignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
+        alignment = alignment,
+        modifier = Modifier.padding(top = 16.dp, bottom = 22.dp)
     ) {
-        storedTags.forEachIndexed { index, tag ->
+        (tags ?: storedTags).forEachIndexed { index, tag ->
             val color = Color(android.graphics.Color.parseColor(tag.color))
 
             Surface(modifier = Modifier.shadow(elevation = 8.dp, shape = CircleShape)) {
@@ -75,7 +81,7 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
                     //var label by remember { mutableStateOf(value = tag.label)}
 
                     Card(
-                        backgroundColor = color.copy(alpha = if (state == index) 0.7f else 0.15f),
+                        backgroundColor = color.copy(alpha = if (tags != null || state == index) 0.7f else 0.15f),
                         modifier = Modifier
                             .padding(end = 4.dp, bottom = 2.dp)
                             .clip(shape = CircleShape)
@@ -86,8 +92,10 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
                             )
                             .combinedClickable(
                                 onClick = {
-                                    tagClickAction(tag.id)
-                                    selected = if (state == index) -1 else index
+                                    if (tags == null) {
+                                        tagClickAction(tag.id)
+                                        selected = if (state == index) -1 else index
+                                    }
                                 },
                                 onLongClick = { expanded = true })
                     ) {
@@ -164,7 +172,7 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
                 }
             }
         }
-        Card(
+        if (tags == null) Card(
             onClick = {
                 MainViewModel.showDialog(title = context.getString(R.string.new_tag), body = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

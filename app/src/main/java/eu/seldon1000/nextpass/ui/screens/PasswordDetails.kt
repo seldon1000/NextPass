@@ -20,6 +20,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -46,6 +47,7 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
@@ -67,6 +69,7 @@ fun PasswordDetails(passwordData: Password) {
     var username by remember { mutableStateOf(value = passwordData.username) }
     var password by remember { mutableStateOf(value = passwordData.password) }
     var notes by remember { mutableStateOf(value = passwordData.notes) }
+    val tags by remember { mutableStateOf(value = passwordData.tags) }
     var customFields by remember { mutableStateOf(value = passwordData.customFields) }
     val favicon by passwordData.favicon.collectAsState()
 
@@ -246,12 +249,13 @@ fun PasswordDetails(passwordData: Password) {
                             color = Color.Gray,
                             modifier = Modifier.padding(top = 6.dp)
                         )
+                        TagsRow(tags = tags, alignment = Alignment.Start) {}
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 16.dp)
+                                .padding(bottom = 16.dp)
                         ) {
                             Crossfade(targetState = edit) { state ->
                                 DropdownFolderList(

@@ -65,7 +65,7 @@ fun PasswordList() {
     var currentTag by remember { mutableStateOf(value = "") }
 
     val showedPasswords = storedPasswords.filter { password ->
-        (if (currentTag.isNotEmpty()) password.tags.any { it.containsValue(currentTag) }
+        (if (currentTag.isNotEmpty()) password.tags.any { it.id == currentTag }
         else true) && (!folderMode || password.folder == storedFolders[currentFolder].id)
     }
     val showedFolders = storedFolders.filter { password ->
