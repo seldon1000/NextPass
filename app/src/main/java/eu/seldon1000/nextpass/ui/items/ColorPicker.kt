@@ -41,7 +41,28 @@ import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 @ExperimentalFoundationApi
 @Composable
 fun ColorPicker(onClickAction: (color: Color) -> Unit) {
-    val colors = listOf(Color.Blue, Color.Cyan, Color.Green, Color.Magenta, Color.Red, Color.Yellow)
+    val colors = remember {
+        listOf(
+            Color(android.graphics.Color.parseColor("#d50000")),
+            Color(android.graphics.Color.parseColor("#c41061")),
+            Color(android.graphics.Color.parseColor("#aa00ff")),
+            Color(android.graphics.Color.parseColor("#6200ea")),
+            Color(android.graphics.Color.parseColor("#304ffe")),
+            Color(android.graphics.Color.parseColor("#2962ff")),
+            Color(android.graphics.Color.parseColor("#0091ea")),
+            Color(android.graphics.Color.parseColor("#00b8d4")),
+            Color(android.graphics.Color.parseColor("#00bfa5")),
+            Color(android.graphics.Color.parseColor("#00c853")),
+            Color(android.graphics.Color.parseColor("#64dd17")),
+            Color(android.graphics.Color.parseColor("#aeea00")),
+            Color(android.graphics.Color.parseColor("#ffd600")),
+            Color(android.graphics.Color.parseColor("#ffab00")),
+            Color(android.graphics.Color.parseColor("#ff6d00")),
+            Color(android.graphics.Color.parseColor("#dd2c00")),
+            Color(android.graphics.Color.parseColor("#4e342e")),
+            Color(android.graphics.Color.parseColor("#37474f"))
+        )
+    }
 
     var selected by remember { mutableStateOf(value = 0) }
 
