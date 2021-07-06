@@ -174,35 +174,35 @@ fun TagsRow(
         }
         if (tags == null || tags.size < 1) Card(
             onClick = {
-                    MainViewModel.showDialog(title = context.getString(R.string.new_tag), body = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            TextFieldItem(
-                                text = newTagLabel,
-                                onTextChanged = { newTagLabel = it },
-                                label = context.getString(R.string.label),
-                                required = true,
-                                capitalized = true
-                            ) {}
-                            ColorPicker { newTagColor = it }
-                        }
-                    }, confirm = true) {
-                        if (newTagLabel.isEmpty()) newTagLabel =
-                            context.getString(R.string.new_tag_default, storedTags.size + 1)
-
-                        val params = mapOf(
-                            "label" to newTagLabel,
-                            "color" to "#${
-                                String.format("%06X", newTagColor.toArgb()).removePrefix("FF")
-                            }"
-                        )
-
-                        MainViewModel.setRefreshing(refreshing = true)
-                        NextcloudApiProvider.createTagRequest(params = params)
-                        MainViewModel.showSnackbar(message = context.getString(R.string.tag_created_snack))
-
-                        newTagLabel = ""
-                        newTagColor = Color.Blue
+                MainViewModel.showDialog(title = context.getString(R.string.new_tag), body = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        TextFieldItem(
+                            text = newTagLabel,
+                            onTextChanged = { newTagLabel = it },
+                            label = context.getString(R.string.label),
+                            required = true,
+                            capitalized = true
+                        ) {}
+                        ColorPicker { newTagColor = it }
                     }
+                }, confirm = true) {
+                    if (newTagLabel.isEmpty()) newTagLabel =
+                        context.getString(R.string.new_tag_default, storedTags.size + 1)
+
+                    val params = mapOf(
+                        "label" to newTagLabel,
+                        "color" to "#${
+                            String.format("%06X", newTagColor.toArgb()).removePrefix("FF")
+                        }"
+                    )
+
+                    MainViewModel.setRefreshing(refreshing = true)
+                    NextcloudApiProvider.createTagRequest(params = params)
+                    MainViewModel.showSnackbar(message = context.getString(R.string.tag_created_snack))
+
+                    newTagLabel = ""
+                    newTagColor = Color.Blue
+                }
             },
             enabled = tags == null,
             elevation = 8.dp,
@@ -221,7 +221,7 @@ fun TagsRow(
                     } else context.getString(R.string.no_tags),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(
-                        start = if (storedTags.size < 1) 18.dp else 0.dp,
+                        start = if (storedTags.size < 1 || (tags != null && tags.size < 1)) 18.dp else 0.dp,
                         top = 8.dp,
                         end = if (tags == null) 0.dp else 18.dp,
                         bottom = 8.dp
