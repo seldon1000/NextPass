@@ -167,7 +167,7 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
         Card(
             onClick = {
                 MainViewModel.showDialog(title = context.getString(R.string.new_tag), body = {
-                    Column {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         TextFieldItem(
                             text = newTagLabel,
                             onTextChanged = { newTagLabel = it },
