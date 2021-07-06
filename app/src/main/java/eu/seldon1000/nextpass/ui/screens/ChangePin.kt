@@ -23,7 +23,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -189,7 +188,7 @@ fun ChangePin(change: Boolean) {
             )
         }
     }, bottomBar = {
-        BottomAppBar(backgroundColor = Color.Black, cutoutShape = CircleShape) {
+        BottomAppBar(cutoutShape = CircleShape) {
             IconButton(onClick = {
                 if (confirm) {
                     confirm = false
