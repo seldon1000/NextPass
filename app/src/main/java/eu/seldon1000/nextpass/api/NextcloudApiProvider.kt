@@ -241,7 +241,7 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun refreshServerList() {
+    fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
         MainViewModel.setRefreshing(refreshing = true)
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -260,7 +260,7 @@ object NextcloudApiProvider : ViewModel() {
             MainViewModel.setRefreshing(refreshing = false)
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        if (refreshFolders) viewModelScope.launch(Dispatchers.IO) {
             val folders = listFoldersRequest()
             val data = mutableStateListOf<Folder>()
 
@@ -273,13 +273,13 @@ object NextcloudApiProvider : ViewModel() {
             storedFoldersState.value = data
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val folders = listTagsRequest()
+        if (refreshTags) viewModelScope.launch(Dispatchers.IO) {
+            val tags = listTagsRequest()
             val data = mutableStateListOf<Tag>()
 
-            folders.sortedBy { it.asJsonObject.get("label").asString.lowercase() }
-                .forEachIndexed { index, folder ->
-                    data.add(Tag(tagData = folder.asJsonObject, index = index + 1))
+            tags.sortedBy { it.asJsonObject.get("label").asString.lowercase() }
+                .forEachIndexed { index, tag ->
+                    data.add(Tag(tagData = tag.asJsonObject, index = index + 1))
                 }
 
             storedTagsState.value = data

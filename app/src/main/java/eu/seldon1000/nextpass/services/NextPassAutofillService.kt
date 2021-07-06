@@ -65,8 +65,13 @@ class NextPassAutofillService : AutofillService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return if (NextcloudApiProvider.attemptLogin()) START_STICKY
-        else {
+        return if (NextcloudApiProvider.storedPasswords.value.isEmpty() &&
+            NextcloudApiProvider.attemptLogin()
+        ) {
+            NextcloudApiProvider.refreshServerList(refreshFolders = false, refreshTags = false)
+
+            START_STICKY
+        } else {
             stopSelf()
 
             START_NOT_STICKY
@@ -78,7 +83,7 @@ class NextPassAutofillService : AutofillService() {
 
         if (NextcloudApiProvider.storedPasswords.value.isEmpty() &&
             NextcloudApiProvider.attemptLogin()
-        ) NextcloudApiProvider.refreshServerList()
+        ) NextcloudApiProvider.refreshServerList(refreshFolders = false, refreshTags = false)
     }
 
     override fun onFillRequest(
