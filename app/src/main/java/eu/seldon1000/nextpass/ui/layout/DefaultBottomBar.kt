@@ -58,7 +58,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
                 if (currentScreen?.destination?.route != "passwords") MainViewModel.navigate(route = "passwords")
                 else {
                     MainViewModel.setCurrentFolder(folder = 0)
-                    coroutineScope.launch { lazyListState.scrollToItem(0) }
+                    coroutineScope.launch { lazyListState.scrollToItem(index = 0) }
                 }
             },
             icon = {

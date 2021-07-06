@@ -28,8 +28,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 
 data class Password(val passwordData: JsonObject, var index: Int = -1) {
-    private val typeToken =
+    private val tagTypeToken =
         object : TypeToken<SnapshotStateList<Tag>>() {}.type
+    private val customFieldsTypeToken =
+        object : TypeToken<SnapshotStateList<SnapshotStateMap<String, String>>>() {}.type
     private val formatter = SimpleDateFormat.getDateTimeInstance()
 
     val id: String = passwordData.get("id").asString
@@ -42,13 +44,13 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
     val folder: String = passwordData.get("folder").asString
     var tags: SnapshotStateList<Tag> =
         try {
-            Gson().fromJson(passwordData.get("tags").asJsonArray, typeToken)
+            Gson().fromJson(passwordData.get("tags").asJsonArray, tagTypeToken)
         } catch (e: Exception) {
             mutableStateListOf()
         }
     var customFields: SnapshotStateList<SnapshotStateMap<String, String>> =
         try {
-            Gson().fromJson(passwordData.get("customFields").asString, typeToken)
+            Gson().fromJson(passwordData.get("customFields").asString, customFieldsTypeToken)
         } catch (e: Exception) {
             mutableStateListOf()
         }
@@ -69,6 +71,7 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
     }
 
     fun restoreCustomFields() {
-        customFields = Gson().fromJson(passwordData.get("customFields").asString, typeToken)
+        customFields =
+            Gson().fromJson(passwordData.get("customFields").asString, customFieldsTypeToken)
     }
 }
