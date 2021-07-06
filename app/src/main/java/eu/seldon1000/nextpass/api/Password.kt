@@ -18,15 +18,18 @@ package eu.seldon1000.nextpass.api
 
 import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
+import androidx.annotation.Keep
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 
+@Keep
 data class Password(val passwordData: JsonObject, var index: Int = -1) {
     private val tagTypeToken =
         object : TypeToken<SnapshotStateList<Tag>>() {}.type
@@ -42,7 +45,7 @@ data class Password(val passwordData: JsonObject, var index: Int = -1) {
     val notes: String = passwordData.get("notes").asString
     val hash: String = passwordData.get("hash").asString
     val folder: String = passwordData.get("folder").asString
-    var tags: SnapshotStateList<Tag> =
+    @SerializedName("tags") var tags: SnapshotStateList<Tag> =
         try {
             Gson().fromJson(passwordData.get("tags").asJsonArray, tagTypeToken)
         } catch (e: Exception) {

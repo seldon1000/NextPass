@@ -16,10 +16,13 @@
 
 package eu.seldon1000.nextpass.api
 
+import androidx.annotation.Keep
 import com.google.gson.JsonObject
+import com.google.gson.annotations.SerializedName
 
+@Keep
 data class Tag(val tagData: JsonObject, var index: Int = -1) {
     val id: String = tagData.get("id").asString
     val label: String = tagData.get("label").asString
-    val color: String = tagData.get("color").asString
+    @SerializedName("color") val color: String = tagData.get("color").asString
 }
