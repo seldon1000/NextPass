@@ -183,7 +183,9 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
 
                     val params = mapOf(
                         "label" to newTagLabel,
-                        "color" to String.format("#%06X", newTagColor.toArgb())
+                        "color" to "#${
+                            String.format("%06X", newTagColor.toArgb()).removePrefix("FF")
+                        }"
                     )
 
                     MainViewModel.setRefreshing(refreshing = true)
