@@ -18,8 +18,10 @@ package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -31,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
 import eu.seldon1000.nextpass.ui.items.PasswordCard
@@ -51,6 +54,8 @@ fun Favorites() {
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
     val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
+
+    val tags by MainViewModel.tags.collectAsState()
 
     var currentTag by remember { mutableStateOf(value = "") }
 
@@ -74,7 +79,8 @@ fun Favorites() {
             modifier = Modifier.fillMaxSize()
         ) {
             item { Header(expanded = true, title = context.getString(R.string.favorites)) {} }
-            item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            if (tags) item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            else item { Box(modifier = Modifier.height(12.dp)) }
             items(items = showedFolders) { folder -> FolderCard(folder = folder) }
             items(showedPasswords) { password -> PasswordCard(password = password) }
             item {

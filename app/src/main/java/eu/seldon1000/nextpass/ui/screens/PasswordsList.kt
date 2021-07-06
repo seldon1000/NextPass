@@ -44,10 +44,10 @@ import eu.seldon1000.nextpass.ui.layout.DefaultFab
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 
-@ExperimentalFoundationApi
-@SuppressLint("UnusedCrossfadeTargetStateParameter")
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
+@ExperimentalFoundationApi
+@SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
 fun PasswordList() {
     val context = LocalContext.current
@@ -59,6 +59,8 @@ fun PasswordList() {
 
     val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+
+    val tags by MainViewModel.tags.collectAsState()
 
     var currentTag by remember { mutableStateOf(value = "") }
 
@@ -130,7 +132,8 @@ fun PasswordList() {
                     }
                 }
             }
-            item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            if (tags) item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            else item { Box(modifier = Modifier.height(12.dp)) }
             if (currentFolder != 0 && folderMode) item {
                 FolderCard(
                     folder = storedFolders[currentFolder],

@@ -90,6 +90,9 @@ object MainViewModel : ViewModel() {
     private val selectedFolderState = MutableStateFlow(value = currentFolder.value)
     val selectedFolder = selectedFolderState
 
+    private val tagsState = MutableStateFlow(value = false)
+    val tags = tagsState
+
     private val openDialogState = MutableStateFlow(value = false)
     val openDialog = openDialogState
 
@@ -152,6 +155,9 @@ object MainViewModel : ViewModel() {
             if (lockTimeoutState.value != (-1).toLong()) unlockedState.value = false
             biometricProtectedState.value = sharedPreferences!!.contains("biometric")
         }
+
+        if (!sharedPreferences!!.contains("tags")) enableTags(refresh = false)
+        else tagsState.value = sharedPreferences!!.getBoolean("tags", true)
 
         promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(MainViewModel.context!!.getString(R.string.access_nextpass))
@@ -471,6 +477,18 @@ object MainViewModel : ViewModel() {
 
     fun setSelectedFolder(folder: Int) {
         selectedFolderState.value = folder
+    }
+
+    fun enableTags(refresh: Boolean = true) {
+        if (refresh) NextcloudApiProvider.refreshServerList(refreshTags = true)
+
+        sharedPreferences!!.edit().putBoolean("tags", true).apply()
+        tagsState.value = true
+    }
+
+    fun disableTags() {
+        sharedPreferences!!.edit().putBoolean("tags", false).apply()
+        tagsState.value = false
     }
 
     fun showDialog(

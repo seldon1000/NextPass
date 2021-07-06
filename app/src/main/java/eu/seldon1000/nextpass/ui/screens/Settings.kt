@@ -69,6 +69,7 @@ fun Settings() {
     val screenProtection by MainViewModel.screenProtection.collectAsState()
     val autofill by MainViewModel.autofill.collectAsState()
     val autostart by MainViewModel.autostart.collectAsState()
+    val tags by MainViewModel.tags.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
 
@@ -416,6 +417,32 @@ fun Settings() {
                     body = context.getString(R.string.stop_service_now_tip),
                     item = {}
                 ) { MainViewModel.stopAutofillService() }
+            }
+            item {
+                Text(
+                    text = "Appearance",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = NextcloudBlue,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+            item {
+                GenericColumnItem(
+                    title = "Always show passwords tags",
+                    body = "If enabled, NextPass will show tags to better organize your passwords by default in 'Passwords', 'Favorites' and 'Search' screens, not just in details screens.",
+                    item = {
+                        Switch(
+                            checked = tags,
+                            onCheckedChange = {
+                                if (tags) MainViewModel.disableTags()
+                                else MainViewModel.enableTags()
+                            },
+                            colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
+                            modifier = Modifier.padding(all = 16.dp)
+                        )
+                    }
+                ) {}
             }
         }
     }

@@ -18,8 +18,10 @@ package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -51,6 +53,8 @@ fun Search() {
 
     val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+
+    val tags by MainViewModel.tags.collectAsState()
 
     var searchedText by remember { mutableStateOf(value = "") }
 
@@ -108,7 +112,8 @@ fun Search() {
             modifier = Modifier.fillMaxSize()
         ) {
             item { Header(expanded = true, title = context.getString(R.string.search)) {} }
-            item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            if (tags) item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            else item { Box(modifier = Modifier.height(12.dp)) }
             if (searchedText.isNotEmpty()) {
                 items(items = showedFolders) { folder -> FolderCard(folder = folder) }
                 items(items = showedPasswords) { password -> PasswordCard(password = password) }
