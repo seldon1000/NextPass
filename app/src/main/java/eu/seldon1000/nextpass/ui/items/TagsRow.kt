@@ -172,66 +172,73 @@ fun TagsRow(
                 }
             }
         }
-        if (tags == null || tags.size < 1) Card(
-            onClick = {
-                MainViewModel.showDialog(title = context.getString(R.string.new_tag), body = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        TextFieldItem(
-                            text = newTagLabel,
-                            onTextChanged = { newTagLabel = it },
-                            label = context.getString(R.string.label),
-                            required = true,
-                            capitalized = true
-                        ) {}
-                        ColorPicker { newTagColor = it }
-                    }
-                }, confirm = true) {
-                    if (newTagLabel.isEmpty()) newTagLabel =
-                        context.getString(R.string.new_tag_default, storedTags.size + 1)
-
-                    val params = mapOf(
-                        "label" to newTagLabel,
-                        "color" to "#${
-                            String.format("%06X", newTagColor.toArgb()).removePrefix("FF")
-                        }"
-                    )
-
-                    MainViewModel.setRefreshing(refreshing = true)
-                    NextcloudApiProvider.createTagRequest(params = params)
-                    MainViewModel.showSnackbar(message = context.getString(R.string.tag_created_snack))
-
-                    newTagLabel = ""
-                    newTagColor = Color.Blue
-                }
-            },
-            enabled = tags == null,
-            elevation = 8.dp,
+        if (tags == null || tags.size < 1) Surface(
             shape = CircleShape,
-            modifier = Modifier.animateContentSize(
-                animationSpec = tween(
-                    durationMillis = 200,
-                    easing = FastOutSlowInEasing
-                )
+            modifier = Modifier.shadow(
+                elevation = 8.dp,
+                shape = CircleShape
             )
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = if (tags == null) {
-                        if (storedTags.size < 1) context.getString(R.string.add_new_tag) else ""
-                    } else context.getString(R.string.no_tags),
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(
-                        start = if (storedTags.size < 1 || (tags != null && tags.size < 1)) 18.dp else 0.dp,
-                        top = 8.dp,
-                        end = if (tags == null) 0.dp else 18.dp,
-                        bottom = 8.dp
+            Card(
+                onClick = {
+                    MainViewModel.showDialog(title = context.getString(R.string.new_tag), body = {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            TextFieldItem(
+                                text = newTagLabel,
+                                onTextChanged = { newTagLabel = it },
+                                label = context.getString(R.string.label),
+                                required = true,
+                                capitalized = true
+                            ) {}
+                            ColorPicker { newTagColor = it }
+                        }
+                    }, confirm = true) {
+                        if (newTagLabel.isEmpty()) newTagLabel =
+                            context.getString(R.string.new_tag_default, storedTags.size + 1)
+
+                        val params = mapOf(
+                            "label" to newTagLabel,
+                            "color" to "#${
+                                String.format("%06X", newTagColor.toArgb()).removePrefix("FF")
+                            }"
+                        )
+
+                        MainViewModel.setRefreshing(refreshing = true)
+                        NextcloudApiProvider.createTagRequest(params = params)
+                        MainViewModel.showSnackbar(message = context.getString(R.string.tag_created_snack))
+
+                        newTagLabel = ""
+                        newTagColor = Color.Blue
+                    }
+                },
+                enabled = tags == null,
+                shape = CircleShape,
+                modifier = Modifier.animateContentSize(
+                    animationSpec = tween(
+                        durationMillis = 200,
+                        easing = FastOutSlowInEasing
                     )
                 )
-                if (tags == null) Icon(
-                    painter = painterResource(id = R.drawable.ic_round_add_24),
-                    contentDescription = "add_tag",
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = if (tags == null) {
+                            if (storedTags.size < 1) context.getString(R.string.add_new_tag) else ""
+                        } else context.getString(R.string.no_tags),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(
+                            start = if (storedTags.size < 1 || (tags != null && tags.size < 1)) 18.dp else 0.dp,
+                            top = 8.dp,
+                            end = if (tags == null) 0.dp else 18.dp,
+                            bottom = 8.dp
+                        )
+                    )
+                    if (tags == null) Icon(
+                        painter = painterResource(id = R.drawable.ic_round_add_24),
+                        contentDescription = "add_tag",
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
             }
         }
     }
