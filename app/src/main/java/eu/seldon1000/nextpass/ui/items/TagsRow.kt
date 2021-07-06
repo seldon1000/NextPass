@@ -69,7 +69,7 @@ fun TagsRow(
         verticalGap = 8.dp,
         horizontalGap = 8.dp,
         alignment = alignment,
-        modifier = Modifier.padding(top = 16.dp, bottom = 22.dp)
+        modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
     ) {
         (tags ?: storedTags).forEachIndexed { index, tag ->
             val color = Color(android.graphics.Color.parseColor(tag.color))
@@ -218,7 +218,7 @@ fun TagsRow(
                 Text(
                     text = if (tags == null) {
                         if (storedTags.size < 1) context.getString(R.string.add_new_tag) else ""
-                    } else "No tags",
+                    } else context.getString(R.string.no_tags),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(
                         start = if (storedTags.size < 1) 18.dp else 0.dp,
