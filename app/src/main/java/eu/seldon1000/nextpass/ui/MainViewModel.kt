@@ -25,6 +25,7 @@ import android.view.WindowManager
 import android.view.autofill.AutofillManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
+import androidx.compose.runtime.Composable
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -94,8 +95,8 @@ object MainViewModel : ViewModel() {
     private val dialogTitleState = MutableStateFlow(value = "")
     val dialogTitle = dialogTitleState
 
-    private val dialogTextState = MutableStateFlow(value = "")
-    val dialogText = dialogTextState
+    private val dialogBodyState = MutableStateFlow<@Composable () -> Unit> {}
+    val dialogBody = dialogBodyState
 
     private val dialogActionState = MutableStateFlow {}
     val dialogAction = dialogActionState
@@ -450,9 +451,14 @@ object MainViewModel : ViewModel() {
         selectedFolderState.value = folder
     }
 
-    fun showDialog(title: String, body: String, confirm: Boolean = false, action: () -> Unit) {
+    fun showDialog(
+        title: String,
+        body: @Composable () -> Unit,
+        confirm: Boolean = false,
+        action: () -> Unit
+    ) {
         dialogTitleState.value = title
-        dialogTextState.value = body
+        dialogBodyState.value = body
         dialogConfirmState.value = confirm
         dialogActionState.value = action
 

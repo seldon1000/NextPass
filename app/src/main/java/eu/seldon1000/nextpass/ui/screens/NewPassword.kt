@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.gson.JsonParser
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
@@ -75,7 +76,12 @@ fun NewPassword() {
             if (label.isNotEmpty() && password.isNotEmpty()) {
                 MainViewModel.showDialog(
                     title = context.getString(R.string.create_password),
-                    body = context.getString(R.string.create_password_body),
+                    body = {
+                        Text(
+                            text = context.getString(R.string.create_password_body),
+                            fontSize = 14.sp
+                        )
+                    },
                     confirm = true
                 ) {
                     var hash = BigInteger(
@@ -125,7 +131,9 @@ fun NewPassword() {
                 }
             } else MainViewModel.showDialog(
                 title = context.getString(R.string.missing_info),
-                body = context.getString(R.string.missing_info_body)
+                body = {
+                    Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
+                }
             ) {}
         }) {
             Icon(
@@ -277,7 +285,12 @@ fun NewPassword() {
                                     customField["value"] = ""
                                 } else MainViewModel.showDialog(
                                     title = context.getString(R.string.missing_info),
-                                    body = context.getString(R.string.missing_info_body)
+                                    body = {
+                                        Text(
+                                            text = context.getString(R.string.missing_info_body),
+                                            fontSize = 14.sp
+                                        )
+                                    }
                                 ) {}
                             }) {
                                 Icon(

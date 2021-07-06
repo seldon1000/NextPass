@@ -112,6 +112,8 @@
     <string name="folder_label">Folder label</string>
     <string name="copy_folder_label">Copy folder label</string>
     <string name="password_shared">Shared password: %1$s</string>
+    <string name="delete_tag">Delete tag?</string>
+    <string name="delete_tag_body">This tag will be deleted. Are you sure you want to continue?</string>
     <string name="logout_body">Your Nextcloud account will be disconnected from the app. NextPass will require a new Nextcloud account to work and will reset all the settings. Are you sure you want to proceed?</string>
     <string name="delete_password_body">The password will be deleted. Are you sure you want to proceed?</string>
     <string name="error_body">NextPass couldn\'t send the request to the Nextcloud server. Try again.</string>

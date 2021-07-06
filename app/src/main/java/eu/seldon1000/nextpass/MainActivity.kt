@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,6 +37,7 @@ const val AUTOFILL_SETTINGS_CODE = 7799
 class MainActivity : FragmentActivity() {
     private val coroutineScope = MainScope()
 
+    @ExperimentalFoundationApi
     @ExperimentalMaterialApi
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {

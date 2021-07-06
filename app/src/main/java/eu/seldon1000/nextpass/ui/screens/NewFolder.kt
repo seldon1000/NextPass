@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
@@ -58,7 +59,12 @@ fun NewFolder() {
             if (label.isNotEmpty()) {
                 MainViewModel.showDialog(
                     title = context.getString(R.string.create_folder),
-                    body = context.getString(R.string.create_folder_body),
+                    body = {
+                        Text(
+                            text = context.getString(R.string.create_folder_body),
+                            fontSize = 14.sp
+                        )
+                    },
                     confirm = true
                 ) {
                     val params = mutableMapOf(
@@ -75,7 +81,9 @@ fun NewFolder() {
 
             } else MainViewModel.showDialog(
                 title = context.getString(R.string.missing_info),
-                body = context.getString(R.string.missing_info_body)
+                body = {
+                    Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
+                }
             ) {}
         }) {
             Icon(

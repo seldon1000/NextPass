@@ -17,6 +17,7 @@
 package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,6 +39,7 @@ import eu.seldon1000.nextpass.ui.layout.DefaultFab
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable

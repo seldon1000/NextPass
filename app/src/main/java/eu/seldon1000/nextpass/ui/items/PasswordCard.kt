@@ -180,7 +180,12 @@ fun PasswordCard(password: Password) {
             DropdownMenuItem(onClick = {
                 MainViewModel.showDialog(
                     title = context.getString(R.string.delete_password),
-                    body = context.getString(R.string.delete_password_body),
+                    body = {
+                        Text(
+                            text = context.getString(R.string.delete_password_body),
+                            fontSize = 14.sp
+                        )
+                    },
                     confirm = true
                 ) {
                     NextcloudApiProvider.deletePasswordRequest(index = password.index)

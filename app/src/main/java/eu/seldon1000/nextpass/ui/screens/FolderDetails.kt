@@ -158,7 +158,12 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                     TextButton(onClick = {
                         MainViewModel.showDialog(
                             title = context.getString(R.string.delete_folder),
-                            body = context.getString(R.string.delete_folder_body),
+                            body = {
+                                Text(
+                                    text = context.getString(R.string.delete_folder_body),
+                                    fontSize = 14.sp
+                                )
+                            },
                             confirm = true
                         ) {
                             NextcloudApiProvider.deleteFolderRequest(index = folder.index)

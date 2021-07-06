@@ -22,8 +22,10 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.*
 import android.net.Uri
+import androidx.compose.material.Text
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -110,7 +112,7 @@ object NextcloudApiProvider : ViewModel() {
     fun attemptLogout() {
         MainViewModel.showDialog(
             title = context!!.getString(R.string.logout),
-            body = context!!.getString(R.string.logout_body),
+            body = { Text(text = context!!.getString(R.string.logout_body), fontSize = 14.sp) },
             confirm = true
         ) {
             storedPasswordsState.value.clear()
@@ -131,7 +133,12 @@ object NextcloudApiProvider : ViewModel() {
         } catch (e: NextcloudFilesAppNotInstalledException) {
             MainViewModel.showDialog(
                 title = context!!.getString(R.string.missing_nextcloud),
-                body = context!!.getString(R.string.missing_nextcloud_body),
+                body = {
+                    Text(
+                        text = context!!.getString(R.string.missing_nextcloud_body),
+                        fontSize = 14.sp
+                    )
+                },
                 confirm = true
             ) {
                 context!!.startActivity(
@@ -295,14 +302,14 @@ object NextcloudApiProvider : ViewModel() {
                         .collect(Collectors.joining("\n"))
                 ).asJsonObject.get("id").asString
 
-                val listRequest = NextcloudRequest.Builder()
+                val showRequest = NextcloudRequest.Builder()
                     .setMethod("POST")
                     .setUrl("$endpoint/password/show")
                     .setParameter(mapOf("id" to response))
                     .build()
 
                 val newPasswordData = JsonParser.parseString(
-                    nextcloudApi!!.performNetworkRequest(listRequest)
+                    nextcloudApi!!.performNetworkRequest(showRequest)
                         .bufferedReader()
                         .lines()
                         .collect(Collectors.joining("\n"))
@@ -376,6 +383,51 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
+    fun createTagRequest(params: Map<String, String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val createRequest = NextcloudRequest.Builder()
+                .setMethod("POST")
+                .setUrl("$endpoint/tag/create")
+                .setParameter(params)
+                .build()
+
+            try {
+                val response = JsonParser.parseString(
+                    nextcloudApi!!.performNetworkRequest(createRequest)
+                        .bufferedReader()
+                        .lines()
+                        .collect(Collectors.joining("\n"))
+                ).asJsonObject.get("id").asString
+
+                val showRequest = NextcloudRequest.Builder()
+                    .setMethod("POST")
+                    .setUrl("$endpoint/tag/show")
+                    .setParameter(mapOf("id" to response))
+                    .build()
+
+                val newTagData = JsonParser.parseString(
+                    nextcloudApi!!.performNetworkRequest(showRequest)
+                        .bufferedReader()
+                        .lines()
+                        .collect(Collectors.joining("\n"))
+                ).asJsonObject
+
+                val data = storedTagsState.value
+                val newTag = Tag(tagData = newTagData)
+
+                data.add(element = newTag)
+                data.sortBy { it.label.lowercase() }
+                data.forEachIndexed { index, tag -> tag.index = index }
+
+                storedTagsState.value = data
+
+                MainViewModel.setRefreshing(refreshing = false)
+            } catch (e: Exception) {
+                showError()
+            }
+        }
+    }
+
     fun deletePasswordRequest(index: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             val deleteRequest = NextcloudRequest.Builder()
@@ -413,6 +465,29 @@ object NextcloudApiProvider : ViewModel() {
                 MainViewModel.setSelectedFolder(folder = MainViewModel.currentFolder.value)
 
                 refreshServerList()
+            } catch (e: Exception) {
+                showError()
+            }
+        }
+    }
+
+    fun deleteTagRequest(index: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val deleteRequest = NextcloudRequest.Builder()
+                .setMethod("DELETE")
+                .setUrl("$endpoint/tag/delete")
+                .setParameter(mapOf("id" to storedTagsState.value[index].id))
+                .build()
+
+            try {
+                val tags = storedTagsState.value
+
+                nextcloudApi!!.performNetworkRequest(deleteRequest)
+
+                tags.removeAt(index = index)
+                tags.forEachIndexed { i, password -> password.index = i }
+
+                storedTagsState.value = tags
             } catch (e: Exception) {
                 showError()
             }
@@ -570,7 +645,7 @@ object NextcloudApiProvider : ViewModel() {
     private fun showError() {
         MainViewModel.showDialog(
             title = context!!.getString(R.string.error),
-            body = context!!.getString(R.string.error_body)
+            body = { Text(text = context!!.getString(R.string.error_body), fontSize = 14.sp) }
         ) {}
 
         MainViewModel.setRefreshing(refreshing = false)

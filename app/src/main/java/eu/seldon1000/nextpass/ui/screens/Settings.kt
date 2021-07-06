@@ -204,7 +204,12 @@ fun Settings() {
                     else
                         MainViewModel.showDialog(
                             title = context.getString(R.string.pin_not_enabled),
-                            body = context.getString(R.string.pin_not_enabled_body),
+                            body = {
+                                Text(
+                                    text = context.getString(R.string.pin_not_enabled_body),
+                                    fontSize = 14.sp
+                                )
+                            },
                             confirm = true
                         ) { MainViewModel.navigate(route = "pin/false") }
                 }
@@ -360,7 +365,12 @@ fun Settings() {
                                 else {
                                     MainViewModel.showDialog(
                                         title = context.getString(R.string.autofill_title),
-                                        body = context.getString(R.string.autofill_body),
+                                        body = {
+                                            Text(
+                                                text = context.getString(R.string.autofill_body),
+                                                fontSize = 14.sp
+                                            )
+                                        },
                                         confirm = true
                                     ) {
                                         (context as Activity).startActivityForResult(

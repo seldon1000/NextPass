@@ -17,6 +17,7 @@
 package eu.seldon1000.nextpass.ui.layout
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +40,7 @@ import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.screens.*
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
@@ -107,50 +109,6 @@ fun CentralScreenControl() {
                 }
             }
         }
-    }
-}
-
-@Composable
-fun MyAlertDialog() {
-    val context = LocalContext.current
-
-    val openDialog by MainViewModel.openDialog.collectAsState()
-    val dialogTitle by MainViewModel.dialogTitle.collectAsState()
-    val dialogText by MainViewModel.dialogText.collectAsState()
-    val dialogAction by MainViewModel.dialogAction.collectAsState()
-    val dialogConfirm by MainViewModel.dialogConfirm.collectAsState()
-
-    if (openDialog) {
-        AlertDialog(
-            onDismissRequest = { MainViewModel.dismissDialog() },
-            confirmButton = {
-                if (dialogConfirm)
-                    Button(onClick =
-                    {
-                        dialogAction()
-                        MainViewModel.dismissDialog()
-                    }
-                    ) { Text(text = context.getString(R.string.confirm)) }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { MainViewModel.dismissDialog() },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
-                ) {
-                    Text(text = context.getString(R.string.dismiss))
-                }
-            },
-            title = {
-                Text(
-                    text = dialogTitle,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            },
-            text = { Text(text = dialogText, fontSize = 14.sp) },
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(width = 300.dp)
-        )
     }
 }
 

@@ -19,6 +19,7 @@ package eu.seldon1000.nextpass.ui.screens
 import android.annotation.SuppressLint
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -43,6 +44,7 @@ import eu.seldon1000.nextpass.ui.layout.DefaultFab
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 
+@ExperimentalFoundationApi
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
