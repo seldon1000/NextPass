@@ -33,33 +33,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
+import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 
 @Composable
 fun ColorPicker(onClickAction: (color: Color) -> Unit) {
-    val colors = remember {
-        listOf(
-            Color(android.graphics.Color.parseColor("#d50000")),
-            Color(android.graphics.Color.parseColor("#c41061")),
-            Color(android.graphics.Color.parseColor("#aa00ff")),
-            Color(android.graphics.Color.parseColor("#6200ea")),
-            Color(android.graphics.Color.parseColor("#304ffe")),
-            Color(android.graphics.Color.parseColor("#2962ff")),
-            Color(android.graphics.Color.parseColor("#0091ea")),
-            Color(android.graphics.Color.parseColor("#00b8d4")),
-            Color(android.graphics.Color.parseColor("#00bfa5")),
-            Color(android.graphics.Color.parseColor("#00c853")),
-            Color(android.graphics.Color.parseColor("#64dd17")),
-            Color(android.graphics.Color.parseColor("#aeea00")),
-            Color(android.graphics.Color.parseColor("#ffd600")),
-            Color(android.graphics.Color.parseColor("#ffab00")),
-            Color(android.graphics.Color.parseColor("#ff6d00")),
-            Color(android.graphics.Color.parseColor("#dd2c00")),
-            Color(android.graphics.Color.parseColor("#4e342e")),
-            Color(android.graphics.Color.parseColor("#37474f"))
-        )
-    }
-
     var selected by remember { mutableStateOf(value = 0) }
 
     SimpleFlowRow(
@@ -68,12 +46,12 @@ fun ColorPicker(onClickAction: (color: Color) -> Unit) {
         alignment = Alignment.Start,
         modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
     ) {
-        colors.forEachIndexed { index, color ->
+        MainViewModel.pickerColors.forEachIndexed { index, color ->
             Surface(modifier = Modifier.shadow(elevation = 8.dp, shape = CircleShape)) {
                 IconButton(
                     onClick = {
                         selected = index
-                        onClickAction(colors[selected])
+                        onClickAction(MainViewModel.pickerColors[selected])
                     },
                     modifier = Modifier
                         .size(size = 56.dp)
