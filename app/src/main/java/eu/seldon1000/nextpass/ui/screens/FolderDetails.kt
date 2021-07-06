@@ -89,7 +89,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                 )
             }
             Card(
-                elevation = 6.dp,
+                elevation = 8.dp,
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
                 Column(
@@ -115,7 +115,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                             ),
                             fontSize = 14.sp,
                             color = Color.Gray,
-                            modifier = Modifier.padding(top = 6.dp, bottom = 8.dp)
+                            modifier = Modifier.padding(top = 6.dp)
                         )
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,

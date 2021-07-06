@@ -50,7 +50,7 @@ fun TextFieldItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(bottom = 16.dp)
             .shadow(elevation = 8.dp, RoundedCornerShape(size = 8.dp), clip = true)
     ) {
         Crossfade(targetState = enabled) { enabledState ->

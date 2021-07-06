@@ -122,7 +122,7 @@ fun NewFolder() {
                 )
             }
             Card(
-                elevation = 6.dp,
+                elevation = 8.dp,
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
                 Column(

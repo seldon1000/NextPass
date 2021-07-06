@@ -195,7 +195,6 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
                 }
             },
             elevation = 8.dp,
-            backgroundColor = Color.DarkGray,
             shape = CircleShape,
             modifier = Modifier.animateContentSize(
                 animationSpec = tween(

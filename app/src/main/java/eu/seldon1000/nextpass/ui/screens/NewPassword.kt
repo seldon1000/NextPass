@@ -165,7 +165,7 @@ fun NewPassword() {
                 modifier = Modifier.padding(all = 72.dp)
             ) { Favicon(favicon = favicon, size = 144.dp) }
             Card(
-                elevation = 6.dp,
+                elevation = 8.dp,
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
                 Column(

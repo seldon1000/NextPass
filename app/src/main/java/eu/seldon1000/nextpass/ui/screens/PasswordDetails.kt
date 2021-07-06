@@ -189,7 +189,7 @@ fun PasswordDetails(passwordData: Password) {
                 modifier = Modifier.padding(all = 72.dp)
             ) { Favicon(favicon = favicon, size = 144.dp) }
             Card(
-                elevation = 6.dp,
+                elevation = 8.dp,
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
             ) {
                 Column(
@@ -244,7 +244,7 @@ fun PasswordDetails(passwordData: Password) {
                             ),
                             fontSize = 14.sp,
                             color = Color.Gray,
-                            modifier = Modifier.padding(top = 6.dp, bottom = 8.dp)
+                            modifier = Modifier.padding(top = 6.dp)
                         )
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
