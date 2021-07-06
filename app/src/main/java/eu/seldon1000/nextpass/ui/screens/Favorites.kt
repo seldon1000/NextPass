@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -63,6 +64,7 @@ fun Favorites() {
         fab = { DefaultFab() },
         bottomBar = { DefaultBottomBar(lazyListState = lazyListState) }) { paddingValues ->
         LazyColumn(
+            horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(
                 start = 16.dp,
                 end = 16.dp,

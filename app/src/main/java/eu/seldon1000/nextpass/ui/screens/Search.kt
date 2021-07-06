@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -98,6 +99,7 @@ fun Search() {
         }
     }) { paddingValues ->
         LazyColumn(
+            horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(
                 start = 16.dp,
                 end = 16.dp,
