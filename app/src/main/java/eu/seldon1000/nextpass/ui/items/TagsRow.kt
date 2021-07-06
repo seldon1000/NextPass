@@ -93,10 +93,10 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
                     ) {
                         Text(
                             text = tag.label,
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                            modifier = Modifier.padding(horizontal = 18.dp, vertical = 8.dp)
                         )
                     }
                     DropdownMenu(
@@ -208,17 +208,17 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = if (storedTags.size < 1) context.getString(R.string.add_new_tag) else "",
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier.padding(
-                        start = if (storedTags.size < 1) 14.dp else 0.dp,
-                        top = 6.dp,
-                        bottom = 6.dp
+                        start = if (storedTags.size < 1) 18.dp else 0.dp,
+                        top = 8.dp,
+                        bottom = 8.dp
                     )
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_add_24),
                     contentDescription = "add_tag",
-                    modifier = Modifier.padding(horizontal = 4.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
         }
