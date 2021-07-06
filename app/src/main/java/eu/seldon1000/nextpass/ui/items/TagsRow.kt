@@ -48,7 +48,8 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
     SimpleFlowRow(
         verticalGap = 8.dp,
         horizontalGap = 8.dp,
-        modifier = Modifier.padding(top = 10.dp, bottom = 18.dp)
+        alignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
     ) {
         storedTags.forEachIndexed { index, tag ->
             val color = Color(android.graphics.Color.parseColor(tag.color))
@@ -116,7 +117,7 @@ fun SimpleFlowRow(
     }
 
     val width = rows.maxOfOrNull { row -> row.width } ?: 0
-    val height = rows.sumBy { row -> row.height } + max(vGapPx.times(rows.size - 1), 0)
+    val height = rows.sumOf { row -> row.height } + max(vGapPx.times(rows.size - 1), 0)
 
     val coercedWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
     val coercedHeight = height.coerceIn(constraints.minHeight, constraints.maxHeight)

@@ -78,6 +78,7 @@ fun PasswordList() {
                 bottom = paddingValues.calculateBottomPadding() + 28.dp
             ),
             state = lazyListState,
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
         ) {
             item {
