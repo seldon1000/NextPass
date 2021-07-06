@@ -76,7 +76,7 @@ fun ColorPicker(onClickAction: (color: Color) -> Unit) {
                         onClickAction(colors[selected])
                     },
                     modifier = Modifier
-                        .size(size = 44.dp)
+                        .size(size = 56.dp)
                         .background(color = color.copy(alpha = 0.7f))
                         .border(width = 3.dp, color = color, shape = CircleShape)
                 ) {
