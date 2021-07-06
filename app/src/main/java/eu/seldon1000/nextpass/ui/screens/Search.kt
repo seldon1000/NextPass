@@ -35,6 +35,7 @@ import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
 import eu.seldon1000.nextpass.ui.items.PasswordCard
+import eu.seldon1000.nextpass.ui.items.TagsRow
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.colors
@@ -50,15 +51,18 @@ fun Search() {
 
     var searchedText by remember { mutableStateOf(value = "") }
 
-    val resultFolders = storedFolders.filterIndexed { index, folder ->
-        if (index > 0) folder.label.contains(searchedText, ignoreCase = true)
-        else false
-    }
-    val resultPasswords = storedPasswords.filter { password ->
-        password.url.contains(searchedText, ignoreCase = true) ||
+    var currentTag by remember { mutableStateOf(value = "") }
+
+    val showedPasswords = storedPasswords.filter { password ->
+        (if (currentTag.isNotEmpty()) password.tags.any { it.containsValue(currentTag) }
+        else true) && (password.url.contains(searchedText, ignoreCase = true) ||
                 password.label.contains(searchedText, ignoreCase = true) ||
                 password.username.contains(searchedText, ignoreCase = true) ||
-                password.notes.contains(searchedText, ignoreCase = true)
+                password.notes.contains(searchedText, ignoreCase = true))
+    }
+    val showedFolders = storedFolders.filterIndexed { index, folder ->
+        if (index > 0) folder.label.contains(searchedText, ignoreCase = true)
+        else false
     }
 
     MyScaffoldLayout(fab = {
@@ -100,14 +104,15 @@ fun Search() {
             modifier = Modifier.fillMaxSize()
         ) {
             item { Header(expanded = true, title = context.getString(R.string.search)) {} }
+            item { TagsRow { currentTag = if (it == currentTag) "" else it } }
             if (searchedText.isNotEmpty()) {
-                items(items = resultFolders) { folder -> FolderCard(folder = folder) }
-                items(resultPasswords) { password -> PasswordCard(password = password) }
+                items(items = showedFolders) { folder -> FolderCard(folder = folder) }
+                items(items = showedPasswords) { password -> PasswordCard(password = password) }
             }
             item {
                 CountMessage(
                     message = if (searchedText.isNotEmpty()) context.getString(
-                        R.string.results_number, resultFolders.size + resultPasswords.size
+                        R.string.results_number, showedFolders.size + showedPasswords.size
                     ) else context.getString(R.string.search_message)
                 )
             }

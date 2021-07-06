@@ -23,9 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -34,6 +32,7 @@ import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
 import eu.seldon1000.nextpass.ui.items.PasswordCard
+import eu.seldon1000.nextpass.ui.items.TagsRow
 import eu.seldon1000.nextpass.ui.layout.DefaultBottomBar
 import eu.seldon1000.nextpass.ui.layout.DefaultFab
 import eu.seldon1000.nextpass.ui.layout.Header
@@ -50,8 +49,13 @@ fun Favorites() {
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
     val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
 
-    val favoritePasswords = storedPasswords.filter { it.favorite }
-    val favoriteFolders = storedFolders.filter { it.favorite }
+    var currentTag by remember { mutableStateOf(value = "") }
+
+    val showedPasswords = storedPasswords.filter { password ->
+        (if (currentTag.isNotEmpty()) password.tags.any { it.containsValue(currentTag) }
+        else true) && password.favorite
+    }
+    val showedFolders = storedFolders.filter { folder -> folder.favorite }
 
     MyScaffoldLayout(
         fab = { DefaultFab() },
@@ -66,17 +70,14 @@ fun Favorites() {
             modifier = Modifier.fillMaxSize()
         ) {
             item { Header(expanded = true, title = context.getString(R.string.favorites)) {} }
-            items(items = favoriteFolders) { folder ->
-                if (folder.favorite) FolderCard(folder = folder)
-            }
-            items(favoritePasswords) { password ->
-                if (password.favorite) PasswordCard(password = password)
-            }
+            item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            items(items = showedFolders) { folder -> FolderCard(folder = folder) }
+            items(showedPasswords) { password -> PasswordCard(password = password) }
             item {
                 CountMessage(
                     message = context.getString(
                         R.string.favorite_passwords_number,
-                        favoritePasswords.size
+                        showedPasswords.size
                     )
                 )
             }
