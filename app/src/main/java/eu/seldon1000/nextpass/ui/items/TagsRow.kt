@@ -55,7 +55,7 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
     val storedTags by NextcloudApiProvider.storedTags.collectAsState()
 
     var newTagLabel by remember { mutableStateOf(value = "") }
-    var newTagColor by remember { mutableStateOf(value = Color.Blue) }
+    var newTagColor by remember { mutableStateOf(value = MainViewModel.pickerColors[0]) }
 
     var selected by remember { mutableStateOf(value = -1) }
 
