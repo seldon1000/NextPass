@@ -141,7 +141,7 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
                                 confirm = true
                             ) {
                                 NextcloudApiProvider.deleteTagRequest(index = index)
-                                MainViewModel.showSnackbar(message = "Tag deleted")
+                                MainViewModel.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
 
                                 tagClickAction("")
                                 selected = -1
@@ -166,7 +166,7 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
         }
         Card(
             onClick = {
-                MainViewModel.showDialog(title = "New tag", body = {
+                MainViewModel.showDialog(title = context.getString(R.string.new_tag), body = {
                     Column {
                         TextFieldItem(
                             text = newTagLabel,
@@ -178,7 +178,8 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
                         ColorPicker { newTagColor = it }
                     }
                 }, confirm = true) {
-                    if (newTagLabel.isEmpty()) newTagLabel = "New Tag ${storedTags.size + 1}"
+                    if (newTagLabel.isEmpty()) newTagLabel =
+                        context.getString(R.string.new_tag_default, storedTags.size + 1)
 
                     val params = mapOf(
                         "label" to newTagLabel,
@@ -187,7 +188,7 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
 
                     MainViewModel.setRefreshing(refreshing = true)
                     NextcloudApiProvider.createTagRequest(params = params)
-                    MainViewModel.showSnackbar(message = "Tag created")
+                    MainViewModel.showSnackbar(message = context.getString(R.string.tag_created_snack))
 
                     newTagLabel = ""
                     newTagColor = Color.Blue
@@ -205,7 +206,7 @@ fun TagsRow(tagClickAction: (tag: String) -> Unit) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = if (storedTags.size < 1) "Add a new tag" else "",
+                    text = if (storedTags.size < 1) context.getString(R.string.add_new_tag) else "",
                     fontSize = 13.sp,
                     modifier = Modifier.padding(
                         start = if (storedTags.size < 1) 14.dp else 0.dp,
