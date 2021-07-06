@@ -485,9 +485,9 @@ object NextcloudApiProvider : ViewModel() {
                 nextcloudApi!!.performNetworkRequest(deleteRequest)
 
                 tags.removeAt(index = index)
-                tags.forEachIndexed { i, password -> password.index = i }
+                tags.forEachIndexed { i, tag -> tag.index = i }
 
-                storedTagsState.value = tags
+                refreshServerList()
             } catch (e: Exception) {
                 showError()
             }
