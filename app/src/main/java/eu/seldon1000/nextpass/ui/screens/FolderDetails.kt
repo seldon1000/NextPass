@@ -166,7 +166,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                             },
                             confirm = true
                         ) {
-                            NextcloudApiProvider.deleteFolderRequest(index = folder.index)
+                            NextcloudApiProvider.deleteFolderRequest(id = folder.id)
                             MainViewModel.popBackStack()
                             MainViewModel.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
                         }

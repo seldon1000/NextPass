@@ -148,7 +148,7 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
                         },
                         confirm = true
                     ) {
-                        NextcloudApiProvider.deleteFolderRequest(index = folder.index)
+                        NextcloudApiProvider.deleteFolderRequest(id = folder.id)
                         MainViewModel.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
                     }
 

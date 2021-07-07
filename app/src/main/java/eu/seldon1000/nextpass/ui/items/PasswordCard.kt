@@ -188,7 +188,7 @@ fun PasswordCard(password: Password) {
                     },
                     confirm = true
                 ) {
-                    NextcloudApiProvider.deletePasswordRequest(index = password.index)
+                    NextcloudApiProvider.deletePasswordRequest(id = password.id)
                     MainViewModel.showSnackbar(message = context.getString(R.string.password_deleted))
                 }
 

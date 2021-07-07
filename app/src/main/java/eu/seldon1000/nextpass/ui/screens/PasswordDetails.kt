@@ -464,7 +464,7 @@ fun PasswordDetails(passwordData: Password) {
                                 },
                                 confirm = true
                             ) {
-                                NextcloudApiProvider.deletePasswordRequest(index = passwordData.index)
+                                NextcloudApiProvider.deletePasswordRequest(id = passwordData.id)
                                 MainViewModel.popBackStack()
                             }
                         }

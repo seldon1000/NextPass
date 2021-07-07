@@ -425,35 +425,30 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun deletePasswordRequest(index: Int) {
+    fun deletePasswordRequest(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val deleteRequest = NextcloudRequest.Builder()
                 .setMethod("DELETE")
                 .setUrl("$endpoint/password/delete")
-                .setParameter(mapOf("id" to storedPasswordsState.value[index].id))
+                .setParameter(mapOf("id" to id))
                 .build()
 
             try {
-                val passwords = storedPasswordsState.value
-
                 nextcloudApi!!.performNetworkRequest(deleteRequest)
 
-                passwords.removeAt(index = index)
-                passwords.forEachIndexed { i, password -> password.index = i }
-
-                storedPasswordsState.value = passwords
+                storedPasswordsState.value.removeIf { it.id == id }
             } catch (e: Exception) {
                 showError()
             }
         }
     }
 
-    fun deleteFolderRequest(index: Int) {
+    fun deleteFolderRequest(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val deleteRequest = NextcloudRequest.Builder()
                 .setMethod("DELETE")
                 .setUrl("$endpoint/folder/delete")
-                .setParameter(mapOf("id" to storedFoldersState.value[index].id))
+                .setParameter(mapOf("id" to id))
                 .build()
 
             try {
