@@ -81,7 +81,7 @@ fun TagsRow(
                     //var label by remember { mutableStateOf(value = tag.label)}
 
                     Card(
-                        backgroundColor = color.copy(alpha = if (tags != null || state == index) 0.7f else 0.15f),
+                        backgroundColor = color.copy(alpha = if (tags != null || state == index) 0.7f else 0.2f),
                         modifier = Modifier
                             .padding(end = 4.dp, bottom = 2.dp)
                             .clip(shape = CircleShape)
