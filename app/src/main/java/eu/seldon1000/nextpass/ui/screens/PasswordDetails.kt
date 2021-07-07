@@ -69,7 +69,6 @@ fun PasswordDetails(passwordData: Password) {
     var username by remember { mutableStateOf(value = passwordData.username) }
     var password by remember { mutableStateOf(value = passwordData.password) }
     var notes by remember { mutableStateOf(value = passwordData.notes) }
-    val tags by remember { mutableStateOf(value = passwordData.tags) }
     var customFields by remember { mutableStateOf(value = passwordData.customFields) }
     val favicon by passwordData.favicon.collectAsState()
 
@@ -249,7 +248,7 @@ fun PasswordDetails(passwordData: Password) {
                             color = Color.Gray,
                             modifier = Modifier.padding(top = 6.dp)
                         )
-                        TagsRow(tags = tags, alignment = Alignment.Start) {}
+                        TagsRow(tags = passwordData.tags, alignment = Alignment.Start) {}
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
