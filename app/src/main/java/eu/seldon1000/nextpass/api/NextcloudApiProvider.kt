@@ -519,11 +519,10 @@ object NextcloudApiProvider : ViewModel() {
                         .collect(Collectors.joining("\n"))
                 ).asJsonObject.get("id").asString
 
-                params["details"] = "model+tags"
                 val showRequest = NextcloudRequest.Builder()
                     .setMethod("POST")
                     .setUrl("$endpoint/password/show")
-                    .setParameter(mapOf("id" to response))
+                    .setParameter(mapOf("id" to response, "details" to "model+tags"))
                     .build()
 
                 val updatedPassword = Password(
