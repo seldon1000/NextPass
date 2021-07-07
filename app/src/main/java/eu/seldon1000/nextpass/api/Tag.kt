@@ -21,7 +21,7 @@ import com.google.gson.JsonObject
 import com.google.gson.annotations.SerializedName
 
 @Keep
-data class Tag(val tagData: JsonObject, var index: Int = -1) {
+data class Tag(val tagData: JsonObject) {
     val id: String = tagData.get("id").asString
     val label: String = tagData.get("label").asString
     @SerializedName("color") val color: String = tagData.get("color").asString

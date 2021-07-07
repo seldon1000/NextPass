@@ -148,7 +148,7 @@ fun TagsRow(
                                 },
                                 confirm = true
                             ) {
-                                NextcloudApiProvider.deleteTagRequest(index = index)
+                                NextcloudApiProvider.deleteTagRequest(id = tag.id)
                                 MainViewModel.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
 
                                 tagClickAction("")

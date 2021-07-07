@@ -278,9 +278,7 @@ object NextcloudApiProvider : ViewModel() {
             val data = mutableStateListOf<Tag>()
 
             tags.sortedBy { it.asJsonObject.get("label").asString.lowercase() }
-                .forEachIndexed { index, tag ->
-                    data.add(Tag(tagData = tag.asJsonObject, index = index + 1))
-                }
+                .forEach { tag -> data.add(Tag(tagData = tag.asJsonObject)) }
 
             storedTagsState.value = data
         }
@@ -417,7 +415,6 @@ object NextcloudApiProvider : ViewModel() {
 
                 data.add(element = newTag)
                 data.sortBy { it.label.lowercase() }
-                data.forEachIndexed { index, tag -> tag.index = index }
 
                 storedTagsState.value = data
 
@@ -471,21 +468,18 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun deleteTagRequest(index: Int) {
+    fun deleteTagRequest(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val deleteRequest = NextcloudRequest.Builder()
                 .setMethod("DELETE")
                 .setUrl("$endpoint/tag/delete")
-                .setParameter(mapOf("id" to storedTagsState.value[index].id))
+                .setParameter(mapOf("id" to id))
                 .build()
 
             try {
-                val tags = storedTagsState.value
-
                 nextcloudApi!!.performNetworkRequest(deleteRequest)
 
-                tags.removeAt(index = index)
-                tags.forEachIndexed { i, tag -> tag.index = i }
+                storedTagsState.value.removeIf { it.id == id }
 
                 refreshServerList()
             } catch (e: Exception) {
