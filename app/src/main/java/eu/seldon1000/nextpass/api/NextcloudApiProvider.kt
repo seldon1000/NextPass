@@ -247,7 +247,6 @@ object NextcloudApiProvider : ViewModel() {
             json.decodeFromString(
                 deserializer = SnapshotListSerializer(dataSerializer = Password.serializer()),
                 string = client.get(urlString = "$server$endpoint/password/list") {
-                    expectSuccess = false
                     parameter("details", "model+tags")
                 })
         } catch (e: Exception) {
@@ -261,10 +260,8 @@ object NextcloudApiProvider : ViewModel() {
         return try {
             json.decodeFromString(
                 deserializer = SnapshotListSerializer(dataSerializer = Folder.serializer()),
-                string = client.get(urlString = "$server$endpoint/folder/list") {
-                    expectSuccess = false
-                    parameter("details", "model+tags")
-                })
+                string = client.get(urlString = "$server$endpoint/folder/list")
+            )
         } catch (e: Exception) {
             showError()
 
@@ -276,10 +273,8 @@ object NextcloudApiProvider : ViewModel() {
         return try {
             json.decodeFromString(
                 deserializer = SnapshotListSerializer(dataSerializer = Tag.serializer()),
-                string = client.get(urlString = "$server$endpoint/tag/list") {
-                    expectSuccess = false
-                    parameter("details", "model+tags")
-                })
+                string = client.get(urlString = "$server$endpoint/tag/list")
+            )
         } catch (e: Exception) {
             showError()
 
