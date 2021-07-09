@@ -32,14 +32,20 @@ import android.view.autofill.AutofillValue
 import android.view.inputmethod.InlineSuggestionsRequest
 import android.widget.RemoteViews
 import androidx.autofill.inline.v1.InlineSuggestionUi
-import com.google.gson.JsonParser
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.api.Password
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.math.BigInteger
 import java.security.MessageDigest
 
 class NextPassAutofillService : AutofillService() {
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
+
     private var usernameHints = arrayOf<String>()
 
     private var idPackage = ""
@@ -150,7 +156,7 @@ class NextPassAutofillService : AutofillService() {
 
             val appName = idPackage.substringAfter(".").substringBefore(".")
 
-            val params = mutableMapOf(
+            val params = mutableMapOf<String, String>(
                 "password" to savePassword,
                 "label" to when {
                     viewWebDomain.isNotEmpty() -> viewWebDomain.removePrefix("www.")
@@ -176,7 +182,7 @@ class NextPassAutofillService : AutofillService() {
             )
 
             if (viewWebDomain.isEmpty()) {
-                params["customFields"] = JsonParser.parseString(
+                params["customFields"] = json.decodeFromString(string =
                     listOf(
                         mapOf(
                             "label" to "\"Android app\"",
@@ -184,7 +190,7 @@ class NextPassAutofillService : AutofillService() {
                             "value" to "\"$idPackage\""
                         )
                     ).toString()
-                ).asJsonArray.toString()
+                )
             }
 
             NextcloudApiProvider.createPasswordRequest(params = params)

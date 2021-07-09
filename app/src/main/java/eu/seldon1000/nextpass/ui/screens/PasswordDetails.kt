@@ -36,7 +36,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.gson.JsonParser
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.CustomField
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
@@ -47,6 +46,8 @@ import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -118,7 +119,10 @@ fun PasswordDetails(passwordData: Password) {
                             "url" to url,
                             "notes" to notes,
                             "folder" to storedFolders[selectedFolder].id,
-                            "customFields" to JsonParser.parseString(concreteCustomFields.toString()).asJsonArray.toString()
+                            "customFields" to Json {
+                                ignoreUnknownKeys = true
+                                isLenient = true
+                            }.decodeFromString(string = concreteCustomFields.toString())
                         )
                         if (passwordData.favorite) params["favorite"] = "true"
 

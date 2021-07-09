@@ -63,6 +63,7 @@ data class Password(
 
     @Contextual
     var customFieldsMap = Json {
+        ignoreUnknownKeys = true
         isLenient = true
     }.decodeFromString(
         deserializer = SnapshotListSerializer(CustomField.serializer()),

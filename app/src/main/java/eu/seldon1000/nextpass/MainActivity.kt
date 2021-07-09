@@ -61,11 +61,6 @@ class MainActivity : FragmentActivity() {
 
         if (requestCode == AUTOFILL_SETTINGS_CODE && resultCode == Activity.RESULT_OK)
             MainViewModel.enableAutofill()
-        else NextcloudApiProvider.handleAccountImporterResponse(
-            requestCode = requestCode,
-            resultCode = resultCode,
-            data = data
-        )
     }
 
     override fun onRestart() {

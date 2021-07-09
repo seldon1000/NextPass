@@ -61,7 +61,7 @@ fun Settings() {
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
 
-    val currentAccount by NextcloudApiProvider.currentAccount.collectAsState()
+    val currentAccount by NextcloudApiProvider.loginName.collectAsState()
 
     val protected by MainViewModel.pinProtected.collectAsState()
     val biometricProtected by MainViewModel.biometricProtected.collectAsState()
@@ -128,13 +128,13 @@ fun Settings() {
                 )
                 GenericColumnItem(
                     title = context.getString(R.string.current_account),
-                    body = "${currentAccount?.name}"
+                    body = currentAccount
                 ) {
                     MainViewModel.setPrimaryClip(
                         label = context.getString(R.string.current_account),
                         context.getString(
                             R.string.copy_snack_message,
-                            currentAccount?.name
+                            currentAccount
                         )
                     )
                 }

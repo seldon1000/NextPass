@@ -31,31 +31,20 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.GsonBuilder
-import com.nextcloud.android.sso.AccountImporter
-import com.nextcloud.android.sso.aidl.NextcloudRequest
-import com.nextcloud.android.sso.api.NextcloudAPI
-import com.nextcloud.android.sso.exceptions.AccountImportCancelledException
-import com.nextcloud.android.sso.exceptions.NextcloudFilesAppNotInstalledException
-import com.nextcloud.android.sso.helper.SingleAccountHelper
-import com.nextcloud.android.sso.model.SingleSignOnAccount
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.features.*
+import io.ktor.client.features.auth.*
+import io.ktor.client.features.auth.providers.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import java.util.stream.Collectors
+import kotlinx.serialization.json.*
 
 @SuppressLint("StaticFieldLeak")
 object NextcloudApiProvider : ViewModel() {
@@ -68,11 +57,18 @@ object NextcloudApiProvider : ViewModel() {
         isLenient = true
     }
 
-    private const val endpoint = "/index.php/apps/passwords/api/1.0"
-    private var nextcloudApi: NextcloudAPI? = null
+    private var client = HttpClient(Android) {
+        install(JsonFeature) {
+            serializer = KotlinxSerializer(json = json)
+        }
+    }
 
-    private val currentAccountState = MutableStateFlow<SingleSignOnAccount?>(value = null)
-    val currentAccount = currentAccountState
+    private var server = ""
+    private val loginNameState = MutableStateFlow(value = "")
+    val loginName = loginNameState
+    private var appPassword = ""
+
+    private const val endpoint = "/index.php/apps/passwords/api/1.0"
 
     private val baseFolder = json.decodeFromString<Folder>(
         string = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"Base\",\"parent\":\"\",\"favorite\":\"false\",\"created\":0,\"edited\":0}"
@@ -91,30 +87,73 @@ object NextcloudApiProvider : ViewModel() {
     val currentRequestedFavicon = currentRequestedFaviconState
 
     fun setContext(context: Any) {
-        if (context is FragmentActivity || this.context == null){
+        if (context is FragmentActivity || this.context == null) {
             this.context = context as Context
 
-            sharedPreferences = this.context!!.getSharedPreferences("nextpass", 0)
+            if (sharedPreferences == null) {
+                sharedPreferences = this.context!!.getSharedPreferences("nextpass", 0)
+
+                if (sharedPreferences!!.contains("server")) {
+                    server = sharedPreferences!!.getString("server", "")!!
+                    loginNameState.value = sharedPreferences!!.getString("loginName", "")!!
+                    appPassword = sharedPreferences!!.getString("appPassword", "")!!
+
+                    client = client.config {
+                        install(Auth) {
+                            basic {
+                                sendWithoutRequest { true }
+                                credentials {
+                                    BasicAuthCredentials(
+                                        username = loginNameState.value,
+                                        password = appPassword
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
-    private val connectedCallback: NextcloudAPI.ApiConnectedListener =
-        object : NextcloudAPI.ApiConnectedListener {
-            override fun onConnected() {}
-
-            override fun onError(e: Exception) {
-                showError()
-            }
-        }
-
     fun attemptLogin(): Boolean {
-        val client = HttpClient(Android) {
-            install(HttpTimeout)
-            install(JsonFeature) {
-                serializer = KotlinxSerializer(json = json)
-            }
-        }
+        return server.isNotEmpty()
+    }
 
+    fun attemptLogout() {
+        MainViewModel.showDialog(
+            title = context!!.getString(R.string.logout),
+            body = { Text(text = context!!.getString(R.string.logout_body), fontSize = 14.sp) },
+            confirm = true
+        ) {
+            storedPasswordsState.value.clear()
+            storedFoldersState.value.clear()
+            storedTagsState.value.clear()
+
+            viewModelScope.launch {
+                client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
+                    header("OCS-APIREQUEST", true)
+                }
+            }
+
+            sharedPreferences!!.edit().remove("server").apply()
+            sharedPreferences!!.edit().remove("loginName").apply()
+            sharedPreferences!!.edit().remove("appPassword").apply()
+
+            client = HttpClient(Android) {
+                install(JsonFeature) {
+                    serializer = KotlinxSerializer(json = json)
+                }
+            }
+
+            MainViewModel.setRefreshing(refreshing = false)
+            MainViewModel.resetUserSettings()
+            MainViewModel.navigate(route = "welcome")
+            MainViewModel.showSnackbar(message = context!!.getString(R.string.disconnected_snack))
+        }
+    }
+
+    fun pickNewAccount() {
         viewModelScope.launch {
             val response =
                 client.post<JsonObject>(urlString = "https://nx17597.your-storageshare.de/index.php/login/v2")
@@ -138,134 +177,42 @@ object NextcloudApiProvider : ViewModel() {
                 delay(timeMillis = 1000)
             }
 
+            println("CIAO $loginResponse")
 
-        }
+            server = loginResponse["server"]!!.jsonPrimitive.content
+            loginNameState.value = loginResponse["loginName"]!!.jsonPrimitive.content
+            appPassword = loginResponse["appPassword"]!!.jsonPrimitive.content
 
-        /*"https://nx17597.your-storageshare.de/index.php/login/v2".httpPost()
-            .responseString { result ->
-                when (result) {
-                    is Result.Failure -> {
+            sharedPreferences!!.edit().putString("server", server).apply()
+            sharedPreferences!!.edit().putString("loginName", loginNameState.value).apply()
+            sharedPreferences!!.edit().putString("appPassword", appPassword).apply()
 
-                    }
-                    is Result.Success -> {
-
-
-
-                        endpoint.httpPost(parameters = listOf("token" to token)).responseString { resultAccess ->
-                            when (resultAccess) {
-                                is Result.Failure -> println("CIAO ${resultAccess.error}")
-                                is Result.Success -> {
-
-                                    println("CIAO ${resultAccess.value}")
-                                }
-                            }
-                        }.join()
+            client = client.config {
+                install(Auth) {
+                    basic {
+                        sendWithoutRequest { true }
+                        credentials {
+                            BasicAuthCredentials(
+                                username = loginNameState.value,
+                                password = appPassword
+                            )
+                        }
                     }
                 }
-            }.join()*/
-        return try {
-            currentAccountState.value =
-                SingleAccountHelper.getCurrentSingleSignOnAccount(context)
-
-            nextcloudApi = NextcloudAPI(
-                context!!,
-                currentAccountState.value!!,
-                GsonBuilder().create(),
-                connectedCallback
-            )
-
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    fun attemptLogout() {
-        MainViewModel.showDialog(
-            title = context!!.getString(R.string.logout),
-            body = { Text(text = context!!.getString(R.string.logout_body), fontSize = 14.sp) },
-            confirm = true
-        ) {
-            storedPasswordsState.value.clear()
-            AccountImporter.clearAllAuthTokens(context)
-            currentAccountState.value = null
-            nextcloudApi = null
-
-            MainViewModel.setRefreshing(refreshing = false)
-            MainViewModel.resetUserSettings()
-            MainViewModel.navigate(route = "welcome")
-            MainViewModel.showSnackbar(message = context!!.getString(R.string.disconnected_snack))
-        }
-    }
-
-    fun pickNewAccount() {
-        try {
-            AccountImporter.pickNewAccount(context as Activity)
-        } catch (e: NextcloudFilesAppNotInstalledException) {
-            MainViewModel.showDialog(
-                title = context!!.getString(R.string.missing_nextcloud),
-                body = {
-                    Text(
-                        text = context!!.getString(R.string.missing_nextcloud_body),
-                        fontSize = 14.sp
-                    )
-                },
-                confirm = true
-            ) {
-                context!!.startActivity(
-                    Intent(
-                        ACTION_VIEW,
-                        Uri.parse("https://play.google.com/store/apps/details?id=com.nextcloud.client")
-                    )
-                )
             }
+
+            MainViewModel.openApp(shouldRememberScreen = server.isEmpty())
         }
     }
 
-    fun handleAccountImporterResponse(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?
-    ) {
-        try {
-            AccountImporter.onActivityResult(
-                requestCode,
-                resultCode,
-                data,
-                context as Activity
-            ) { account ->
-                SingleAccountHelper.setCurrentAccount(context, account.name)
-
-                storedPasswordsState.value = mutableStateListOf()
-
-                MainViewModel.openApp(shouldRememberScreen = currentAccountState.value != null)
-
-                MainViewModel.showSnackbar(
-                    message = context!!.getString(
-                        R.string.connected_snack,
-                        currentAccountState.value?.userId
-                    )
-                )
-            }
-        } catch (e: AccountImportCancelledException) {
-        }
-    }
-
-    private fun listPasswordsRequest(): SnapshotStateList<Password> {
-        val listRequest = NextcloudRequest.Builder()
-            .setMethod("POST")
-            .setUrl("$endpoint/password/list")
-            .setParameter(mapOf("details" to "model+tags"))
-            .build()
-
+    private suspend fun listPasswordsRequest(): SnapshotStateList<Password> {
         return try {
             json.decodeFromString(
-                deserializer = SnapshotListSerializer(Password.serializer()),
-                string = nextcloudApi!!.performNetworkRequest(listRequest)
-                    .bufferedReader()
-                    .lines()
-                    .collect(Collectors.joining("\n"))
-            )
+                deserializer = SnapshotListSerializer(dataSerializer = Password.serializer()),
+                string = client.get(urlString = "$server$endpoint/password/list") {
+                    expectSuccess = false
+                    parameter("details", "model+tags")
+                })
         } catch (e: Exception) {
             showError()
 
@@ -273,20 +220,14 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    private fun listFoldersRequest(): SnapshotStateList<Folder> {
-        val listRequest = NextcloudRequest.Builder()
-            .setMethod("GET")
-            .setUrl("$endpoint/folder/list")
-            .build()
-
+    private suspend fun listFoldersRequest(): SnapshotStateList<Folder> {
         return try {
             json.decodeFromString(
-                deserializer = SnapshotListSerializer(Folder.serializer()),
-                string = nextcloudApi!!.performNetworkRequest(listRequest)
-                    .bufferedReader()
-                    .lines()
-                    .collect(Collectors.joining("\n"))
-            )
+                deserializer = SnapshotListSerializer(dataSerializer = Folder.serializer()),
+                string = client.get(urlString = "$server$endpoint/password/list") {
+                    expectSuccess = false
+                    parameter("details", "model+tags")
+                })
         } catch (e: Exception) {
             showError()
 
@@ -294,20 +235,14 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    private fun listTagsRequest(): SnapshotStateList<Tag> {
-        val listRequest = NextcloudRequest.Builder()
-            .setMethod("GET")
-            .setUrl("$endpoint/tag/list")
-            .build()
-
+    private suspend fun listTagsRequest(): SnapshotStateList<Tag> {
         return try {
             json.decodeFromString(
-                deserializer = SnapshotListSerializer(Tag.serializer()),
-                string = nextcloudApi!!.performNetworkRequest(listRequest)
-                    .bufferedReader()
-                    .lines()
-                    .collect(Collectors.joining("\n"))
-            )
+                deserializer = SnapshotListSerializer(dataSerializer = Tag.serializer()),
+                string = client.get(urlString = "$server$endpoint/password/list") {
+                    expectSuccess = false
+                    parameter("details", "model+tags")
+                })
         } catch (e: Exception) {
             showError()
 
@@ -353,7 +288,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun createPasswordRequest(params: Map<String, String>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        /*viewModelScope.launch(Dispatchers.IO) {
             val createRequest = NextcloudRequest.Builder()
                 .setMethod("POST")
                 .setUrl("$endpoint/password/create")
@@ -397,11 +332,11 @@ object NextcloudApiProvider : ViewModel() {
             } catch (e: Exception) {
                 showError()
             }
-        }
+        }*/
     }
 
     fun createFolderRequest(params: Map<String, String>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        /*viewModelScope.launch(Dispatchers.IO) {
             val createRequest = NextcloudRequest.Builder()
                 .setMethod("POST")
                 .setUrl("$endpoint/folder/create")
@@ -445,11 +380,11 @@ object NextcloudApiProvider : ViewModel() {
             } catch (e: Exception) {
                 showError()
             }
-        }
+        }*/
     }
 
     fun createTagRequest(params: Map<String, String>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        /*viewModelScope.launch(Dispatchers.IO) {
             val createRequest = NextcloudRequest.Builder()
                 .setMethod("POST")
                 .setUrl("$endpoint/tag/create")
@@ -488,11 +423,11 @@ object NextcloudApiProvider : ViewModel() {
             } catch (e: Exception) {
                 showError()
             }
-        }
+        }*/
     }
 
     fun deletePasswordRequest(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        /*viewModelScope.launch(Dispatchers.IO) {
             val deleteRequest = NextcloudRequest.Builder()
                 .setMethod("DELETE")
                 .setUrl("$endpoint/password/delete")
@@ -506,11 +441,11 @@ object NextcloudApiProvider : ViewModel() {
             } catch (e: Exception) {
                 showError()
             }
-        }
+        }*/
     }
 
     fun deleteFolderRequest(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        /*viewModelScope.launch(Dispatchers.IO) {
             val deleteRequest = NextcloudRequest.Builder()
                 .setMethod("DELETE")
                 .setUrl("$endpoint/folder/delete")
@@ -526,11 +461,11 @@ object NextcloudApiProvider : ViewModel() {
             } catch (e: Exception) {
                 showError()
             }
-        }
+        }*/
     }
 
     fun deleteTagRequest(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        /*viewModelScope.launch(Dispatchers.IO) {
             val deleteRequest = NextcloudRequest.Builder()
                 .setMethod("DELETE")
                 .setUrl("$endpoint/tag/delete")
@@ -546,12 +481,12 @@ object NextcloudApiProvider : ViewModel() {
             } catch (e: Exception) {
                 showError()
             }
-        }
+        }*/
     }
 
     /*TODO: wait for SSO to support PATCH method*/
     fun updatePasswordRequest(index: Int, params: MutableMap<String, String>) {
-        val password = storedPasswordsState.value[index]
+        /*val password = storedPasswordsState.value[index]
 
         viewModelScope.launch(Dispatchers.IO) {
             if (!params.containsKey(key = "password")) params["password"] = password.password
@@ -620,23 +555,16 @@ object NextcloudApiProvider : ViewModel() {
             } catch (e: Exception) {
                 showError()
             }
-        }
+        }*/
     }
 
     suspend fun generatePassword(): String {
-        val generateRequest = NextcloudRequest.Builder()
-            .setMethod("GET")
-            .setUrl("$endpoint/service/password")
-            .build()
-
         return withContext(Dispatchers.IO) {
             try {
-                json.decodeFromString(
-                    nextcloudApi!!.performNetworkRequest(generateRequest)
-                        .bufferedReader()
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                )
+                client.get(urlString = "$server$endpoint/service/password") {
+                    expectSuccess = false
+                    parameter("details", "model+tags")
+                }
             } catch (e: Exception) {
                 showError()
 
@@ -648,14 +576,17 @@ object NextcloudApiProvider : ViewModel() {
     fun faviconRequest(data: Any) {
         when (data) {
             is Password -> viewModelScope.launch(Dispatchers.IO) {
-                val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
-                    .setUrl("$endpoint/service/favicon/${Uri.parse(data.url).host ?: data.url}/256")
-                    .build()
-
                 try {
                     data.setFavicon(
                         BitmapFactory.decodeStream(
-                            nextcloudApi!!.performNetworkRequest(faviconRequest)
+                            client.get(
+                                urlString = "$server$endpoint/service/favicon/${
+                                    Uri.parse(data.url).host ?: data.url
+                                }/256"
+                            ) {
+                                expectSuccess = false
+                                parameter("details", "model+tags")
+                            }
                         ).toRoundedCorners()
                     )
                 } catch (e: Exception) {
@@ -663,13 +594,16 @@ object NextcloudApiProvider : ViewModel() {
             }
             is String -> viewModelScope.launch(Dispatchers.IO) {
                 if (data.isNotEmpty()) {
-                    val faviconRequest = NextcloudRequest.Builder().setMethod("GET")
-                        .setUrl("$endpoint/service/favicon/${Uri.parse(data).host ?: data}/256")
-                        .build()
-
                     try {
                         currentRequestedFaviconState.value = BitmapFactory.decodeStream(
-                            nextcloudApi!!.performNetworkRequest(faviconRequest)
+                            client.get(
+                                urlString = "$server$endpoint/service/favicon/${
+                                    Uri.parse(data).host ?: data
+                                }/256"
+                            ) {
+                                expectSuccess = false
+                                parameter("details", "model+tags")
+                            }
                         ).toRoundedCorners()
                     } catch (e: Exception) {
                     }
@@ -706,6 +640,5 @@ object NextcloudApiProvider : ViewModel() {
     fun stopNextcloudApi() {
         viewModelScope.coroutineContext.cancelChildren()
         context = null
-        nextcloudApi?.stop()
     }
 }
