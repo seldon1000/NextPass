@@ -17,15 +17,18 @@
 package eu.seldon1000.nextpass.api
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.ACTION_VIEW
 import android.content.SharedPreferences
 import android.graphics.*
 import android.net.Uri
+import android.webkit.CookieManager
+import android.webkit.URLUtil
+import android.widget.Toast
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
@@ -33,6 +36,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.features.*
@@ -44,7 +48,10 @@ import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 @SuppressLint("StaticFieldLeak")
 object NextcloudApiProvider : ViewModel() {
@@ -153,55 +160,85 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
+    @ExperimentalMaterialApi
     fun pickNewAccount() {
-        viewModelScope.launch {
-            val response =
-                client.post<JsonObject>(urlString = "https://nx17597.your-storageshare.de/index.php/login/v2")
+        val url = mutableStateOf(value = "")
 
-            val login = response["login"]!!.jsonPrimitive.content
-            val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
-            val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
-
-            context!!.startActivity(Intent(ACTION_VIEW, Uri.parse(login)))
-
-            var loginResponse = JsonObject(mapOf())
-            while (loginResponse.isEmpty()) {
+        MainViewModel.showDialog(title = "Insert server URL", body = {
+            TextFieldItem(
+                text = url.value,
+                onTextChanged = { url.value = it },
+                label = context!!.getString(R.string.url),
+                required = true
+            ) {}
+        }, confirm = true) {
+            viewModelScope.launch {
                 try {
-                    loginResponse = client.post(urlString = endpoint) {
-                        expectSuccess = false
-                        parameter(key = "token", value = token)
+                    if (!url.value.startsWith(prefix = "https://") || !url.value.startsWith(prefix = "http://"))
+                        url.value = "https://${url.value}"
+                    url.value = "${url.value}/index.php/login/v2"
+
+                    val response = client.post<JsonObject>(urlString = url.value)
+
+                    val login = response["login"]!!.jsonPrimitive.content
+                    val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
+                    val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
+
+                    val intent = Intent(context, NextcloudWebAccessActivity::class.java)
+                    intent.putExtra("url", login)
+                    context!!.startActivity(intent)
+
+                    var loginResponse = JsonObject(mapOf())
+                    while (loginResponse.isEmpty()) {
+                        try {
+                            loginResponse = client.post(urlString = endpoint) {
+                                expectSuccess = false
+                                parameter(key = "token", value = token)
+                            }
+                        } catch (e: Exception) {
+                        }
+
+                        delay(timeMillis = 1000)
                     }
-                } catch (e: Exception) {
-                }
 
-                delay(timeMillis = 1000)
-            }
+                    val toast = Toast.makeText(
+                        context,
+                        "Login successful, go back to view your passwords",
+                        Toast.LENGTH_LONG
+                    )
+                    toast.show()
 
-            println("CIAO $loginResponse")
+                    server = loginResponse["server"]!!.jsonPrimitive.content
+                    loginNameState.value = loginResponse["loginName"]!!.jsonPrimitive.content
+                    appPassword = loginResponse["appPassword"]!!.jsonPrimitive.content
 
-            server = loginResponse["server"]!!.jsonPrimitive.content
-            loginNameState.value = loginResponse["loginName"]!!.jsonPrimitive.content
-            appPassword = loginResponse["appPassword"]!!.jsonPrimitive.content
+                    sharedPreferences!!.edit().putString("server", server).apply()
+                    sharedPreferences!!.edit().putString("loginName", loginNameState.value).apply()
+                    sharedPreferences!!.edit().putString("appPassword", appPassword).apply()
 
-            sharedPreferences!!.edit().putString("server", server).apply()
-            sharedPreferences!!.edit().putString("loginName", loginNameState.value).apply()
-            sharedPreferences!!.edit().putString("appPassword", appPassword).apply()
-
-            client = client.config {
-                install(Auth) {
-                    basic {
-                        sendWithoutRequest { true }
-                        credentials {
-                            BasicAuthCredentials(
-                                username = loginNameState.value,
-                                password = appPassword
-                            )
+                    client = client.config {
+                        install(Auth) {
+                            basic {
+                                sendWithoutRequest { true }
+                                credentials {
+                                    BasicAuthCredentials(
+                                        username = loginNameState.value,
+                                        password = appPassword
+                                    )
+                                }
+                            }
                         }
                     }
+
+                    MainViewModel.openApp(shouldRememberScreen = server.isEmpty())
+
+                    val cookieManager = CookieManager.getInstance()
+                    cookieManager.removeSessionCookies(null)
+                    cookieManager.flush()
+                } catch (e: Exception) {
+                    showError()
                 }
             }
-
-            MainViewModel.openApp(shouldRememberScreen = server.isEmpty())
         }
     }
 
@@ -224,7 +261,7 @@ object NextcloudApiProvider : ViewModel() {
         return try {
             json.decodeFromString(
                 deserializer = SnapshotListSerializer(dataSerializer = Folder.serializer()),
-                string = client.get(urlString = "$server$endpoint/password/list") {
+                string = client.get(urlString = "$server$endpoint/folder/list") {
                     expectSuccess = false
                     parameter("details", "model+tags")
                 })
@@ -239,7 +276,7 @@ object NextcloudApiProvider : ViewModel() {
         return try {
             json.decodeFromString(
                 deserializer = SnapshotListSerializer(dataSerializer = Tag.serializer()),
-                string = client.get(urlString = "$server$endpoint/password/list") {
+                string = client.get(urlString = "$server$endpoint/tag/list") {
                     expectSuccess = false
                     parameter("details", "model+tags")
                 })
