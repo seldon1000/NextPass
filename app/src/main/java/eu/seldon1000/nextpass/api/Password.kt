@@ -19,62 +19,63 @@ package eu.seldon1000.nextpass.api
 import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
 import androidx.annotation.Keep
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import com.google.gson.Gson
-import com.google.gson.JsonObject
-import com.google.gson.annotations.SerializedName
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import java.util.*
 
 @Keep
-data class Password(val passwordData: JsonObject, var index: Int = -1) {
-    private val tagTypeToken =
-        object : TypeToken<SnapshotStateList<Tag>>() {}.type
-    private val customFieldsTypeToken =
-        object : TypeToken<SnapshotStateList<SnapshotStateMap<String, String>>>() {}.type
+@Serializable
+data class Password(
+    val id: String,
+    val label: String,
+    val url: String,
+    val username: String,
+    val password: String,
+    val notes: String,
+    val hash: String,
+    val folder: String,
+
+    val created: Long,
+    val edited: Long,
+
+    val favorite: Boolean,
+    val shared: Boolean,
+
+    val status: Int,
+
+    @Serializable(with = SnapshotListSerializer::class) var tags: SnapshotStateList<Tag>,
+    val customFields: String,
+) {
+    @Contextual
+    var index: Int = -1
+
+    @Contextual
     private val formatter = SimpleDateFormat.getDateTimeInstance()
 
-    val id: String = passwordData.get("id").asString
-    val label: String = passwordData.get("label").asString
-    val url: String = passwordData.get("url").asString
-    val username: String = passwordData.get("username").asString
-    val password: String = passwordData.get("password").asString
-    val notes: String = passwordData.get("notes").asString
-    val hash: String = passwordData.get("hash").asString
-    val folder: String = passwordData.get("folder").asString
-    @SerializedName("tags") var tags: SnapshotStateList<Tag> =
-        try {
-            Gson().fromJson(passwordData.get("tags").asJsonArray, tagTypeToken)
-        } catch (e: Exception) {
-            mutableStateListOf()
-        }
-    var customFields: SnapshotStateList<SnapshotStateMap<String, String>> =
-        try {
-            Gson().fromJson(passwordData.get("customFields").asString, customFieldsTypeToken)
-        } catch (e: Exception) {
-            mutableStateListOf()
-        }
+    @Contextual
+    val createdDate: String = formatter.format(Date(created * 1000))
 
-    val created: String = formatter.format(Date(passwordData.get("created").asLong * 1000))
-    val edited: String = formatter.format(Date(passwordData.get("edited").asLong * 1000))
+    @Contextual
+    val editedDate: String = formatter.format(Date(edited * 1000))
 
-    val favorite: Boolean = passwordData.get("favorite").asBoolean
-    val shared: Boolean = passwordData.get("shared").asBoolean
+    @Contextual
+    var customFieldsMap = Json {
+        isLenient = true
+    }.decodeFromString(
+        deserializer = SnapshotListSerializer(CustomField.serializer()),
+        string = customFields
+    )
 
-    val status: Int = passwordData.get("status").asInt
+    @Contextual
+    private val faviconState = MutableStateFlow<@Contextual Bitmap?>(value = null)
 
-    private val faviconState = MutableStateFlow<Bitmap?>(value = null)
+    @Contextual
     val favicon = faviconState
 
     fun setFavicon(bitmap: Bitmap?) {
         faviconState.value = bitmap
-    }
-
-    fun restoreCustomFields() {
-        customFields =
-            Gson().fromJson(passwordData.get("customFields").asString, customFieldsTypeToken)
     }
 }

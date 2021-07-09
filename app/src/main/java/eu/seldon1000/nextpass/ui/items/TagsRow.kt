@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,7 +51,7 @@ import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 @ExperimentalMaterialApi
 @Composable
 fun TagsRow(
-    tags: SnapshotStateList<Tag>? = null,
+    tags: MutableList<Tag>? = null,
     alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     tagClickAction: (tag: String) -> Unit
 ) {

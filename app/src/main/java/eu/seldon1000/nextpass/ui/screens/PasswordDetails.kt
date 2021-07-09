@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.gson.JsonParser
 import eu.seldon1000.nextpass.R
+import eu.seldon1000.nextpass.api.CustomField
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.api.Password
 import eu.seldon1000.nextpass.ui.MainViewModel
@@ -69,7 +70,7 @@ fun PasswordDetails(passwordData: Password) {
     var username by remember { mutableStateOf(value = passwordData.username) }
     var password by remember { mutableStateOf(value = passwordData.password) }
     var notes by remember { mutableStateOf(value = passwordData.notes) }
-    var customFields by remember { mutableStateOf(value = passwordData.customFields) }
+    var customFields by remember { mutableStateOf(value = passwordData.customFieldsMap) }
     val favicon by passwordData.favicon.collectAsState()
 
     MyScaffoldLayout(fab = {
@@ -93,17 +94,17 @@ fun PasswordDetails(passwordData: Password) {
                             try {
                                 concreteCustomFields.add(
                                     mapOf(
-                                        "label" to "\"${customField["label"]!!}\"",
-                                        "type" to if (customField["type"]!! != "secret" &&
-                                            android.util.Patterns.EMAIL_ADDRESS.matcher(customField["value"]!!)
+                                        "label" to customField.label.value,
+                                        "type" to if (customField.type.value != "secret" &&
+                                            android.util.Patterns.EMAIL_ADDRESS.matcher(customField.value.value)
                                                 .matches()
                                         ) "email"
-                                        else if (customField["type"]!! != "secret" &&
-                                            android.util.Patterns.WEB_URL.matcher(customField["value"]!!)
+                                        else if (customField.type.value != "secret" &&
+                                            android.util.Patterns.WEB_URL.matcher(customField.value.value)
                                                 .matches()
                                         ) "url"
-                                        else customField["type"]!!,
-                                        "value" to "\"${customField["value"]!!}\""
+                                        else customField.type.value,
+                                        "value" to customField.value.value
                                     )
                                 )
                             } catch (e: Exception) {
@@ -158,9 +159,7 @@ fun PasswordDetails(passwordData: Password) {
                         username = passwordData.username
                         password = passwordData.password
                         notes = passwordData.notes
-
-                        passwordData.restoreCustomFields()
-                        customFields = passwordData.customFields
+                        customFields = passwordData.customFieldsMap
 
                         MainViewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { passwordData.folder == it.id })
                     } else {
@@ -241,8 +240,8 @@ fun PasswordDetails(passwordData: Password) {
                         Text(
                             text = context.getString(
                                 R.string.date_info,
-                                passwordData.created,
-                                passwordData.edited
+                                passwordData.createdDate,
+                                passwordData.editedDate
                             ),
                             fontSize = 14.sp,
                             color = Color.Gray,
@@ -366,26 +365,26 @@ fun PasswordDetails(passwordData: Password) {
                         )
                     }
                     customFields.forEach { customField ->
-                        if (customField.containsKey(key = "value"))
+                        if (customField.type.value.isNotEmpty())
                             TextFieldItem(
-                                text = customField["value"]!!,
-                                onTextChanged = { customField["value"] = it },
-                                label = customField["label"]!!,
+                                text = customField.value.value,
+                                onTextChanged = { customField.value.value = it },
+                                label = customField.label.value,
                                 enabled = edit,
-                                protected = customField["type"] != "secret",
-                                showed = customField["type"] != "secret"
+                                protected = customField.type.value != "secret",
+                                showed = customField.type.value != "secret"
                             ) {
                                 Crossfade(targetState = edit) { state ->
                                     Row {
                                         IconButton(
                                             onClick = {
-                                                if (customField["type"] == "secret")
-                                                    customField["type"] = "text"
-                                                else customField["type"] = "secret"
+                                                if (customField.type.value == "secret")
+                                                    customField.type.value = "text"
+                                                else customField.type.value = "secret"
                                             },
                                             enabled = state
                                         ) {
-                                            Crossfade(targetState = customField["type"] != "secret") { state1 ->
+                                            Crossfade(targetState = customField.type.value != "secret") { state1 ->
                                                 Icon(
                                                     painter = if (state1)
                                                         painterResource(id = R.drawable.ic_round_lock_open_24)
@@ -409,22 +408,21 @@ fun PasswordDetails(passwordData: Password) {
                                 }
                                 CopyButton(
                                     label = context.getString(R.string.custom_field),
-                                    clip = customField["value"]!!
+                                    clip = customField.value.value
                                 )
                             }
                         else TextFieldItem(
-                            text = customField["label"]!!,
-                            onTextChanged = { customField["label"] = it },
+                            text = customField.label.value,
+                            onTextChanged = { customField.label.value = it },
                             label = context.getString(R.string.custom_field),
                             enabled = edit,
                             required = true,
                             capitalized = true
                         ) {
                             IconButton(onClick = {
-                                if (customField["label"]!!.isNotEmpty()) {
-                                    customField["type"] = "text"
-                                    customField["value"] = ""
-                                } else MainViewModel.showDialog(
+                                if (customField.label.value.isNotEmpty())
+                                    customField.type.value = "text"
+                                else MainViewModel.showDialog(
                                     title = context.getString(R.string.missing_info),
                                     body = {
                                         Text(
@@ -476,7 +474,7 @@ fun PasswordDetails(passwordData: Password) {
                         }
                         Crossfade(targetState = edit) { state ->
                             TextButton(
-                                onClick = { customFields.add(element = mutableStateMapOf("label" to "")) },
+                                onClick = { customFields.add(element = CustomField()) },
                                 enabled = state
                             ) { Text(text = context.getString(R.string.add_custom_field)) }
                         }

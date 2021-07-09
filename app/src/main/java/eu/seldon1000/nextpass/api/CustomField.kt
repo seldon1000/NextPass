@@ -17,12 +17,17 @@
 package eu.seldon1000.nextpass.api
 
 import androidx.annotation.Keep
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class Tag(
-    val id: String,
-    val label: String,
-    val color: String
+class CustomField(
+    @Serializable(with = MutableStateSerializer::class)
+    var label: MutableState<String> = mutableStateOf(value = ""),
+    @Serializable(with = MutableStateSerializer::class)
+    var type: MutableState<String> = mutableStateOf(value = ""),
+    @Serializable(with = MutableStateSerializer::class)
+    var value: MutableState<String> = mutableStateOf(value = "")
 )

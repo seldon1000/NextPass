@@ -343,14 +343,8 @@ class NextPassAutofillService : AutofillService() {
                     )
                 } catch (e: Exception) {
                     false
-                } || password.customFields.any { customField ->
-                    customField.values.any {
-                        try {
-                            it.contains(idPackage, ignoreCase = true)
-                        } catch (e: Exception) {
-                            false
-                        }
-                    }
+                } || password.customFieldsMap.any { customField ->
+                    customField.value.value.contains(other = idPackage, ignoreCase = true)
                 })))
     }
 }
