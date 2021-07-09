@@ -19,6 +19,7 @@ package eu.seldon1000.nextpass.api
 import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
 import androidx.annotation.Keep
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.Contextual
@@ -62,13 +63,17 @@ data class Password(
     val editedDate: String = formatter.format(Date(edited * 1000))
 
     @Contextual
-    var customFieldsMap = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-    }.decodeFromString(
-        deserializer = SnapshotListSerializer(CustomField.serializer()),
-        string = customFields
-    )
+    var customFieldsMap = try {
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }.decodeFromString(
+            deserializer = SnapshotListSerializer(CustomField.serializer()),
+            string = customFields
+        )
+    } catch (e: Exception) {
+        mutableStateListOf()
+    }
 
     @Contextual
     private val faviconState = MutableStateFlow<@Contextual Bitmap?>(value = null)

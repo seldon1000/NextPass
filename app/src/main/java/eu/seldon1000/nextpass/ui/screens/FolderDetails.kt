@@ -110,8 +110,8 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                         Text(
                             text = context.getString(
                                 R.string.date_info,
-                                folder.created,
-                                folder.edited
+                                folder.createdDate,
+                                folder.editedDate
                             ),
                             fontSize = 14.sp,
                             color = Color.Gray,

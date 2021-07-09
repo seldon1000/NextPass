@@ -23,7 +23,6 @@ import android.content.SharedPreferences
 import android.graphics.*
 import android.net.Uri
 import android.webkit.CookieManager
-import android.webkit.URLUtil
 import android.widget.Toast
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
@@ -47,7 +46,6 @@ import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
@@ -77,7 +75,8 @@ object NextcloudApiProvider : ViewModel() {
 
     private const val endpoint = "/index.php/apps/passwords/api/1.0"
 
-    private val baseFolder = json.decodeFromString<Folder>(
+    private val baseFolder = json.decodeFromString(
+        deserializer = Folder.serializer(),
         string = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"Base\",\"parent\":\"\",\"favorite\":\"false\",\"created\":0,\"edited\":0}"
     )
 
@@ -233,7 +232,8 @@ object NextcloudApiProvider : ViewModel() {
                     MainViewModel.openApp(shouldRememberScreen = server.isEmpty())
 
                     val cookieManager = CookieManager.getInstance()
-                    cookieManager.removeSessionCookies(null)
+                    cookieManager.removeSessionCookies {}
+                    cookieManager.removeAllCookies {}
                     cookieManager.flush()
                 } catch (e: Exception) {
                     showError()
@@ -288,34 +288,40 @@ object NextcloudApiProvider : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val passwords = listPasswordsRequest()
 
-            passwords.sortBy { it.label.lowercase() }
-            passwords.forEachIndexed { index, password ->
-                password.index = index
+            viewModelScope.launch(Dispatchers.IO) {
+                passwords.sortBy { it.label.lowercase() }
+                passwords.forEachIndexed { index, password ->
+                    faviconRequest(data = password)
 
-                faviconRequest(data = password)
+                    password.index = index
+                }
+
+                storedPasswordsState.value = passwords
             }
 
-            storedPasswordsState.value = passwords
+            if (refreshFolders) {
+                val folders = listFoldersRequest()
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    folders.sortBy { it.label.lowercase() }
+                    folders.add(index = 0, element = baseFolder)
+                    folders.forEachIndexed { index, folder -> folder.index = index }
+
+                    storedFoldersState.value = folders
+                }
+            }
+
+            if (refreshTags) {
+                val tags = listTagsRequest()
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    tags.sortBy { it.label.lowercase() }
+
+                    storedTagsState.value = tags
+                }
+            }
 
             MainViewModel.setRefreshing(refreshing = false)
-        }
-
-        if (refreshFolders) viewModelScope.launch(Dispatchers.IO) {
-            val folders = listFoldersRequest()
-
-            folders.sortBy { it.label.lowercase() }
-            folders.forEachIndexed { index, folder -> folder.index = index }
-            folders.add(index = 0, element = baseFolder)
-
-            storedFoldersState.value = folders
-        }
-
-        if (refreshTags) viewModelScope.launch(Dispatchers.IO) {
-            val tags = listTagsRequest()
-
-            tags.sortBy { it.label.lowercase() }
-
-            storedTagsState.value = tags
         }
     }
 
@@ -615,10 +621,7 @@ object NextcloudApiProvider : ViewModel() {
                                 urlString = "$server$endpoint/service/favicon/${
                                     Uri.parse(data.url).host ?: data.url
                                 }/256"
-                            ) {
-                                expectSuccess = false
-                                parameter("details", "model+tags")
-                            }
+                            )
                         ).toRoundedCorners()
                     )
                 } catch (e: Exception) {
@@ -632,10 +635,7 @@ object NextcloudApiProvider : ViewModel() {
                                 urlString = "$server$endpoint/service/favicon/${
                                     Uri.parse(data).host ?: data
                                 }/256"
-                            ) {
-                                expectSuccess = false
-                                parameter("details", "model+tags")
-                            }
+                            )
                         ).toRoundedCorners()
                     } catch (e: Exception) {
                     }
