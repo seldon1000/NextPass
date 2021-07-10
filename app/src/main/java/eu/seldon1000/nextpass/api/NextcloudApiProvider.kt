@@ -284,7 +284,7 @@ object NextcloudApiProvider : ViewModel() {
     fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
         MainViewModel.setRefreshing(refreshing = true)
 
-        viewModelScope.launch(context = Dispatchers.IO) {
+        CoroutineScope(context = Dispatchers.IO).launch {
             var folders = mutableStateListOf<Folder>()
             var tags = mutableStateListOf<Tag>()
 
@@ -612,10 +612,8 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun faviconRequest(data: Any) {
-        val coroutineScope = CoroutineScope(context = Dispatchers.IO)
-
         when (data) {
-            is Password -> coroutineScope.launch {
+            is Password -> viewModelScope.launch(Dispatchers.IO) {
                 try {
                     data.setFavicon(
                         BitmapFactory.decodeStream(
@@ -629,7 +627,7 @@ object NextcloudApiProvider : ViewModel() {
                 } catch (e: Exception) {
                 }
             }
-            is String -> coroutineScope.launch {
+            is String -> viewModelScope.launch(Dispatchers.IO) {
                 if (data.isNotEmpty()) {
                     try {
                         currentRequestedFaviconState.value = BitmapFactory.decodeStream(

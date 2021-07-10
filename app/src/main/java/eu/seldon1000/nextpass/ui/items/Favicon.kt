@@ -32,15 +32,20 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.placeholder.PlaceholderHighlight
+import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.placeholder.material.shimmer
 
 @Composable
 fun Favicon(favicon: Bitmap?, size: Dp) {
     Surface(
-        modifier = Modifier.shadow(
-            elevation = if (favicon != null) 8.dp else 0.dp,
-            RoundedCornerShape(size = 8.dp),
-            clip = true
-        )
+        modifier = Modifier
+            .shadow(
+                elevation = if (favicon != null) 8.dp else 0.dp,
+                RoundedCornerShape(size = 8.dp),
+                clip = true
+            )
+            .placeholder(visible = favicon == null, highlight = PlaceholderHighlight.shimmer())
     ) {
         Crossfade(
             targetState = favicon,
