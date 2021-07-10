@@ -127,10 +127,7 @@ fun PasswordDetails(passwordData: Password) {
                         if (passwordData.favorite) params["favorite"] = "true"
 
                         MainViewModel.setRefreshing(refreshing = true)
-                        NextcloudApiProvider.updatePasswordRequest(
-                            index = passwordData.index,
-                            params = params
-                        )
+                        NextcloudApiProvider.updatePasswordRequest(params = params)
                         MainViewModel.showSnackbar(message = context.getString(R.string.update_password_snack))
                     }
                 } else MainViewModel.showDialog(
@@ -268,8 +265,8 @@ fun PasswordDetails(passwordData: Password) {
                                 MainViewModel.setRefreshing(refreshing = true)
 
                                 NextcloudApiProvider.updatePasswordRequest(
-                                    index = passwordData.index,
-                                    params = if (!passwordData.favorite) mutableMapOf("favorite" to "true") else mutableMapOf()
+                                    params = if (!passwordData.favorite)
+                                        mutableMapOf("favorite" to "true") else mutableMapOf()
                                 )
                             }
                         }

@@ -40,7 +40,7 @@ import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 
 @ExperimentalMaterialApi
 @Composable
-fun FolderCard(folder: Folder, icon: Painter? = null) {
+fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
     val context = LocalContext.current
 
     var expanded by remember { mutableStateOf(value = false) }
@@ -74,11 +74,9 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
                 fontWeight = FontWeight.SemiBold,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(weight = 1f)
+                modifier = Modifier.weight(weight = 1f)
             )
-            FavoriteIcon(favorite = folder.favorite) {} /*TODO: add updateFolderRequest, needs PATCH support from SSO*/
+            FavoriteIcon(favorite = folder.favorite) {}
         }
         if (icon == null) {
             DropdownMenu(
@@ -89,7 +87,7 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
             ) {
                 DropdownMenuItem({
                     MainViewModel.setFolderMode(mode = true)
-                    MainViewModel.setCurrentFolder(folder = folder.index)
+                    MainViewModel.setCurrentFolder(folder = index)
                     MainViewModel.navigate(route = Routes.Passwords.route)
 
                     expanded = false
@@ -125,7 +123,7 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
                     }
                 }
                 DropdownMenuItem({
-                    MainViewModel.navigate(route = Routes.FolderDetails.getRoute(arg = folder.index))
+                    MainViewModel.navigate(route = Routes.FolderDetails.getRoute(arg = index))
 
                     expanded = false
                 }) {

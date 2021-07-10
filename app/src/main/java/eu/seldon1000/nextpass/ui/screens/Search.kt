@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -115,8 +115,12 @@ fun Search() {
             if (tags) item { TagsRow { currentTag = if (it == currentTag) "" else it } }
             else item { Box(modifier = Modifier.height(12.dp)) }
             if (searchedText.isNotEmpty()) {
-                items(items = showedFolders) { folder -> FolderCard(folder = folder) }
-                items(items = showedPasswords) { password -> PasswordCard(password = password) }
+                itemsIndexed(items = showedFolders) { index, folder ->
+                    FolderCard(index = index, folder = folder)
+                }
+                itemsIndexed(items = showedPasswords) { index, password ->
+                    PasswordCard(index = index, password = password)
+                }
             }
             item {
                 CountMessage(

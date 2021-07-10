@@ -23,19 +23,21 @@ import java.util.*
 
 @Serializable
 data class Folder(
+    val favorite: Boolean,
+
     val id: String,
     val label: String,
     val parent: String,
 
-    val created: Long,
-    val edited: Long,
-
-    val favorite: Boolean
+    private val created: Long,
+    private val edited: Long
 ) {
-    @Contextual var index: Int = -1
+    @Contextual
+    private val formatter = SimpleDateFormat.getDateTimeInstance()
 
-    @Contextual private val formatter = SimpleDateFormat.getDateTimeInstance()
+    @Contextual
+    val createdDate: String = formatter.format(Date(created * 1000))
 
-    @Contextual val createdDate: String = formatter.format(Date(created * 1000))
-    @Contextual val editedDate: String = formatter.format(Date(edited * 1000))
+    @Contextual
+    val editedDate: String = formatter.format(Date(edited * 1000))
 }

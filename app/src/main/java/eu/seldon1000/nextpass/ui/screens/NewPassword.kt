@@ -45,6 +45,7 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -96,7 +97,7 @@ fun NewPassword() {
                         try {
                             concreteCustomFields.add(
                                 mapOf(
-                                    "label" to "\"${customField["label"]!!}\"",
+                                    "label" to customField["label"]!!,
                                     "type" to if (customField["type"]!! != "secret" &&
                                         android.util.Patterns.EMAIL_ADDRESS.matcher(customField["value"]!!)
                                             .matches()
@@ -106,7 +107,7 @@ fun NewPassword() {
                                             .matches()
                                     ) "url"
                                     else customField["type"]!!,
-                                    "value" to "\"${customField["value"]!!}\""
+                                    "value" to customField["value"]!!
                                 )
                             )
                         } catch (e: Exception) {
@@ -124,7 +125,7 @@ fun NewPassword() {
                         "customFields" to Json {
                             ignoreUnknownKeys = true
                             isLenient = true
-                        }.decodeFromString(string = concreteCustomFields.toString())
+                        }.encodeToString(value = concreteCustomFields)
                     )
                     if (favorite) params["favorite"] = "true"
 

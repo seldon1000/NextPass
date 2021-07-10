@@ -42,7 +42,7 @@ import eu.seldon1000.nextpass.ui.layout.Routes
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
-fun PasswordCard(password: Password) {
+fun PasswordCard(index: Int, password: Password) {
     val context = LocalContext.current
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
@@ -59,9 +59,7 @@ fun PasswordCard(password: Password) {
         onClick = { expanded = true },
         elevation = 4.dp,
         shape = RoundedCornerShape(12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp)
+        modifier = Modifier.padding(bottom = 12.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -102,7 +100,6 @@ fun PasswordCard(password: Password) {
                 MainViewModel.setRefreshing(refreshing = true)
 
                 NextcloudApiProvider.updatePasswordRequest(
-                    index = password.index,
                     params = mutableMapOf("favorite" to if (it) it.toString() else "")
                 )
             }
@@ -148,7 +145,7 @@ fun PasswordCard(password: Password) {
                 )
             }
             DropdownMenuItem(onClick = {
-                MainViewModel.navigate(route = Routes.PasswordDetails.getRoute(arg = password.index))
+                MainViewModel.navigate(route = Routes.PasswordDetails.getRoute(arg = index))
 
                 expanded = false
             }) {

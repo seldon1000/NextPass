@@ -34,6 +34,7 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
+import eu.seldon1000.nextpass.ui.items.FavoriteIcon
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
@@ -140,18 +141,7 @@ fun NewFolder() {
                             .padding(vertical = 16.dp)
                     ) {
                         DropdownFolderList(canAdd = false, folder = selectedFolder)
-                        IconButton({
-                            favorite = !favorite
-                        }) { /*TODO: replace with standard FavoriteIcon composable, once SSO supports PATCH method*/
-                            Icon(
-                                painter = if (favorite)
-                                    painterResource(id = R.drawable.ic_round_star_24)
-                                else
-                                    painterResource(id = R.drawable.ic_round_star_border_24),
-                                contentDescription = "favorite",
-                                tint = if (favorite) Color.Yellow else Color.White
-                            )
-                        }
+                        FavoriteIcon(favorite = favorite) { favorite = !favorite }
                     }
                     TextFieldItem(
                         text = label,

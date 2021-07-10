@@ -30,6 +30,9 @@ import java.util.*
 @Keep
 @Serializable
 data class Password(
+    val favorite: Boolean,
+    val shared: Boolean,
+
     val id: String,
     val label: String,
     val url: String,
@@ -38,21 +41,16 @@ data class Password(
     val notes: String,
     val hash: String,
     val folder: String,
-
-    val created: Long,
-    val edited: Long,
-
-    val favorite: Boolean,
-    val shared: Boolean,
-
-    val status: Int,
+    val statusCode: String,
 
     @Serializable(with = SnapshotListSerializer::class) var tags: SnapshotStateList<Tag>,
     val customFields: String,
-) {
-    @Contextual
-    var index: Int = -1
 
+    val status: Int,
+
+    private val created: Long,
+    private val edited: Long
+) {
     @Contextual
     private val formatter = SimpleDateFormat.getDateTimeInstance()
 

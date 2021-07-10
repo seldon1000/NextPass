@@ -173,9 +173,9 @@ class NextPassAutofillService : AutofillService() {
                     string =
                     listOf(
                         mapOf(
-                            "label" to "\"Android app\"",
+                            "label" to "Android app",
                             "type" to "text",
-                            "value" to "\"$idPackage\""
+                            "value" to idPackage
                         )
                     ).toString()
                 )

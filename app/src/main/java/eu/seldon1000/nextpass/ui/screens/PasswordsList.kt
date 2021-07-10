@@ -22,7 +22,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
@@ -38,12 +38,11 @@ import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
-import eu.seldon1000.nextpass.ui.layout.Routes
-import eu.seldon1000.nextpass.ui.items.*
-import eu.seldon1000.nextpass.ui.layout.DefaultBottomBar
-import eu.seldon1000.nextpass.ui.layout.DefaultFab
-import eu.seldon1000.nextpass.ui.layout.Header
-import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
+import eu.seldon1000.nextpass.ui.items.CountMessage
+import eu.seldon1000.nextpass.ui.items.FolderCard
+import eu.seldon1000.nextpass.ui.items.PasswordCard
+import eu.seldon1000.nextpass.ui.items.TagsRow
+import eu.seldon1000.nextpass.ui.layout.*
 
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
@@ -68,9 +67,6 @@ fun PasswordList() {
     val showedPasswords = storedPasswords.filter { password ->
         (if (currentTag.isNotEmpty()) password.tags.any { it.id == currentTag }
         else true) && (!folderMode || password.folder == storedFolders[currentFolder].id)
-    }
-    val showedFolders = storedFolders.filter { password ->
-        !folderMode || password.parent == storedFolders[currentFolder].id
     }
 
     MyScaffoldLayout(
@@ -137,15 +133,17 @@ fun PasswordList() {
             else item { Box(modifier = Modifier.height(12.dp)) }
             if (currentFolder != 0 && folderMode) item {
                 FolderCard(
+                    currentFolder,
                     folder = storedFolders[currentFolder],
                     icon = painterResource(id = R.drawable.ic_round_back_arrow_24)
                 )
             }
-            if (folderMode && storedFolders.size > 1) items(items = showedFolders) { folder ->
-                FolderCard(folder = folder)
+            if (folderMode && storedFolders.size > 1) itemsIndexed(items = storedFolders) { index, folder ->
+                if (index > 0 && index != currentFolder && folder.parent == storedFolders[currentFolder].id)
+                    FolderCard(index = index, folder = folder)
             }
-            items(showedPasswords) { password ->
-                PasswordCard(password = password)
+            itemsIndexed(showedPasswords) { index, password ->
+                PasswordCard(index = index, password = password)
             }
             item {
                 CountMessage(

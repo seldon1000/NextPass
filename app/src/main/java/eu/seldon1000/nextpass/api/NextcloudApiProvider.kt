@@ -284,83 +284,55 @@ object NextcloudApiProvider : ViewModel() {
     fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
         MainViewModel.setRefreshing(refreshing = true)
 
-        CoroutineScope(context = Dispatchers.IO).launch {
-            var folders = mutableStateListOf<Folder>()
-            var tags = mutableStateListOf<Tag>()
-
-            val passwords: SnapshotStateList<Password> = listRequest()
-            if (refreshFolders) folders = listRequest()
-            if (refreshTags) tags = listRequest()
-
-            launch {
-                passwords.sortBy { it.label.lowercase() }
-                passwords.forEachIndexed { index, password ->
-                    faviconRequest(data = password)
-
-                    password.index = index
-                }
-
-                storedPasswordsState.value = passwords
-            }
-
+        viewModelScope.launch(context = Dispatchers.IO) {
             if (refreshFolders) {
-                launch {
-                    folders.sortBy { it.label.lowercase() }
-                    folders.add(index = 0, element = baseFolder)
-                    folders.forEachIndexed { index, folder -> folder.index = index }
+                val folders: SnapshotStateList<Folder> = listRequest()
 
-                    storedFoldersState.value = folders
-                }
+                folders.sortBy { it.label.lowercase() }
+                folders.add(index = 0, element = baseFolder)
+
+                storedFoldersState.value = folders
             }
 
             if (refreshTags) {
-                launch {
-                    tags.sortBy { it.label.lowercase() }
+                val tags: SnapshotStateList<Tag> = listRequest()
 
-                    storedTagsState.value = tags
-                }
+                tags.sortBy { it.label.lowercase() }
+
+                storedTagsState.value = tags
             }
+
+            val passwords: SnapshotStateList<Password> = listRequest()
+
+            passwords.sortBy { it.label.lowercase() }
+            passwords.forEach { faviconRequest(data = it) }
+
+            storedPasswordsState.value = passwords
 
             MainViewModel.setRefreshing(refreshing = false)
         }
     }
 
     fun createPasswordRequest(params: Map<String, String>) {
-        /*viewModelScope.launch(Dispatchers.IO) {
-            val createRequest = NextcloudRequest.Builder()
-                .setMethod("POST")
-                .setUrl("$endpoint/password/create")
-                .setParameter(params)
-                .build()
-
+        viewModelScope.launch(context = Dispatchers.IO) {
             try {
-                val response = json.decodeFromString<JsonObject>(
-                    string = nextcloudApi!!.performNetworkRequest(createRequest)
-                        .bufferedReader()
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                )["id"]!!.jsonPrimitive.content
+                val response =
+                    client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
+                        params.forEach { parameter(key = it.key, value = it.value) }
+                    }["id"]!!.jsonPrimitive.content
 
-                val showRequest = NextcloudRequest.Builder()
-                    .setMethod("POST")
-                    .setUrl("$endpoint/password/show")
-                    .setParameter(mapOf("id" to response))
-                    .build()
-
-                val newPassword = json.decodeFromString<Password>(
-                    string = nextcloudApi!!.performNetworkRequest(showRequest)
-                        .bufferedReader()
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                )
-
-                val data = storedPasswordsState.value
+                val newPassword =
+                    client.post<Password>(urlString = "$server$endpoint/password/show") {
+                        parameter(key = "id", value = response)
+                        parameter(key = "details", value = "model+tags")
+                    }
 
                 faviconRequest(data = newPassword)
 
+                val data = storedPasswordsState.value
+
                 data.add(element = newPassword)
                 data.sortBy { it.label.lowercase() }
-                data.forEachIndexed { index, password -> password.index = index }
 
                 storedPasswordsState.value = data
 
@@ -370,85 +342,54 @@ object NextcloudApiProvider : ViewModel() {
             } catch (e: Exception) {
                 showError()
             }
-        }*/
+        }
     }
 
     fun createFolderRequest(params: Map<String, String>) {
-        /*viewModelScope.launch(Dispatchers.IO) {
-            val createRequest = NextcloudRequest.Builder()
-                .setMethod("POST")
-                .setUrl("$endpoint/folder/create")
-                .setParameter(params)
-                .build()
-
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = json.decodeFromString<JsonObject>(
-                    string = nextcloudApi!!.performNetworkRequest(createRequest)
-                        .bufferedReader()
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                )["id"]!!.jsonPrimitive.content
+                val response =
+                    client.post<JsonObject>(urlString = "$server$endpoint/folder/create") {
+                        params.forEach { parameter(key = it.key, value = it.value) }
+                    }["id"]!!.jsonPrimitive.content
 
-                val showRequest = NextcloudRequest.Builder()
-                    .setMethod("POST")
-                    .setUrl("$endpoint/folder/show")
-                    .setParameter(mapOf("id" to response))
-                    .build()
-
-                val newFolder = json.decodeFromString<Folder>(
-                    string = nextcloudApi!!.performNetworkRequest(showRequest)
-                        .bufferedReader()
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                )
+                val newFolder =
+                    client.post<Folder>(urlString = "$server$endpoint/folder/show") {
+                        parameter(key = "id", value = response)
+                    }
 
                 val data = storedFoldersState.value
 
                 data.removeAt(index = 0)
                 data.add(element = newFolder)
                 data.sortBy { it.label.lowercase() }
-                data.forEachIndexed { index, folder -> folder.index = index + 1 }
                 data.add(index = 0, element = baseFolder)
 
                 storedFoldersState.value = data
 
-                MainViewModel.setSelectedFolder(folder = MainViewModel.currentFolder.value)
+                MainViewModel.setCurrentFolder(folder = storedFoldersState.value.indexOfFirst {
+                    it.id == params["parent"]
+                })
 
                 MainViewModel.setRefreshing(refreshing = false)
             } catch (e: Exception) {
                 showError()
             }
-        }*/
+        }
     }
 
     fun createTagRequest(params: Map<String, String>) {
-        /*viewModelScope.launch(Dispatchers.IO) {
-            val createRequest = NextcloudRequest.Builder()
-                .setMethod("POST")
-                .setUrl("$endpoint/tag/create")
-                .setParameter(params)
-                .build()
-
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                val response = json.decodeFromString<JsonObject>(
-                    string = nextcloudApi!!.performNetworkRequest(createRequest)
-                        .bufferedReader()
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                )["id"]!!.jsonPrimitive.content
+                val response =
+                    client.post<JsonObject>(urlString = "$server$endpoint/tag/create") {
+                        params.forEach { parameter(key = it.key, value = it.value) }
+                    }["id"]!!.jsonPrimitive.content
 
-                val showRequest = NextcloudRequest.Builder()
-                    .setMethod("POST")
-                    .setUrl("$endpoint/tag/show")
-                    .setParameter(mapOf("id" to response))
-                    .build()
-
-                val newTag = json.decodeFromString<Tag>(
-                    string = nextcloudApi!!.performNetworkRequest(showRequest)
-                        .bufferedReader()
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                )
+                val newTag =
+                    client.post<Tag>(urlString = "$server$endpoint/tag/show") {
+                        parameter(key = "id", value = response)
+                    }
 
                 val data = storedTagsState.value
 
@@ -461,7 +402,7 @@ object NextcloudApiProvider : ViewModel() {
             } catch (e: Exception) {
                 showError()
             }
-        }*/
+        }
     }
 
     fun deletePasswordRequest(id: String) {
@@ -507,7 +448,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     /*TODO: wait for SSO to support PATCH method*/
-    fun updatePasswordRequest(index: Int, params: MutableMap<String, String>) {
+    fun updatePasswordRequest(params: MutableMap<String, String>) {
         /*val password = storedPasswordsState.value[index]
 
         viewModelScope.launch(Dispatchers.IO) {
