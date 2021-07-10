@@ -465,61 +465,45 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun deletePasswordRequest(id: String) {
-        /*viewModelScope.launch(Dispatchers.IO) {
-            val deleteRequest = NextcloudRequest.Builder()
-                .setMethod("DELETE")
-                .setUrl("$endpoint/password/delete")
-                .setParameter(mapOf("id" to id))
-                .build()
-
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                nextcloudApi!!.performNetworkRequest(deleteRequest)
+                client.delete<Any>(urlString = "$server$endpoint/password/delete") {
+                    parameter(key = "id", value = id)
+                }
 
                 storedPasswordsState.value.removeIf { it.id == id }
             } catch (e: Exception) {
                 showError()
             }
-        }*/
+        }
     }
 
     fun deleteFolderRequest(id: String) {
-        /*viewModelScope.launch(Dispatchers.IO) {
-            val deleteRequest = NextcloudRequest.Builder()
-                .setMethod("DELETE")
-                .setUrl("$endpoint/folder/delete")
-                .setParameter(mapOf("id" to id))
-                .build()
-
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                nextcloudApi!!.performNetworkRequest(deleteRequest)
+                client.delete<Any>(urlString = "$server$endpoint/folder/delete") {
+                    parameter(key = "id", value = id)
+                }
 
-                MainViewModel.setSelectedFolder(folder = MainViewModel.currentFolder.value)
-
-                refreshServerList()
+                storedFoldersState.value.removeIf { it.id == id }
             } catch (e: Exception) {
                 showError()
             }
-        }*/
+        }
     }
 
     fun deleteTagRequest(id: String) {
-        /*viewModelScope.launch(Dispatchers.IO) {
-            val deleteRequest = NextcloudRequest.Builder()
-                .setMethod("DELETE")
-                .setUrl("$endpoint/tag/delete")
-                .setParameter(mapOf("id" to id))
-                .build()
-
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                nextcloudApi!!.performNetworkRequest(deleteRequest)
+                client.delete<Any>(urlString = "$server$endpoint/tag/delete") {
+                    parameter(key = "id", value = id)
+                }
 
                 storedTagsState.value.removeIf { it.id == id }
-
-                refreshServerList()
             } catch (e: Exception) {
                 showError()
             }
-        }*/
+        }
     }
 
     /*TODO: wait for SSO to support PATCH method*/

@@ -171,12 +171,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                             MainViewModel.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
                         }
                     }
-                    ) {
-                        Text(
-                            text = context.getString(R.string.delete),
-                            color = Color.Red
-                        )
-                    }
+                    ) { Text(text = context.getString(R.string.delete), color = Color.Red) }
                 }
             }
         }

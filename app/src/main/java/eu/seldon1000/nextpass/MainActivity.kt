@@ -37,9 +37,9 @@ const val AUTOFILL_SETTINGS_CODE = 7799
 class MainActivity : FragmentActivity() {
     private val coroutineScope = MainScope()
 
+    @ExperimentalAnimationApi
     @ExperimentalFoundationApi
     @ExperimentalMaterialApi
-    @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
