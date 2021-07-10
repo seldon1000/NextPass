@@ -64,11 +64,6 @@ fun PasswordList() {
 
     var currentTag by remember { mutableStateOf(value = "") }
 
-    val showedPasswords = storedPasswords.filter { password ->
-        (if (currentTag.isNotEmpty()) password.tags.any { it.id == currentTag }
-        else true) && (!folderMode || password.folder == storedFolders[currentFolder].id)
-    }
-
     MyScaffoldLayout(
         fab = { DefaultFab() },
         bottomBar = { DefaultBottomBar(lazyListState = lazyListState) }) { paddingValues ->
@@ -142,8 +137,10 @@ fun PasswordList() {
                 if (index > 0 && index != currentFolder && folder.parent == storedFolders[currentFolder].id)
                     FolderCard(index = index, folder = folder)
             }
-            itemsIndexed(showedPasswords) { index, password ->
-                PasswordCard(index = index, password = password)
+            itemsIndexed(storedPasswords) { index, password ->
+                if (currentTag.isNotEmpty() && password.tags.any { it.id == currentTag } &&
+                    !folderMode || password.folder == storedFolders[currentFolder].id)
+                    PasswordCard(index = index, password = password)
             }
             item {
                 CountMessage(
