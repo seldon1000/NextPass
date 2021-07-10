@@ -33,8 +33,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
-import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
+import eu.seldon1000.nextpass.ui.layout.Routes
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.features.*
@@ -49,6 +49,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.serializer
 import java.net.URLEncoder
 
 @SuppressLint("StaticFieldLeak")
@@ -260,39 +261,19 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    private suspend fun listPasswordsRequest(): SnapshotStateList<Password> {
+    private suspend inline fun <reified T> listRequest(): SnapshotStateList<T> {
         return try {
             json.decodeFromString(
-                deserializer = SnapshotListSerializer(dataSerializer = Password.serializer()),
-                string = client.get(urlString = "$server$endpoint/password/list") {
-                    parameter("details", "model+tags")
-                })
-        } catch (e: Exception) {
-            showError()
-
-            mutableStateListOf()
-        }
-    }
-
-    private suspend fun listFoldersRequest(): SnapshotStateList<Folder> {
-        return try {
-            json.decodeFromString(
-                deserializer = SnapshotListSerializer(dataSerializer = Folder.serializer()),
-                string = client.get(urlString = "$server$endpoint/folder/list")
-            )
-        } catch (e: Exception) {
-            showError()
-
-            mutableStateListOf()
-        }
-    }
-
-    private suspend fun listTagsRequest(): SnapshotStateList<Tag> {
-        return try {
-            json.decodeFromString(
-                deserializer = SnapshotListSerializer(dataSerializer = Tag.serializer()),
-                string = client.get(urlString = "$server$endpoint/tag/list")
-            )
+                deserializer = SnapshotListSerializer(dataSerializer = serializer()),
+                string = client.get(
+                    urlString = "$server$endpoint/${
+                        when (T::class) {
+                            Password::class -> "password"
+                            Folder::class -> "folder"
+                            else -> "tag"
+                        }
+                    }/list"
+                ) { parameter("details", "model+tags") })
         } catch (e: Exception) {
             showError()
 
@@ -304,9 +285,14 @@ object NextcloudApiProvider : ViewModel() {
         MainViewModel.setRefreshing(refreshing = true)
 
         viewModelScope.launch(context = Dispatchers.IO) {
-            CoroutineScope(context = Dispatchers.IO).launch {
-                val passwords = listPasswordsRequest()
+            var folders = mutableStateListOf<Folder>()
+            var tags = mutableStateListOf<Tag>()
 
+            val passwords: SnapshotStateList<Password> = listRequest()
+            if (refreshFolders) folders = listRequest()
+            if (refreshTags) tags = listRequest()
+
+            launch {
                 passwords.sortBy { it.label.lowercase() }
                 passwords.forEachIndexed { index, password ->
                     faviconRequest(data = password)
@@ -315,31 +301,27 @@ object NextcloudApiProvider : ViewModel() {
                 }
 
                 storedPasswordsState.value = passwords
-
-                MainViewModel.setRefreshing(refreshing = false)
             }
-        }
 
-        if (refreshFolders) viewModelScope.launch(context = Dispatchers.IO) {
-            CoroutineScope(context = Dispatchers.IO).launch {
-                val folders = listFoldersRequest()
+            if (refreshFolders) {
+                launch {
+                    folders.sortBy { it.label.lowercase() }
+                    folders.add(index = 0, element = baseFolder)
+                    folders.forEachIndexed { index, folder -> folder.index = index }
 
-                folders.sortBy { it.label.lowercase() }
-                folders.add(index = 0, element = baseFolder)
-                folders.forEachIndexed { index, folder -> folder.index = index }
-
-                storedFoldersState.value = folders
+                    storedFoldersState.value = folders
+                }
             }
-        }
 
-        if (refreshTags) viewModelScope.launch(context = Dispatchers.IO) {
-            CoroutineScope(context = Dispatchers.IO).launch {
-                val tags = listTagsRequest()
+            if (refreshTags) {
+                launch {
+                    tags.sortBy { it.label.lowercase() }
 
-                tags.sortBy { it.label.lowercase() }
-
-                storedTagsState.value = tags
+                    storedTagsState.value = tags
+                }
             }
+
+            MainViewModel.setRefreshing(refreshing = false)
         }
     }
 
@@ -630,8 +612,10 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun faviconRequest(data: Any) {
+        val coroutineScope = CoroutineScope(context = Dispatchers.IO)
+
         when (data) {
-            is Password -> viewModelScope.launch(Dispatchers.IO) {
+            is Password -> coroutineScope.launch {
                 try {
                     data.setFavicon(
                         BitmapFactory.decodeStream(
@@ -645,7 +629,7 @@ object NextcloudApiProvider : ViewModel() {
                 } catch (e: Exception) {
                 }
             }
-            is String -> viewModelScope.launch(Dispatchers.IO) {
+            is String -> coroutineScope.launch {
                 if (data.isNotEmpty()) {
                     try {
                         currentRequestedFaviconState.value = BitmapFactory.decodeStream(
