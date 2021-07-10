@@ -138,7 +138,7 @@ fun PasswordDetails(passwordData: Password) {
                     body = {
                         Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
                     }
-                ) {}
+                )
             } else edit = true
         }) {
             Crossfade(targetState = edit) { state ->
@@ -188,7 +188,7 @@ fun PasswordDetails(passwordData: Password) {
                 .fillMaxSize()
                 .verticalScroll(state = scrollState, enabled = true)
         ) {
-            Header(expanded = false, title = context.getString(R.string.password_details)) {}
+            Header(expanded = false, title = context.getString(R.string.password_details))
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.padding(all = 72.dp)
@@ -434,7 +434,7 @@ fun PasswordDetails(passwordData: Password) {
                                             fontSize = 14.sp
                                         )
                                     }
-                                ) {}
+                                )
                             }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_round_done_24),

@@ -138,7 +138,7 @@ fun NewPassword() {
                 body = {
                     Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
                 }
-            ) {}
+            )
         }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_save_24),
@@ -163,7 +163,7 @@ fun NewPassword() {
                 .fillMaxSize()
                 .verticalScroll(state = scrollState, enabled = true)
         ) {
-            Header(expanded = false, title = context.getString(R.string.new_password)) {}
+            Header(expanded = false, title = context.getString(R.string.new_password))
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.padding(all = 72.dp)
@@ -194,19 +194,19 @@ fun NewPassword() {
                             NextcloudApiProvider.faviconRequest(data = it)
 
                         url = it
-                    }, label = context.getString(R.string.url)) {}
+                    }, label = context.getString(R.string.url))
                     TextFieldItem(
                         text = label,
                         onTextChanged = { label = it },
                         label = context.getString(R.string.label),
                         required = true,
                         capitalized = true
-                    ) {}
+                    )
                     TextFieldItem(
                         text = username,
                         onTextChanged = { username = it },
                         label = context.getString(R.string.username)
-                    ) {}
+                    )
                     TextFieldItem(
                         text = password,
                         onTextChanged = { password = it },
@@ -244,7 +244,7 @@ fun NewPassword() {
                         onTextChanged = { notes = it },
                         label = context.getString(R.string.notes),
                         capitalized = true
-                    ) {}
+                    )
                     customFields.forEach { customField ->
                         if (customField.containsKey(key = "value"))
                             TextFieldItem(

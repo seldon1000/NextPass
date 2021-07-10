@@ -48,7 +48,7 @@ fun WelcomeScreen() {
             fontSize = 36.sp, fontWeight = FontWeight.SemiBold,
         )
         Button(
-            onClick = { NextcloudApiProvider.pickNewAccount() },
+            onClick = { NextcloudApiProvider.attemptLogin() },
             shape = RoundedCornerShape(size = 8.dp)
         ) {
             Text(

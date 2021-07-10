@@ -78,7 +78,7 @@ fun Favorites() {
             state = lazyListState,
             modifier = Modifier.fillMaxSize()
         ) {
-            item { Header(expanded = true, title = context.getString(R.string.favorites)) {} }
+            item { Header(expanded = true, title = context.getString(R.string.favorites)) }
             if (tags) item { TagsRow { currentTag = if (it == currentTag) "" else it } }
             else item { Box(modifier = Modifier.height(12.dp)) }
             items(items = showedFolders) { folder -> FolderCard(folder = folder) }

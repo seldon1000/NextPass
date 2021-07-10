@@ -25,7 +25,7 @@
     <string name="immediately">Immediately</string>
     <string name="never">Never</string>
     <string name="service_terminated_snack">Autofill service terminated</string>
-    <string name="service_not_enabled_snack">You must enable autofill service in settings first</string>
+    <string name="service_not_enabled_snack">You must enable autofill service first</string>
     <string name="search_message">What are you looking for?</string>
     <string name="missing_nextcloud">Missing Nextcloud Files app!</string>
     <string name="missing_nextcloud_body">NextPass needs the Nextcloud Files app to be installed and updated.\n\nDo you want to install it now?</string>
@@ -114,8 +114,11 @@
     <string name="password_shared">Shared password: %1$s</string>
     <string name="delete_tag">Delete tag?</string>
     <string name="tag_deleted_snack">Tag deleted</string>
+    <string name="insert_server_url">Insert server URL</string>
     <string name="new_tag">New tag</string>
     <string name="new_tag_default">New tag %1$d</string>
+    <string name="timeout_expired">Timeout expired</string>
+    <string name="timeout_expired_body">NextPass waits approximately 60 seconds for you to complete login. Time\'s up, try again.</string>
     <string name="tag_created_snack">Tag created</string>
     <string name="add_new_tag">Add new tag</string>
     <string name="no_tags">No tags</string>

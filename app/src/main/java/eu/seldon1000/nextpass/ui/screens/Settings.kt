@@ -44,6 +44,7 @@ import eu.seldon1000.nextpass.AUTOFILL_SETTINGS_CODE
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.items.GenericColumnItem
 import eu.seldon1000.nextpass.ui.layout.DefaultBottomBar
 import eu.seldon1000.nextpass.ui.layout.Header
@@ -60,8 +61,6 @@ fun Settings() {
 
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
-
-    val currentAccount by NextcloudApiProvider.loginName.collectAsState()
 
     val protected by MainViewModel.pinProtected.collectAsState()
     val biometricProtected by MainViewModel.biometricProtected.collectAsState()
@@ -95,7 +94,7 @@ fun Settings() {
     )
 
     MyScaffoldLayout(fab = {
-        FloatingActionButton(onClick = { MainViewModel.navigate(route = "about") }) {
+        FloatingActionButton(onClick = { MainViewModel.navigate(route = Routes.About.route) }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_help_outline_24),
                 contentDescription = "about",
@@ -112,10 +111,7 @@ fun Settings() {
         ) {
             item {
                 Box(modifier = Modifier.padding(start = 16.dp)) {
-                    Header(
-                        expanded = true,
-                        title = context.getString(R.string.settings)
-                    ) {}
+                    Header(expanded = true, title = context.getString(R.string.settings))
                 }
             }
             item {
@@ -128,14 +124,11 @@ fun Settings() {
                 )
                 GenericColumnItem(
                     title = context.getString(R.string.current_account),
-                    body = currentAccount
+                    body = NextcloudApiProvider.getCurrentAccount()
                 ) {
                     MainViewModel.setPrimaryClip(
                         label = context.getString(R.string.current_account),
-                        context.getString(
-                            R.string.copy_snack_message,
-                            currentAccount
-                        )
+                        clip = NextcloudApiProvider.getCurrentAccount()
                     )
                 }
                 Row(
@@ -149,7 +142,7 @@ fun Settings() {
                         Text(text = context.getString(R.string.logout))
                     }
                     TextButton(
-                        onClick = { NextcloudApiProvider.pickNewAccount() },
+                        onClick = { NextcloudApiProvider.attemptLogin() },
                         modifier = Modifier.padding(end = 16.dp)
                     ) {
                         Text(text = context.getString(R.string.switch_account))
@@ -194,14 +187,20 @@ fun Settings() {
                     item = {
                         Switch(
                             checked = protected,
-                            onCheckedChange = { MainViewModel.navigate(route = "pin/false") },
+                            onCheckedChange = {
+                                MainViewModel.navigate(
+                                    route = Routes.Pin.getRoute(
+                                        arg = false
+                                    )
+                                )
+                            },
                             colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
                 ) {
                     if (protected)
-                        MainViewModel.navigate(route = "pin/true")
+                        MainViewModel.navigate(route = Routes.Pin.getRoute(arg = true))
                     else
                         MainViewModel.showDialog(
                             title = context.getString(R.string.pin_not_enabled),
@@ -212,7 +211,7 @@ fun Settings() {
                                 )
                             },
                             confirm = true
-                        ) { MainViewModel.navigate(route = "pin/false") }
+                        ) { MainViewModel.navigate(route = Routes.Pin.getRoute(arg = false)) }
                 }
             }
             item {

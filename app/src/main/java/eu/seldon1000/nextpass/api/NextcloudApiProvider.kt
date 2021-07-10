@@ -18,12 +18,10 @@ package eu.seldon1000.nextpass.api
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.*
 import android.net.Uri
 import android.webkit.CookieManager
-import android.widget.Toast
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.mutableStateListOf
@@ -35,6 +33,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
@@ -50,6 +49,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import java.net.URLEncoder
 
 @SuppressLint("StaticFieldLeak")
 object NextcloudApiProvider : ViewModel() {
@@ -69,8 +69,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     private var server = ""
-    private val loginNameState = MutableStateFlow(value = "")
-    val loginName = loginNameState
+    private var loginName = ""
     private var appPassword = ""
 
     private const val endpoint = "/index.php/apps/passwords/api/1.0"
@@ -101,7 +100,7 @@ object NextcloudApiProvider : ViewModel() {
 
                 if (sharedPreferences!!.contains("server")) {
                     server = sharedPreferences!!.getString("server", "")!!
-                    loginNameState.value = sharedPreferences!!.getString("loginName", "")!!
+                    loginName = sharedPreferences!!.getString("loginName", "")!!
                     appPassword = sharedPreferences!!.getString("appPassword", "")!!
 
                     client = client.config {
@@ -110,7 +109,7 @@ object NextcloudApiProvider : ViewModel() {
                                 sendWithoutRequest { true }
                                 credentials {
                                     BasicAuthCredentials(
-                                        username = loginNameState.value,
+                                        username = loginName,
                                         password = appPassword
                                     )
                                 }
@@ -122,9 +121,9 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun attemptLogin(): Boolean {
-        return server.isNotEmpty()
-    }
+    fun getCurrentAccount() = "$loginName@${server.removePrefix(prefix = "https://")}"
+
+    fun isLogged() = server.isNotEmpty()
 
     fun attemptLogout() {
         MainViewModel.showDialog(
@@ -132,15 +131,23 @@ object NextcloudApiProvider : ViewModel() {
             body = { Text(text = context!!.getString(R.string.logout_body), fontSize = 14.sp) },
             confirm = true
         ) {
+            try {
+                viewModelScope.launch {
+                    client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
+                        header("OCS-APIREQUEST", true)
+                    }
+                }
+            } catch (e: Exception) {
+                showError()
+            }
+
             storedPasswordsState.value.clear()
             storedFoldersState.value.clear()
             storedTagsState.value.clear()
 
-            viewModelScope.launch {
-                client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
-                    header("OCS-APIREQUEST", true)
-                }
-            }
+            server = ""
+            loginName = ""
+            appPassword = ""
 
             sharedPreferences!!.edit().remove("server").apply()
             sharedPreferences!!.edit().remove("loginName").apply()
@@ -154,41 +161,46 @@ object NextcloudApiProvider : ViewModel() {
 
             MainViewModel.setRefreshing(refreshing = false)
             MainViewModel.resetUserSettings()
-            MainViewModel.navigate(route = "welcome")
+            MainViewModel.navigate(route = Routes.Welcome.route)
             MainViewModel.showSnackbar(message = context!!.getString(R.string.disconnected_snack))
         }
     }
 
     @ExperimentalMaterialApi
-    fun pickNewAccount() {
+    fun attemptLogin() {
         val url = mutableStateOf(value = "")
 
-        MainViewModel.showDialog(title = "Insert server URL", body = {
+        MainViewModel.showDialog(title = context!!.getString(R.string.insert_server_url), body = {
             TextFieldItem(
                 text = url.value,
                 onTextChanged = { url.value = it },
                 label = context!!.getString(R.string.url),
                 required = true
-            ) {}
+            )
         }, confirm = true) {
+            if (!url.value.startsWith(prefix = "https://") ||
+                !url.value.startsWith(prefix = "http://")
+            ) url.value = "https://${url.value}"
+            url.value = "${url.value}/index.php/login/v2"
+
             viewModelScope.launch {
                 try {
-                    if (!url.value.startsWith(prefix = "https://") || !url.value.startsWith(prefix = "http://"))
-                        url.value = "https://${url.value}"
-                    url.value = "${url.value}/index.php/login/v2"
-
                     val response = client.post<JsonObject>(urlString = url.value)
 
                     val login = response["login"]!!.jsonPrimitive.content
                     val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
                     val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
 
-                    val intent = Intent(context, NextcloudWebAccessActivity::class.java)
-                    intent.putExtra("url", login)
-                    context!!.startActivity(intent)
+                    MainViewModel.navigate(
+                        route = Routes.WebView.getRoute(
+                            arg = URLEncoder.encode(login, "UTF-8")
+                        )
+                    )
 
+                    var i = 0
                     var loginResponse = JsonObject(mapOf())
-                    while (loginResponse.isEmpty()) {
+
+                    while (loginResponse.isEmpty() && i <= 120) {
                         try {
                             loginResponse = client.post(urlString = endpoint) {
                                 expectSuccess = false
@@ -197,39 +209,45 @@ object NextcloudApiProvider : ViewModel() {
                         } catch (e: Exception) {
                         }
 
-                        delay(timeMillis = 1000)
+                        delay(timeMillis = 500)
+                        i++
                     }
 
-                    val toast = Toast.makeText(
-                        context,
-                        "Login successful, go back to view your passwords",
-                        Toast.LENGTH_LONG
-                    )
-                    toast.show()
+                    if (server.isNotEmpty()) MainViewModel.popBackStack()
 
-                    server = loginResponse["server"]!!.jsonPrimitive.content
-                    loginNameState.value = loginResponse["loginName"]!!.jsonPrimitive.content
-                    appPassword = loginResponse["appPassword"]!!.jsonPrimitive.content
+                    if (i > 120) MainViewModel.showDialog(
+                        title = context!!.getString(R.string.timeout_expired),
+                        body = {
+                            Text(
+                                text = context!!.getString(R.string.timeout_expired_body),
+                                fontSize = 14.sp
+                            )
+                        })
+                    else {
+                        server = loginResponse["server"]!!.jsonPrimitive.content
+                        loginName = loginResponse["loginName"]!!.jsonPrimitive.content
+                        appPassword = loginResponse["appPassword"]!!.jsonPrimitive.content
 
-                    sharedPreferences!!.edit().putString("server", server).apply()
-                    sharedPreferences!!.edit().putString("loginName", loginNameState.value).apply()
-                    sharedPreferences!!.edit().putString("appPassword", appPassword).apply()
+                        sharedPreferences!!.edit().putString("server", server).apply()
+                        sharedPreferences!!.edit().putString("loginName", loginName).apply()
+                        sharedPreferences!!.edit().putString("appPassword", appPassword).apply()
 
-                    client = client.config {
-                        install(Auth) {
-                            basic {
-                                sendWithoutRequest { true }
-                                credentials {
-                                    BasicAuthCredentials(
-                                        username = loginNameState.value,
-                                        password = appPassword
-                                    )
+                        client = client.config {
+                            install(Auth) {
+                                basic {
+                                    sendWithoutRequest { true }
+                                    credentials {
+                                        BasicAuthCredentials(
+                                            username = loginName,
+                                            password = appPassword
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    MainViewModel.openApp(shouldRememberScreen = server.isEmpty())
+                        MainViewModel.openApp(shouldRememberScreen = server.isEmpty())
+                    }
 
                     val cookieManager = CookieManager.getInstance()
                     cookieManager.removeSessionCookies {}
@@ -285,10 +303,10 @@ object NextcloudApiProvider : ViewModel() {
     fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
         MainViewModel.setRefreshing(refreshing = true)
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val passwords = listPasswordsRequest()
+        viewModelScope.launch(context = Dispatchers.IO) {
+            CoroutineScope(context = Dispatchers.IO).launch {
+                val passwords = listPasswordsRequest()
 
-            viewModelScope.launch(Dispatchers.IO) {
                 passwords.sortBy { it.label.lowercase() }
                 passwords.forEachIndexed { index, password ->
                     faviconRequest(data = password)
@@ -297,31 +315,31 @@ object NextcloudApiProvider : ViewModel() {
                 }
 
                 storedPasswordsState.value = passwords
-            }
 
-            if (refreshFolders) {
+                MainViewModel.setRefreshing(refreshing = false)
+            }
+        }
+
+        if (refreshFolders) viewModelScope.launch(context = Dispatchers.IO) {
+            CoroutineScope(context = Dispatchers.IO).launch {
                 val folders = listFoldersRequest()
 
-                viewModelScope.launch(Dispatchers.IO) {
-                    folders.sortBy { it.label.lowercase() }
-                    folders.add(index = 0, element = baseFolder)
-                    folders.forEachIndexed { index, folder -> folder.index = index }
+                folders.sortBy { it.label.lowercase() }
+                folders.add(index = 0, element = baseFolder)
+                folders.forEachIndexed { index, folder -> folder.index = index }
 
-                    storedFoldersState.value = folders
-                }
+                storedFoldersState.value = folders
             }
+        }
 
-            if (refreshTags) {
+        if (refreshTags) viewModelScope.launch(context = Dispatchers.IO) {
+            CoroutineScope(context = Dispatchers.IO).launch {
                 val tags = listTagsRequest()
 
-                viewModelScope.launch(Dispatchers.IO) {
-                    tags.sortBy { it.label.lowercase() }
+                tags.sortBy { it.label.lowercase() }
 
-                    storedTagsState.value = tags
-                }
+                storedTagsState.value = tags
             }
-
-            MainViewModel.setRefreshing(refreshing = false)
         }
     }
 
@@ -597,12 +615,12 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     suspend fun generatePassword(): String {
-        return withContext(Dispatchers.IO) {
+        return withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
             try {
-                client.get(urlString = "$server$endpoint/service/password") {
+                client.get<JsonObject>(urlString = "$server$endpoint/service/password") {
                     expectSuccess = false
                     parameter("details", "model+tags")
-                }
+                }["password"]!!.jsonPrimitive.content
             } catch (e: Exception) {
                 showError()
 
@@ -664,7 +682,7 @@ object NextcloudApiProvider : ViewModel() {
         MainViewModel.showDialog(
             title = context!!.getString(R.string.error),
             body = { Text(text = context!!.getString(R.string.error_body), fontSize = 14.sp) }
-        ) {}
+        )
 
         MainViewModel.setRefreshing(refreshing = false)
     }

@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun Header(expanded: Boolean, title: String, item: @Composable () -> Unit) {
+fun Header(expanded: Boolean, title: String, item: @Composable () -> Unit = {}) {
     if (expanded) {
         Column(
             verticalArrangement = Arrangement.Bottom,

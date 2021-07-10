@@ -84,7 +84,7 @@ fun NewFolder() {
                 body = {
                     Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
                 }
-            ) {}
+            )
         }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_save_24),
@@ -109,7 +109,7 @@ fun NewFolder() {
                 .fillMaxSize()
                 .verticalScroll(state = scrollState, enabled = true)
         ) {
-            Header(expanded = false, title = context.getString(R.string.new_folder)) {}
+            Header(expanded = false, title = context.getString(R.string.new_folder))
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.padding(all = 72.dp)
@@ -159,7 +159,7 @@ fun NewFolder() {
                         label = context.getString(R.string.label),
                         required = true,
                         capitalized = true
-                    ) {}
+                    )
                 }
             }
         }

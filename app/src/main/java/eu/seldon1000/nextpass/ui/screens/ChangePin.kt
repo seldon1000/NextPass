@@ -76,7 +76,7 @@ fun ChangePin(change: Boolean) {
                                     fontSize = 14.sp
                                 )
                             }
-                        ) {}
+                        )
                     } else if (ready) {
                         if (pin.length >= 4) {
                             tempPin = pin
@@ -91,7 +91,7 @@ fun ChangePin(change: Boolean) {
                                     fontSize = 14.sp
                                 )
                             }
-                        ) {}
+                        )
                     } else {
                         if (MainViewModel.checkPin(pin = pin)) {
                             pin = ""
@@ -106,7 +106,7 @@ fun ChangePin(change: Boolean) {
                                         fontSize = 14.sp
                                     )
                                 }
-                            ) {}
+                            )
                         }
                     }
                 } else {
@@ -133,7 +133,7 @@ fun ChangePin(change: Boolean) {
                                     fontSize = 14.sp
                                 )
                             }
-                        ) {}
+                        )
                     }
                 }
             } else {
@@ -162,7 +162,7 @@ fun ChangePin(change: Boolean) {
                                 fontSize = 14.sp
                             )
                         }
-                    ) {}
+                    )
                 } else {
                     if (pin.length >= 4) {
                         tempPin = pin
@@ -177,7 +177,7 @@ fun ChangePin(change: Boolean) {
                                 fontSize = 13.sp
                             )
                         }
-                    ) {}
+                    )
                 }
             }
         }) {
@@ -218,7 +218,7 @@ fun ChangePin(change: Boolean) {
                     if (confirm) context.getString(R.string.confirm_new_pin)
                     else context.getString(R.string.create_new_pin)
                 }
-            ) {}
+            )
             Box(
                 modifier = Modifier
                     .width(width = 176.dp)

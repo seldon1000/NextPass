@@ -35,6 +35,7 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Folder
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 
 @ExperimentalMaterialApi
@@ -89,7 +90,7 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
                 DropdownMenuItem({
                     MainViewModel.setFolderMode(mode = true)
                     MainViewModel.setCurrentFolder(folder = folder.index)
-                    MainViewModel.navigate(route = "passwords")
+                    MainViewModel.navigate(route = Routes.Passwords.route)
 
                     expanded = false
                 }) {
@@ -124,7 +125,7 @@ fun FolderCard(folder: Folder, icon: Painter? = null) {
                     }
                 }
                 DropdownMenuItem({
-                    MainViewModel.navigate(route = "folder_details/${folder.index}")
+                    MainViewModel.navigate(route = Routes.FolderDetails.getRoute(arg = folder.index))
 
                     expanded = false
                 }) {

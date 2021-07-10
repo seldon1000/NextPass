@@ -34,6 +34,7 @@ import androidx.navigation.NavController
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.services.NextPassAutofillService
+import eu.seldon1000.nextpass.ui.layout.Routes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -198,8 +199,8 @@ object MainViewModel : ViewModel() {
 
     fun showSnackbar(message: String) {
         viewModelScope.launch {
-            if (navControllerState.value?.currentDestination?.route!! != "access_pin/{shouldRaiseBiometric}" &&
-                navControllerState.value?.currentDestination?.route!! != "pin"
+            if (navControllerState.value?.currentDestination?.route!! != Routes.AccessPin.route &&
+                navControllerState.value?.currentDestination?.route!! != Routes.Pin.route
             ) {
                 snackbarHostState?.currentSnackbarData?.dismiss()
                 snackbarHostState?.showSnackbar(message = message)
@@ -234,7 +235,7 @@ object MainViewModel : ViewModel() {
 
     private fun startAutofillService(): Boolean {
         return if (autofillManager!!.hasEnabledAutofillServices() &&
-            NextcloudApiProvider.attemptLogin() && setAutofillIntent(
+            NextcloudApiProvider.isLogged() && setAutofillIntent(
                 intent = Intent(context, NextPassAutofillService::class.java)
             )
         ) {
@@ -289,7 +290,7 @@ object MainViewModel : ViewModel() {
             if (biometricProtectedState.value) biometricDismissedState.value = false
 
             setRefreshing(refreshing = false)
-            navigate(route = "access_pin/$shouldRaiseBiometric")
+            navigate(route = Routes.AccessPin.getRoute(arg = shouldRaiseBiometric))
             dismissDialog()
         }
     }
@@ -297,7 +298,7 @@ object MainViewModel : ViewModel() {
     fun unlock() {
         unlockedState.value = true
 
-        if (navControllerState.value?.previousBackStackEntry?.destination?.route != "welcome") {
+        if (navControllerState.value?.previousBackStackEntry?.destination?.route != Routes.Welcome.route) {
             navControllerState.value?.popBackStack(
                 route = navControllerState.value?.currentBackStackEntry?.destination?.route!!,
                 inclusive = true
@@ -310,14 +311,14 @@ object MainViewModel : ViewModel() {
 
     fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlockedState.value) {
-            if (NextcloudApiProvider.attemptLogin()) {
+            if (NextcloudApiProvider.isLogged()) {
                 startAutofillService()
 
-                if (!shouldRememberScreen) navigate(route = "passwords")
+                if (!shouldRememberScreen) navigate(route = Routes.Passwords.route)
 
                 NextcloudApiProvider.refreshServerList()
             }
-        } else navigate(route = "access_pin/true")
+        } else navigate(route = Routes.AccessPin.getRoute(arg = true))
     }
 
     fun checkPin(pin: String): Boolean {
@@ -393,18 +394,18 @@ object MainViewModel : ViewModel() {
     fun setRefreshing(refreshing: Boolean) {
         refreshingState.value = refreshing &&
                 try {
-                    navControllerState.value?.currentDestination?.route!! != "access_pin/{shouldRaiseBiometric}" &&
-                            navControllerState.value?.currentDestination?.route!! != "welcome" &&
-                            navControllerState.value?.currentDestination?.route!! != "about" &&
-                            navControllerState.value?.currentDestination?.route!! != "pin"
+                    navControllerState.value?.currentDestination?.route!! != Routes.AccessPin.route &&
+                            navControllerState.value?.currentDestination?.route!! != Routes.Welcome.route &&
+                            navControllerState.value?.currentDestination?.route!! != Routes.About.route &&
+                            navControllerState.value?.currentDestination?.route!! != Routes.Pin.route
                 } catch (e: Exception) {
                     false
                 }
     }
 
     private fun setKeyboardMode() {
-        if (navControllerState.value?.currentDestination?.route!! == "search" ||
-            navControllerState.value?.currentDestination?.route!! == "pin/{change}"
+        if (navControllerState.value?.currentDestination?.route!! == Routes.Search.route ||
+            navControllerState.value?.currentDestination?.route!! == Routes.Pin.route
         )
             context!!.window.setSoftInputMode(16)
         else
@@ -420,11 +421,11 @@ object MainViewModel : ViewModel() {
                 restoreState = true
             }
 
-            if (navControllerState.value?.currentBackStackEntry?.destination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == "welcome" ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == "settings" ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == "about" ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == "pin"
+            if (navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.AccessPin.route ||
+                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Welcome.route ||
+                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Settings.route ||
+                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.About.route ||
+                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Pin.route
             ) refreshingState.value = false
         }
 
@@ -433,11 +434,12 @@ object MainViewModel : ViewModel() {
 
     fun popBackStack(): Boolean {
         try {
-            return if (navControllerState.value?.previousBackStackEntry?.destination?.route!! == "welcome" ||
-                navControllerState.value?.previousBackStackEntry?.destination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == "welcome" ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == "access_pin/{shouldRaiseBiometric}" ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == "passwords"
+            return if ((navControllerState.value?.previousBackStackEntry?.destination?.route!! == Routes.Welcome.route &&
+                        navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.WebView.route) ||
+                navControllerState.value?.previousBackStackEntry?.destination?.route!! == Routes.AccessPin.route ||
+                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Welcome.route ||
+                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.AccessPin.route ||
+                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Passwords.route
             )
                 if (currentFolderState.value != 0) {
                     setCurrentFolder()
@@ -446,7 +448,7 @@ object MainViewModel : ViewModel() {
             else {
                 navControllerState.value?.popBackStack()
 
-                if (navControllerState.value?.currentBackStackEntry?.destination?.route!! != "new_password")
+                if (navControllerState.value?.currentBackStackEntry?.destination?.route!! != Routes.NewPassword.route)
                     NextcloudApiProvider.faviconRequest(data = "")
 
                 setKeyboardMode()
@@ -496,7 +498,7 @@ object MainViewModel : ViewModel() {
         title: String,
         body: @Composable () -> Unit,
         confirm: Boolean = false,
-        action: () -> Unit
+        action: () -> Unit = {}
     ) {
         dialogTitleState.value = title
         dialogBodyState.value = body

@@ -68,7 +68,7 @@ fun About() {
                 .fillMaxSize()
                 .verticalScroll(state = scrollState, enabled = true)
         ) {
-            Header(expanded = false, title = context.getString(R.string.about)) {}
+            Header(expanded = false, title = context.getString(R.string.about))
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.padding(all = 72.dp)

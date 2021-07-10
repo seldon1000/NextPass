@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.items.*
 import eu.seldon1000.nextpass.ui.layout.DefaultBottomBar
 import eu.seldon1000.nextpass.ui.layout.DefaultFab
@@ -106,7 +107,7 @@ fun PasswordList() {
                                     }
                                 }
                                 Crossfade(targetState = folderMode) {
-                                    IconButton(onClick = { MainViewModel.navigate(route = "new_folder") }) {
+                                    IconButton(onClick = { MainViewModel.navigate(route = Routes.NewFolder.route) }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_round_create_new_folder_24),
                                             contentDescription = "new_folder"

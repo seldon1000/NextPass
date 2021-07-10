@@ -19,23 +19,17 @@ package eu.seldon1000.nextpass.ui.layout
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.screens.*
@@ -47,6 +41,7 @@ import eu.seldon1000.nextpass.ui.screens.*
 fun CentralScreenControl() {
     val navController = rememberNavController()
     MainViewModel.setNavController(navController = navController)
+
     val currentScreen by navController.currentBackStackEntryAsState()
 
     val scaffoldState = rememberScaffoldState()
@@ -65,48 +60,46 @@ fun CentralScreenControl() {
         SwipeRefresh(
             state = refreshState,
             onRefresh = { NextcloudApiProvider.refreshServerList() },
-            swipeEnabled = currentScreen?.destination?.route != "access_pin/{shouldRaiseBiometric}" &&
+            swipeEnabled = currentScreen?.destination?.route?.contains("access_pin") == false &&
+                    currentScreen?.destination?.route?.contains("webview") == false &&
                     currentScreen?.destination?.route != "welcome" &&
                     currentScreen?.destination?.route != "settings" &&
                     currentScreen?.destination?.route != "about" &&
                     currentScreen?.destination?.route != "pin"
         ) {
-            NavHost(navController = navController, startDestination = "welcome")
+            NavHost(
+                navController = navController,
+                startDestination = Routes.Welcome.route
+            )
             {
                 composable(
-                    route = "access_pin/{shouldRaiseBiometric}",
+                    route = Routes.AccessPin.route,
                     listOf(navArgument(name = "shouldRaiseBiometric") { type = NavType.BoolType })
-                ) { navBackStackEntry ->
-                    AccessPin(shouldRaiseBiometric = navBackStackEntry.arguments?.getBoolean("shouldRaiseBiometric")!!)
-                }
-                composable(route = "welcome") { WelcomeScreen() }
-                composable(route = "search") { Search() }
-                composable(route = "passwords") { PasswordList() }
-                composable(route = "new_password") { NewPassword() }
-                composable(route = "new_folder") { NewFolder() }
-                composable(route = "favorites") { Favorites() }
-                composable(route = "settings") { Settings() }
-                composable(route = "about") { About() }
+                ) { AccessPin(shouldRaiseBiometric = it.arguments?.getBoolean("shouldRaiseBiometric")!!) }
                 composable(
-                    route = "password_details/{password_data}",
-                    listOf(navArgument(name = "password_data") { type = NavType.IntType })
-                ) { navBackStackEntry ->
-                    PasswordDetails(
-                        passwordData = storedPasswords[navBackStackEntry.arguments?.getInt("password_data")!!]
-                    )
-                }
+                    route = Routes.WebView.route,
+                    listOf(navArgument(name = "url") { type = NavType.StringType })
+                ) { WebPageVisualizer(urlToRender = it.arguments?.getString("url")!!) }
+                composable(route = Routes.Welcome.route) { WelcomeScreen() }
+                composable(route = Routes.Search.route) { Search() }
+                composable(route = Routes.Passwords.route) { PasswordList() }
+                composable(route = Routes.NewPassword.route) { NewPassword() }
+                composable(route = Routes.NewFolder.route) { NewFolder() }
+                composable(route = Routes.Favorites.route) { Favorites() }
+                composable(route = Routes.Settings.route) { Settings() }
+                composable(route = Routes.About.route) { About() }
                 composable(
-                    route = "folder_details/{folder_data}",
-                    listOf(navArgument(name = "folder_data") { type = NavType.IntType })
-                ) { navBackStackEntry ->
-                    FolderDetails(folder = storedFolders[navBackStackEntry.arguments?.getInt("folder_data")!!])
-                }
+                    route = Routes.PasswordDetails.route,
+                    listOf(navArgument(name = "data") { type = NavType.IntType })
+                ) { PasswordDetails(passwordData = storedPasswords[it.arguments?.getInt("data")!!]) }
                 composable(
-                    route = "pin/{change}",
+                    route = Routes.FolderDetails.route,
+                    listOf(navArgument(name = "data") { type = NavType.IntType })
+                ) { FolderDetails(folder = storedFolders[it.arguments?.getInt("data")!!]) }
+                composable(
+                    route = Routes.Pin.route,
                     listOf(navArgument(name = "change") { type = NavType.BoolType })
-                ) { navBackStackEntry ->
-                    ChangePin(change = navBackStackEntry.arguments?.getBoolean("change")!!)
-                }
+                ) { ChangePin(change = it.arguments?.getBoolean("change")!!) }
             }
         }
     }
@@ -120,8 +113,6 @@ fun MySnackbar(snackbarHostState: SnackbarHostState) {
             Snackbar(
                 backgroundColor = Color.DarkGray,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 96.dp)
-            ) {
-                Text(text = data.message, color = Color.White)
-            }
+            ) { Text(text = data.message, color = Color.White) }
         })
 }

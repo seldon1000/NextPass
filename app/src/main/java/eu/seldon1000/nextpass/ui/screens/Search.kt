@@ -111,7 +111,7 @@ fun Search() {
             ),
             modifier = Modifier.fillMaxSize()
         ) {
-            item { Header(expanded = true, title = context.getString(R.string.search)) {} }
+            item { Header(expanded = true, title = context.getString(R.string.search)) }
             if (tags) item { TagsRow { currentTag = if (it == currentTag) "" else it } }
             else item { Box(modifier = Modifier.height(12.dp)) }
             if (searchedText.isNotEmpty()) {

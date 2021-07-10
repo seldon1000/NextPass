@@ -76,7 +76,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                 .fillMaxSize()
                 .verticalScroll(state = scrollState, enabled = true)
         ) {
-            Header(expanded = false, title = context.getString(R.string.folder_details)) {}
+            Header(expanded = false, title = context.getString(R.string.folder_details))
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.padding(all = 72.dp)

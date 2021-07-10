@@ -72,7 +72,7 @@ class NextPassAutofillService : AutofillService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return if (NextcloudApiProvider.storedPasswords.value.isEmpty() &&
-            NextcloudApiProvider.attemptLogin()
+            NextcloudApiProvider.isLogged()
         ) {
             NextcloudApiProvider.refreshServerList(refreshFolders = false, refreshTags = false)
 
@@ -88,7 +88,7 @@ class NextPassAutofillService : AutofillService() {
         super.onConnected()
 
         if (NextcloudApiProvider.storedPasswords.value.isEmpty() &&
-            NextcloudApiProvider.attemptLogin()
+            NextcloudApiProvider.isLogged()
         ) NextcloudApiProvider.refreshServerList(refreshFolders = false, refreshTags = false)
     }
 

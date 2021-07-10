@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.layout.Routes
 
 @ExperimentalMaterialApi
 @Composable
@@ -112,7 +113,7 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
                     isRotated = !isRotated
                     expanded = false
 
-                    MainViewModel.navigate(route = "new_folder")
+                    MainViewModel.navigate(route = Routes.NewFolder.route)
                 }) { Text(text = context.getString(R.string.add_new_folder)) }
             }
         }

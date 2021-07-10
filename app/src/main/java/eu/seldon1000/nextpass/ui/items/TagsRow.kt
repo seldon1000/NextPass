@@ -188,7 +188,7 @@ fun TagsRow(
                                 label = context.getString(R.string.label),
                                 required = true,
                                 capitalized = true
-                            ) {}
+                            )
                             ColorPicker { newTagColor = it }
                         }
                     }, confirm = true) {

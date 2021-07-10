@@ -45,7 +45,7 @@ fun TextFieldItem(
     capitalized: Boolean = false,
     protected: Boolean = false,
     showed: Boolean = true,
-    trailingIcon: @Composable () -> Unit
+    trailingIcon: @Composable () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier

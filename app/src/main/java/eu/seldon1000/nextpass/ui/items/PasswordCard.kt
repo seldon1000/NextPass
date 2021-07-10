@@ -37,6 +37,7 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.api.Password
 import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.ui.layout.Routes
 
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
@@ -147,7 +148,7 @@ fun PasswordCard(password: Password) {
                 )
             }
             DropdownMenuItem(onClick = {
-                MainViewModel.navigate(route = "password_details/${password.index}")
+                MainViewModel.navigate(route = Routes.PasswordDetails.getRoute(arg = password.index))
 
                 expanded = false
             }) {
@@ -164,7 +165,7 @@ fun PasswordCard(password: Password) {
                 DropdownMenuItem(onClick = {
                     MainViewModel.setFolderMode(mode = true)
                     MainViewModel.setCurrentFolder(folder = storedFolders.indexOfFirst { password.folder == it.id })
-                    MainViewModel.navigate(route = "passwords")
+                    MainViewModel.navigate(route = Routes.Passwords.route)
 
                     expanded = false
                 }) {

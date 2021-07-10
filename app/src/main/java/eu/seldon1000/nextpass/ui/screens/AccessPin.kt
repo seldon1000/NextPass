@@ -51,7 +51,7 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize()
     ) {
-        Header(expanded = false, title = context.getString(R.string.authenticate)) {}
+        Header(expanded = false, title = context.getString(R.string.authenticate))
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxSize()
@@ -107,7 +107,7 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                                     fontSize = 14.sp
                                 )
                             }
-                        ) {}
+                        )
                     }
                 }, modifier = Modifier.padding(bottom = 64.dp)) {
                     Icon(

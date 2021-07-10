@@ -41,8 +41,11 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
 
     BottomAppBar(cutoutShape = CircleShape) {
         BottomNavigationItem(
-            selected = currentScreen?.destination?.route == "search",
-            onClick = { if (currentScreen?.destination?.route != "search") MainViewModel.navigate(route = "search") },
+            selected = currentScreen?.destination?.route == Routes.Search.route,
+            onClick = {
+                if (currentScreen?.destination?.route != Routes.Search.route)
+                    MainViewModel.navigate(route = Routes.Search.route)
+            },
             icon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_search_24),
@@ -53,9 +56,10 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
-            selected = currentScreen?.destination?.route == "passwords",
+            selected = currentScreen?.destination?.route == Routes.Passwords.route,
             onClick = {
-                if (currentScreen?.destination?.route != "passwords") MainViewModel.navigate(route = "passwords")
+                if (currentScreen?.destination?.route != Routes.Passwords.route)
+                    MainViewModel.navigate(route = Routes.Passwords.route)
                 else {
                     MainViewModel.setCurrentFolder(folder = 0)
                     coroutineScope.launch { lazyListState.scrollToItem(index = 0) }
@@ -71,9 +75,10 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
-            selected = currentScreen?.destination?.route == "favorites",
+            selected = currentScreen?.destination?.route == Routes.Favorites.route,
             onClick = {
-                if (currentScreen?.destination?.route != "favorites") MainViewModel.navigate(route = "favorites")
+                if (currentScreen?.destination?.route != Routes.Favorites.route)
+                    MainViewModel.navigate(route = Routes.Favorites.route)
                 else coroutineScope.launch { lazyListState.scrollToItem(0) }
             },
             icon = {
@@ -86,9 +91,10 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
-            selected = currentScreen?.destination?.route == "settings",
+            selected = currentScreen?.destination?.route == Routes.Settings.route,
             onClick = {
-                if (currentScreen?.destination?.route != "settings") MainViewModel.navigate(route = "settings")
+                if (currentScreen?.destination?.route != Routes.Settings.route)
+                    MainViewModel.navigate(route = Routes.Settings.route)
                 else coroutineScope.launch { lazyListState.scrollToItem(0) }
             },
             icon = {
