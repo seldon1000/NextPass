@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
@@ -57,13 +58,7 @@ fun Favorites() {
 
     val tags by MainViewModel.tags.collectAsState()
 
-    var currentTag by remember { mutableStateOf(value = "") }
-
-    val showedPasswords = storedPasswords.filter { password ->
-        (if (currentTag.isNotEmpty()) password.tags.any { it.id == currentTag }
-        else true) && password.favorite
-    }
-    val showedFolders = storedFolders.filter { folder -> folder.favorite }
+    var currentTag: Tag? by remember { mutableStateOf(value = null) }
 
     MyScaffoldLayout(
         fab = { DefaultFab() },
@@ -79,19 +74,20 @@ fun Favorites() {
             modifier = Modifier.fillMaxSize()
         ) {
             item { Header(expanded = true, title = context.getString(R.string.favorites)) }
-            if (tags) item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            if (tags) item { TagsRow { currentTag = if (it == currentTag) null else it } }
             else item { Box(modifier = Modifier.height(12.dp)) }
-            itemsIndexed(items = showedFolders) { index, folder ->
-                FolderCard(index = index, folder = folder)
+            itemsIndexed(items = storedFolders) { index, folder ->
+                if (folder.favorite) FolderCard(index = index, folder = folder)
             }
-            itemsIndexed(items = showedPasswords) { index, password ->
-                PasswordCard(index = index, password = password)
+            itemsIndexed(items = storedPasswords) { index, password ->
+                if (if (currentTag != null) password.tags.any { it == currentTag } else password.favorite)
+                    PasswordCard(index = index, password = password)
             }
             item {
                 CountMessage(
                     message = context.getString(
                         R.string.favorite_passwords_number,
-                        showedPasswords.size
+                        storedPasswords.count { it.favorite }
                     )
                 )
             }

@@ -51,10 +51,10 @@ import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 @ExperimentalMaterialApi
 @Composable
 fun TagsRow(
-    tags: MutableList<Tag>? = null,
+    tags: List<Tag>? = null,
     full: Boolean = true,
     alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    tagClickAction: (tag: String) -> Unit
+    tagClickAction: (tag: Tag?) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -101,10 +101,8 @@ fun TagsRow(
                             )
                             .combinedClickable(
                                 onClick = {
-                                    if (tags == null) {
-                                        tagClickAction(tag.id)
-                                        selected = if (state == index) -1 else index
-                                    }
+                                    if (full) tagClickAction(tag)
+                                    if (tags == null) selected = if (state == index) -1 else index
                                 },
                                 onLongClick = { expanded = true })
                     ) {
@@ -183,7 +181,7 @@ fun TagsRow(
                                 NextcloudApiProvider.deleteTagRequest(id = tag.id)
                                 MainViewModel.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
 
-                                tagClickAction("")
+                                tagClickAction(null)
                                 selected = -1
                             }
 
@@ -204,7 +202,7 @@ fun TagsRow(
                 }
             }
         }
-        if (full || tags!!.size < 1) Surface(
+        if (full || tags!!.isEmpty()) Surface(
             shape = RoundedCornerShape(size = 8.dp),
             modifier = Modifier.shadow(
                 elevation = 8.dp,
@@ -260,9 +258,9 @@ fun TagsRow(
                         } else context.getString(R.string.no_tags),
                         fontSize = 14.sp,
                         modifier = Modifier.padding(
-                            start = if ((full && storedTags.size < 1) || (!full && tags!!.size < 1)) 18.dp else 0.dp,
+                            start = if ((full && storedTags.size < 1) || (!full && tags!!.isEmpty())) 18.dp else 0.dp,
                             top = 8.dp,
-                            end = if ((full && storedTags.size < 1) || (!full && tags!!.size < 1)) 18.dp else 0.dp,
+                            end = if ((full && storedTags.size < 1) || (!full && tags!!.isEmpty())) 18.dp else 0.dp,
                             bottom = 8.dp
                         )
                     )
@@ -270,7 +268,7 @@ fun TagsRow(
                         painter = painterResource(id = R.drawable.ic_round_add_24),
                         contentDescription = "add_tag",
                         modifier = Modifier.padding(
-                            start = if ((full && storedTags.size < 1) || (!full && tags!!.size < 1)) 0.dp else 6.dp,
+                            start = if ((full && storedTags.size < 1) || (!full && tags!!.isEmpty())) 0.dp else 6.dp,
                             end = 6.dp
                         )
                     )

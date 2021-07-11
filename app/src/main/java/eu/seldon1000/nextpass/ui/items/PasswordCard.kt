@@ -34,8 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.api.Password
+import eu.seldon1000.nextpass.api.*
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.Routes
 
@@ -106,13 +105,17 @@ fun PasswordCard(index: Int, password: Password) {
                     "password" to password.password,
                     "url" to password.url,
                     "notes" to password.notes,
-                    "customFields" to password.customFields,
+                    "customFields" to NextcloudApiProvider.json.encodeToString(
+                        serializer = SnapshotListSerializer(
+                            dataSerializer = CustomField.serializer()
+                        ), value = password.customFieldsMap
+                    ),
                     "folder" to password.folder,
                     "hash" to password.hash,
                     "favorite" to it.toString()
                 )
 
-                NextcloudApiProvider.updatePasswordRequest(params = params)
+                NextcloudApiProvider.updatePasswordRequest(params = params, tags = password.tags)
             }
         }
         DropdownMenu(

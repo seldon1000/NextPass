@@ -37,9 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.CustomField
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.api.Password
+import eu.seldon1000.nextpass.api.*
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.*
 import eu.seldon1000.nextpass.ui.layout.Header
@@ -70,6 +68,7 @@ fun PasswordDetails(passwordData: Password) {
     var username by remember { mutableStateOf(value = passwordData.username) }
     var password by remember { mutableStateOf(value = passwordData.password) }
     var notes by remember { mutableStateOf(value = passwordData.notes) }
+    var tags by remember { mutableStateOf(value = passwordData.tags.toMutableList()) }
     var customFields by remember { mutableStateOf(value = passwordData.customFieldsMap) }
     val favicon by passwordData.favicon.collectAsState()
 
@@ -125,7 +124,7 @@ fun PasswordDetails(passwordData: Password) {
                             "favorite" to passwordData.favorite.toString()
                         )
 
-                        NextcloudApiProvider.updatePasswordRequest(params = params)
+                        NextcloudApiProvider.updatePasswordRequest(params = params, tags = tags)
                         MainViewModel.showSnackbar(message = context.getString(R.string.password_updated_snack))
                     }
                 } else MainViewModel.showDialog(
@@ -157,6 +156,9 @@ fun PasswordDetails(passwordData: Password) {
                         username = passwordData.username
                         password = passwordData.password
                         notes = passwordData.notes
+                        tags = passwordData.tags
+
+                        passwordData.resetCustomFields()
                         customFields = passwordData.customFieldsMap
 
                         MainViewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == passwordData.folder })
@@ -241,10 +243,13 @@ fun PasswordDetails(passwordData: Password) {
                             modifier = Modifier.padding(top = 6.dp)
                         )
                         TagsRow(
-                            tags = passwordData.tags,
+                            tags = tags,
                             full = edit,
                             alignment = Alignment.Start
-                        ) {}
+                        ) {
+                            if (tags.contains(element = it)) tags.remove(element = it)
+                            else tags.add(element = it!!)
+                        }
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
@@ -267,13 +272,20 @@ fun PasswordDetails(passwordData: Password) {
                                     "password" to passwordData.password,
                                     "url" to passwordData.url,
                                     "notes" to passwordData.notes,
-                                    "customFields" to passwordData.customFields,
+                                    "customFields" to NextcloudApiProvider.json.encodeToString(
+                                        serializer = SnapshotListSerializer(
+                                            dataSerializer = CustomField.serializer()
+                                        ), value = passwordData.customFieldsMap
+                                    ),
                                     "folder" to passwordData.folder,
                                     "hash" to passwordData.hash,
                                     "favorite" to it.toString()
                                 )
 
-                                NextcloudApiProvider.updatePasswordRequest(params = params)
+                                NextcloudApiProvider.updatePasswordRequest(
+                                    params = params,
+                                    tags = passwordData.tags
+                                )
                             }
                         }
                     }

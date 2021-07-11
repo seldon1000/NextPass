@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
@@ -58,19 +59,7 @@ fun Search() {
 
     var searchedText by remember { mutableStateOf(value = "") }
 
-    var currentTag by remember { mutableStateOf(value = "") }
-
-    val showedPasswords = storedPasswords.filter { password ->
-        (if (currentTag.isNotEmpty()) password.tags.any { it.id == currentTag }
-        else true) && (password.url.contains(searchedText, ignoreCase = true) ||
-                password.label.contains(searchedText, ignoreCase = true) ||
-                password.username.contains(searchedText, ignoreCase = true) ||
-                password.notes.contains(searchedText, ignoreCase = true))
-    }
-    val showedFolders = storedFolders.filterIndexed { index, folder ->
-        if (index > 0) folder.label.contains(searchedText, ignoreCase = true)
-        else false
-    }
+    var currentTag: Tag? by remember { mutableStateOf(value = null) }
 
     MyScaffoldLayout(fab = {
         FloatingActionButton({ searchedText = "" }) {
@@ -112,20 +101,38 @@ fun Search() {
             modifier = Modifier.fillMaxSize()
         ) {
             item { Header(expanded = true, title = context.getString(R.string.search)) }
-            if (tags) item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            if (tags) item { TagsRow { currentTag = if (it == currentTag) null else it } }
             else item { Box(modifier = Modifier.height(12.dp)) }
             if (searchedText.isNotEmpty()) {
-                itemsIndexed(items = showedFolders) { index, folder ->
-                    FolderCard(index = index, folder = folder)
+                itemsIndexed(items = storedFolders) { index, folder ->
+                    if (if (index > 0) folder.label.contains(searchedText, ignoreCase = true)
+                        else false
+                    ) FolderCard(index = index, folder = folder)
                 }
-                itemsIndexed(items = showedPasswords) { index, password ->
-                    PasswordCard(index = index, password = password)
+                itemsIndexed(items = storedPasswords) { index, password ->
+                    if ((if (currentTag != null) password.tags.any { it == currentTag }
+                        else true) && (password.url.contains(searchedText, ignoreCase = true) ||
+                                password.label.contains(searchedText, ignoreCase = true) ||
+                                password.username.contains(searchedText, ignoreCase = true) ||
+                                password.notes.contains(searchedText, ignoreCase = true)))
+                        PasswordCard(index = index, password = password)
                 }
             }
             item {
                 CountMessage(
                     message = if (searchedText.isNotEmpty()) context.getString(
-                        R.string.results_number, showedFolders.size + showedPasswords.size
+                        R.string.results_number, storedPasswords.count { password ->
+                            (if (currentTag != null) password.tags.any { it == currentTag }
+                            else true) && (password.url.contains(searchedText, ignoreCase = true) ||
+                                    password.label.contains(searchedText, ignoreCase = true) ||
+                                    password.username.contains(searchedText, ignoreCase = true) ||
+                                    password.notes.contains(searchedText, ignoreCase = true))
+                        } + storedFolders.count {
+                            it.label.contains(
+                                searchedText,
+                                ignoreCase = true
+                            )
+                        }
                     ) else context.getString(R.string.search_message)
                 )
             }

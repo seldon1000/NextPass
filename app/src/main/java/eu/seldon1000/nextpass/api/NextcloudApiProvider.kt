@@ -273,7 +273,7 @@ object NextcloudApiProvider : ViewModel() {
                             else -> "tag"
                         }
                     }/list"
-                ) { parameter("details", "model+tags") })
+                ) { if (T::class == Password::class) parameter("details", "model+tags") })
         } catch (e: Exception) {
             showError()
 
@@ -447,11 +447,12 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    fun updatePasswordRequest(params: Map<String, String>) {
+    fun updatePasswordRequest(params: Map<String, String>, tags: List<Tag>) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 client.patch<Any>(urlString = "$server$endpoint/password/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
+                    tags.forEach { parameter(key = "tags[]", value = it.id) }
                 }
 
                 val updatedPassword =

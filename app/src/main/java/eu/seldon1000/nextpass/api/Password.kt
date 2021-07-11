@@ -24,7 +24,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.util.*
 
 @Keep
@@ -43,7 +42,7 @@ data class Password(
     val folder: String,
     val statusCode: String,
 
-    @Serializable(with = SnapshotListSerializer::class) var tags: SnapshotStateList<Tag>,
+    @Serializable(with = SnapshotListSerializer::class) var tags: SnapshotStateList<Tag> = mutableStateListOf(),
     val customFields: String,
 
     val status: Int,
@@ -62,10 +61,7 @@ data class Password(
 
     @Contextual
     var customFieldsMap = try {
-        Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-        }.decodeFromString(
+        NextcloudApiProvider.json.decodeFromString(
             deserializer = SnapshotListSerializer(CustomField.serializer()),
             string = customFields
         )
@@ -81,5 +77,16 @@ data class Password(
 
     fun setFavicon(bitmap: Bitmap?) {
         faviconState.value = bitmap
+    }
+
+    fun resetCustomFields() {
+        customFieldsMap = try {
+            NextcloudApiProvider.json.decodeFromString(
+                deserializer = SnapshotListSerializer(CustomField.serializer()),
+                string = customFields
+            )
+        } catch (e: Exception) {
+            mutableStateListOf()
+        }
     }
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
@@ -62,7 +63,7 @@ fun PasswordList() {
 
     val tags by MainViewModel.tags.collectAsState()
 
-    var currentTag by remember { mutableStateOf(value = "") }
+    var currentTag: Tag? by remember { mutableStateOf(value = null) }
 
     MyScaffoldLayout(
         fab = { DefaultFab() },
@@ -124,7 +125,7 @@ fun PasswordList() {
                     }
                 }
             }
-            if (tags) item { TagsRow { currentTag = if (it == currentTag) "" else it } }
+            if (tags) item { TagsRow { currentTag = if (it == currentTag) null else it } }
             else item { Box(modifier = Modifier.height(12.dp)) }
             if (currentFolder != 0 && folderMode) item {
                 FolderCard(
@@ -138,9 +139,8 @@ fun PasswordList() {
                     FolderCard(index = index, folder = folder)
             }
             itemsIndexed(items = storedPasswords) { index, password ->
-                if ((if (currentTag.isNotEmpty()) password.tags.any { it.id == currentTag }
-                    else true) && (!folderMode || password.folder == storedFolders[currentFolder].id))
-                    PasswordCard(index = index, password = password)
+                if (if (currentTag != null) password.tags.contains(element = currentTag) else !folderMode || password.folder == storedFolders[currentFolder].id
+                ) PasswordCard(index = index, password = password)
             }
             item {
                 CountMessage(
