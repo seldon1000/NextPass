@@ -240,7 +240,11 @@ fun PasswordDetails(passwordData: Password) {
                             color = Color.Gray,
                             modifier = Modifier.padding(top = 6.dp)
                         )
-                        TagsRow(tags = passwordData.tags, alignment = Alignment.Start) {}
+                        TagsRow(
+                            tags = passwordData.tags,
+                            full = edit,
+                            alignment = Alignment.Start
+                        ) {}
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,

@@ -110,6 +110,7 @@
     <string name="folder_label">Folder label</string>
     <string name="copy_folder_label">Copy folder label</string>
     <string name="tag_updated_snack">Tag updated</string>
+    <string name="edit">Edit tag</string>
     <string name="password_shared">Shared password: %1$s</string>
     <string name="delete_tag">Delete tag?</string>
     <string name="tag_deleted_snack">Tag deleted</string>

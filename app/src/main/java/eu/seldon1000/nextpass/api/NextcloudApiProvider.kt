@@ -426,7 +426,7 @@ object NextcloudApiProvider : ViewModel() {
                     parameter(key = "id", value = id)
                 }
 
-                storedFoldersState.value.removeIf { it.id == id }
+                refreshServerList()
             } catch (e: Exception) {
                 showError()
             }
@@ -440,7 +440,7 @@ object NextcloudApiProvider : ViewModel() {
                     parameter(key = "id", value = id)
                 }
 
-                storedTagsState.value.removeIf { it.id == id }
+                refreshServerList()
             } catch (e: Exception) {
                 showError()
             }
@@ -477,15 +477,15 @@ object NextcloudApiProvider : ViewModel() {
 
     fun updateFolderRequest(params: Map<String, String>) {
         viewModelScope.launch(Dispatchers.IO) {
-            client.patch<Any>(urlString = "$server$endpoint/folder/update") {
-                params.forEach { parameter(key = it.key, value = it.value) }
-            }
-
-            val updatedFolder =
-                client.post<Folder>(urlString = "$server$endpoint/folder/show") {
-                    parameter(key = "id", value = params["id"]!!)
-                }
             try {
+                client.patch<Any>(urlString = "$server$endpoint/folder/update") {
+                    params.forEach { parameter(key = it.key, value = it.value) }
+                }
+
+                val updatedFolder =
+                    client.post<Folder>(urlString = "$server$endpoint/folder/show") {
+                        parameter(key = "id", value = params["id"]!!)
+                    }
 
                 storedFoldersState.value[storedFoldersState.value.indexOfFirst {
                     it.id == params["id"]!!

@@ -52,6 +52,7 @@ import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 @Composable
 fun TagsRow(
     tags: MutableList<Tag>? = null,
+    full: Boolean = true,
     alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     tagClickAction: (tag: String) -> Unit
 ) {
@@ -70,7 +71,7 @@ fun TagsRow(
         alignment = alignment,
         modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
     ) {
-        (tags ?: storedTags).forEachIndexed { index, tag ->
+        (if (full) storedTags else tags)?.forEachIndexed { index, tag ->
             val color = Color(android.graphics.Color.parseColor(tag.color))
 
             Surface(
@@ -85,7 +86,11 @@ fun TagsRow(
                     var label by remember { mutableStateOf(value = tag.label) }
 
                     Card(
-                        backgroundColor = color.copy(alpha = if (tags != null || state == index) 0.75f else 0.3f),
+                        backgroundColor = color.copy(
+                            alpha = if ((tags != null && tags.contains(element = tag)) ||
+                                state == index
+                            ) 0.75f else 0.3f
+                        ),
                         modifier = Modifier
                             .padding(end = 4.dp, bottom = 2.dp)
                             .clip(shape = RoundedCornerShape(size = 8.dp))
@@ -119,23 +124,27 @@ fun TagsRow(
                         DropdownMenuItem(onClick = {
                             expanded = false
 
-                            MainViewModel.showDialog(title = "Edit tag", body = {
-                                Column {
-                                    TextFieldItem(
-                                        text = label,
-                                        onTextChanged = { label = it },
-                                        label = context.getString(R.string.label),
-                                        required = true,
-                                        capitalized = true
-                                    ) {
-                                        CopyButton(
-                                            label = context.getString(R.string.tag_label),
-                                            clip = label
-                                        )
+                            MainViewModel.showDialog(
+                                title = context.getString(R.string.edit),
+                                body = {
+                                    Column {
+                                        TextFieldItem(
+                                            text = label,
+                                            onTextChanged = { label = it },
+                                            label = context.getString(R.string.label),
+                                            required = true,
+                                            capitalized = true
+                                        ) {
+                                            CopyButton(
+                                                label = context.getString(R.string.tag_label),
+                                                clip = label
+                                            )
+                                        }
+                                        ColorPicker { newTagColor = it }
                                     }
-                                    ColorPicker { newTagColor = it }
-                                }
-                            }, confirm = true) {
+                                },
+                                confirm = true
+                            ) {
                                 MainViewModel.setRefreshing(refreshing = true)
 
                                 val params = mapOf(
@@ -195,7 +204,7 @@ fun TagsRow(
                 }
             }
         }
-        if (tags == null || tags.size < 1) Surface(
+        if (full || tags!!.size < 1) Surface(
             shape = RoundedCornerShape(size = 8.dp),
             modifier = Modifier.shadow(
                 elevation = 8.dp,
@@ -235,7 +244,7 @@ fun TagsRow(
                         newTagColor = Color.Blue
                     }
                 },
-                enabled = tags == null,
+                enabled = full,
                 shape = RoundedCornerShape(size = 8.dp),
                 modifier = Modifier.animateContentSize(
                     animationSpec = tween(
@@ -246,21 +255,24 @@ fun TagsRow(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = if (tags == null) {
+                        text = if (full) {
                             if (storedTags.size < 1) context.getString(R.string.add_new_tag) else ""
                         } else context.getString(R.string.no_tags),
                         fontSize = 14.sp,
                         modifier = Modifier.padding(
-                            start = if (storedTags.size < 1 || (tags != null && tags.size < 1)) 18.dp else 0.dp,
+                            start = if ((full && storedTags.size < 1) || (!full && tags!!.size < 1)) 18.dp else 0.dp,
                             top = 8.dp,
-                            end = if (tags == null) 0.dp else 18.dp,
+                            end = if ((full && storedTags.size < 1) || (!full && tags!!.size < 1)) 18.dp else 0.dp,
                             bottom = 8.dp
                         )
                     )
-                    if (tags == null) Icon(
+                    if (full) Icon(
                         painter = painterResource(id = R.drawable.ic_round_add_24),
                         contentDescription = "add_tag",
-                        modifier = Modifier.padding(horizontal = 6.dp)
+                        modifier = Modifier.padding(
+                            start = if ((full && storedTags.size < 1) || (!full && tags!!.size < 1)) 0.dp else 6.dp,
+                            end = 6.dp
+                        )
                     )
                 }
             }
