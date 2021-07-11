@@ -68,7 +68,7 @@ fun PasswordDetails(passwordData: Password) {
     var username by remember { mutableStateOf(value = passwordData.username) }
     var password by remember { mutableStateOf(value = passwordData.password) }
     var notes by remember { mutableStateOf(value = passwordData.notes) }
-    var tags by remember { mutableStateOf(value = passwordData.tags.toMutableList()) }
+    var tags by remember { mutableStateOf(value = passwordData.tags) }
     var customFields by remember { mutableStateOf(value = passwordData.customFieldsMap) }
     val favicon by passwordData.favicon.collectAsState()
 
@@ -151,14 +151,13 @@ fun PasswordDetails(passwordData: Password) {
                     if (edit) {
                         edit = false
 
+                        passwordData.reset()
                         url = passwordData.url
                         label = passwordData.label
                         username = passwordData.username
                         password = passwordData.password
                         notes = passwordData.notes
                         tags = passwordData.tags
-
-                        passwordData.resetCustomFields()
                         customFields = passwordData.customFieldsMap
 
                         MainViewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == passwordData.folder })
