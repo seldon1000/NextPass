@@ -38,15 +38,13 @@ import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
 import eu.seldon1000.nextpass.ui.items.Favicon
-import eu.seldon1000.nextpass.ui.items.FavoriteIcon
+import eu.seldon1000.nextpass.ui.items.FavoriteButton
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -122,10 +120,7 @@ fun NewPassword() {
                         "notes" to notes,
                         "hash" to hash,
                         "folder" to storedFolders[selectedFolder].id,
-                        "customFields" to Json {
-                            ignoreUnknownKeys = true
-                            isLenient = true
-                        }.encodeToString(value = concreteCustomFields)
+                        "customFields" to NextcloudApiProvider.json.encodeToString(value = concreteCustomFields)
                     )
                     if (favorite) params["favorite"] = "true"
 
@@ -188,7 +183,7 @@ fun NewPassword() {
                             .padding(vertical = 16.dp)
                     ) {
                         DropdownFolderList(folder = selectedFolder)
-                        FavoriteIcon(favorite = favorite) { favorite = !favorite }
+                        FavoriteButton(favorite = favorite) { favorite = !favorite }
                     }
                     TextFieldItem(text = url, onTextChanged = {
                         if (it.length >= url.length || it.isEmpty())

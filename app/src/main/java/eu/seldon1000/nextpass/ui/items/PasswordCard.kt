@@ -96,12 +96,23 @@ fun PasswordCard(index: Int, password: Password) {
                         .shadow(elevation = 8.dp, RoundedCornerShape(size = 8.dp), clip = true)
                 )
             Status(password = password)
-            FavoriteIcon(favorite = password.favorite) {
+            FavoriteButton(favorite = password.favorite) {
                 MainViewModel.setRefreshing(refreshing = true)
 
-                NextcloudApiProvider.updatePasswordRequest(
-                    params = mutableMapOf("favorite" to if (it) it.toString() else "")
+                val params = mapOf(
+                    "id" to password.id,
+                    "label" to password.label,
+                    "username" to password.username,
+                    "password" to password.password,
+                    "url" to password.url,
+                    "notes" to password.notes,
+                    "customFields" to password.customFields,
+                    "folder" to password.folder,
+                    "hash" to password.hash,
+                    "favorite" to it.toString()
                 )
+
+                NextcloudApiProvider.updatePasswordRequest(params = params)
             }
         }
         DropdownMenu(

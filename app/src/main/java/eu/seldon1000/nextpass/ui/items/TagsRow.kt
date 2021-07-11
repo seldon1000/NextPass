@@ -27,7 +27,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -73,21 +73,21 @@ fun TagsRow(
         (tags ?: storedTags).forEachIndexed { index, tag ->
             val color = Color(android.graphics.Color.parseColor(tag.color))
 
-            Surface(modifier = Modifier.shadow(elevation = 8.dp, shape = CircleShape)) {
+            Surface(modifier = Modifier.shadow(elevation = 8.dp, shape = RoundedCornerShape(size = 8.dp))) {
                 Crossfade(targetState = selected) { state ->
                     var expanded by remember { mutableStateOf(value = false) }
 
                     //var label by remember { mutableStateOf(value = tag.label)}
 
                     Card(
-                        backgroundColor = color.copy(alpha = if (tags != null || state == index) 0.7f else 0.2f),
+                        backgroundColor = color.copy(alpha = if (tags != null || state == index) 0.75f else 0.3f),
                         modifier = Modifier
                             .padding(end = 4.dp, bottom = 2.dp)
-                            .clip(shape = CircleShape)
+                            .clip(shape = RoundedCornerShape(size = 8.dp))
                             .border(
                                 width = 1.dp,
                                 color = color,
-                                shape = CircleShape
+                                shape = RoundedCornerShape(size = 8.dp)
                             )
                             .combinedClickable(
                                 onClick = {
@@ -172,10 +172,10 @@ fun TagsRow(
             }
         }
         if (tags == null || tags.size < 1) Surface(
-            shape = CircleShape,
+            shape = RoundedCornerShape(size = 8.dp),
             modifier = Modifier.shadow(
                 elevation = 8.dp,
-                shape = CircleShape
+                shape = RoundedCornerShape(size = 8.dp)
             )
         ) {
             Card(
@@ -211,7 +211,7 @@ fun TagsRow(
                     }
                 },
                 enabled = tags == null,
-                shape = CircleShape,
+                shape = RoundedCornerShape(size = 8.dp),
                 modifier = Modifier.animateContentSize(
                     animationSpec = tween(
                         durationMillis = 200,
@@ -235,7 +235,7 @@ fun TagsRow(
                     if (tags == null) Icon(
                         painter = painterResource(id = R.drawable.ic_round_add_24),
                         contentDescription = "add_tag",
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        modifier = Modifier.padding(horizontal = 6.dp)
                     )
                 }
             }

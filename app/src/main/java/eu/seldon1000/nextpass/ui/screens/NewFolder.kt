@@ -25,7 +25,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -34,7 +33,7 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
-import eu.seldon1000.nextpass.ui.items.FavoriteIcon
+import eu.seldon1000.nextpass.ui.items.FavoriteButton
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
@@ -141,7 +140,7 @@ fun NewFolder() {
                             .padding(vertical = 16.dp)
                     ) {
                         DropdownFolderList(canAdd = false, folder = selectedFolder)
-                        FavoriteIcon(favorite = favorite) { favorite = !favorite }
+                        FavoriteButton(favorite = favorite) { favorite = !favorite }
                     }
                     TextFieldItem(
                         text = label,

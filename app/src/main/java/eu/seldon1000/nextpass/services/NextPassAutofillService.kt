@@ -31,16 +31,10 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.api.Password
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import java.math.BigInteger
 import java.security.MessageDigest
 
 class NextPassAutofillService : AutofillService() {
-    private val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-    }
-
     private var usernameHints = arrayOf<String>()
 
     private var idPackage = ""
@@ -169,9 +163,8 @@ class NextPassAutofillService : AutofillService() {
             )
 
             if (viewWebDomain.isEmpty()) {
-                params["customFields"] = json.decodeFromString(
-                    string =
-                    listOf(
+                params["customFields"] = NextcloudApiProvider.json.decodeFromString(
+                    string = listOf(
                         mapOf(
                             "label" to "Android app",
                             "type" to "text",

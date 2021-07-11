@@ -58,13 +58,13 @@ object NextcloudApiProvider : ViewModel() {
 
     private var sharedPreferences: SharedPreferences? = null
 
-    private val json = Json {
+    val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
     }
 
     private var client = HttpClient(Android) {
-        install(JsonFeature) {
+        install(feature = JsonFeature) {
             serializer = KotlinxSerializer(json = json)
         }
     }
@@ -77,7 +77,7 @@ object NextcloudApiProvider : ViewModel() {
 
     private val baseFolder = json.decodeFromString(
         deserializer = Folder.serializer(),
-        string = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"Base\",\"parent\":\"\",\"favorite\":\"false\",\"created\":0,\"edited\":0}"
+        string = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"Base\",\"parent\":null,\"favorite\":\"false\",\"created\":0,\"edited\":0}"
     )
 
     private val storedPasswordsState = MutableStateFlow(value = mutableStateListOf<Password>())
@@ -447,78 +447,31 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    /*TODO: wait for SSO to support PATCH method*/
-    fun updatePasswordRequest(params: MutableMap<String, String>) {
-        /*val password = storedPasswordsState.value[index]
-
+    fun updatePasswordRequest(params: Map<String, String>) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (!params.containsKey(key = "password")) params["password"] = password.password
-            if (!params.containsKey(key = "label")) params["label"] = password.label
-            if (!params.containsKey(key = "username")) params["username"] = password.username
-            if (!params.containsKey(key = "url")) params["url"] = password.url
-            if (!params.containsKey(key = "notes")) params["notes"] = password.notes
-            if (!params.containsKey(key = "folder")) params["folder"] = password.folder
-            /*if (!params.containsKey(key = "tags")) {
-                val tags = JsonArray()
-                password.tags.forEach { tags.add(JsonParser.parseString(it["id"]!!)) }
-                params["tags"] = tags.toString()
-            }*/
-            if (!params.containsKey(key = "customFields"))
-                params["customFields"] =
-                    json.encodeToString(password.customFieldsMap.toList().toString())
-            params["hash"] = password.hash
+            client.patch<Any>(urlString = "$server$endpoint/password/update") {
+                params.forEach { parameter(key = it.key, value = it.value) }
+            }
 
-            val createRequest = NextcloudRequest.Builder()
-                .setMethod("POST")
-                .setUrl("$endpoint/password/create")
-                .setParameter(params)
-                .build()
-
+            val updatedPassword =
+                client.post<Password>(urlString = "$server$endpoint/password/show") {
+                    parameter(key = "id", value = params["id"]!!)
+                    parameter(key = "details", value = "model+tags")
+                }
             try {
-                val response = json.decodeFromString<JsonObject>(
-                    string = nextcloudApi!!.performNetworkRequest(createRequest)
-                        .bufferedReader()
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                )["id"]!!.jsonPrimitive.content
+                val index = storedPasswordsState.value.indexOfFirst { it.id == params["id"]!! }
 
-                val showRequest = NextcloudRequest.Builder()
-                    .setMethod("POST")
-                    .setUrl("$endpoint/password/show")
-                    .setParameter(mapOf("id" to response, "details" to "model+tags"))
-                    .build()
-
-                val updatedPassword = json.decodeFromString<Password>(
-                    string = nextcloudApi!!.performNetworkRequest(showRequest)
-                        .bufferedReader()
-                        .lines()
-                        .collect(Collectors.joining("\n"))
-                )
-                updatedPassword.index = index
-
-                if (password.url != params["url"])
+                if (params["url"]!! != storedPasswordsState.value[index].url)
                     faviconRequest(data = updatedPassword)
-                else updatedPassword.setFavicon(bitmap = password.favicon.value)
+                else updatedPassword.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
 
                 storedPasswordsState.value[index] = updatedPassword
 
                 MainViewModel.setRefreshing(refreshing = false)
-
-                val deleteRequest = NextcloudRequest.Builder()
-                    .setMethod("DELETE")
-                    .setUrl("$endpoint/password/delete")
-                    .setParameter(mapOf("id" to password.id))
-                    .build()
-
-                try {
-                    nextcloudApi!!.performNetworkRequest(deleteRequest)
-                } catch (e: Exception) {
-                    showError()
-                }
             } catch (e: Exception) {
                 showError()
             }
-        }*/
+        }
     }
 
     suspend fun generatePassword(): String {

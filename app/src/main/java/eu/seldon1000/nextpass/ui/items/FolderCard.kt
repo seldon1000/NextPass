@@ -76,7 +76,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 maxLines = 1,
                 modifier = Modifier.weight(weight = 1f)
             )
-            FavoriteIcon(favorite = folder.favorite) {}
+            FavoriteButton(favorite = folder.favorite) {}
         }
         if (icon == null) {
             DropdownMenu(

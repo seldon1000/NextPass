@@ -41,7 +41,7 @@ import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.CopyButton
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
-import eu.seldon1000.nextpass.ui.items.FavoriteIcon
+import eu.seldon1000.nextpass.ui.items.FavoriteButton
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
@@ -128,7 +128,7 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                                 enabled = false,
                                 folder = MainViewModel.currentFolder.value
                             )
-                            FavoriteIcon(favorite = folder.favorite) {} /*TODO: add updateFolderRequest, needs PATCH support from SSO*/
+                            FavoriteButton(favorite = folder.favorite) {}
                         }
                     }
                     TextFieldItem(

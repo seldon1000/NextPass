@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 
 @Composable
-fun FavoriteIcon(favorite: Boolean, action: (Boolean) -> Unit) {
+fun FavoriteButton(favorite: Boolean, action: (Boolean) -> Unit) {
     var isRotated by remember { mutableStateOf(value = false) }
     val angle by animateFloatAsState(
         targetValue = if (isRotated) 360F else 0F,

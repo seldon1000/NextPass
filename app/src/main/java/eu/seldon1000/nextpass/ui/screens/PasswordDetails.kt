@@ -46,8 +46,7 @@ import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -111,20 +110,18 @@ fun PasswordDetails(passwordData: Password) {
                             } catch (e: Exception) {
                             }
                         }
-
-                        val params = mutableMapOf(
-                            "password" to password,
+                        val params = mapOf(
+                            "id" to passwordData.id,
                             "label" to label,
                             "username" to username,
+                            "password" to password,
                             "url" to url,
                             "notes" to notes,
+                            "customFields" to NextcloudApiProvider.json.encodeToString(value = concreteCustomFields),
                             "folder" to storedFolders[selectedFolder].id,
-                            "customFields" to Json {
-                                ignoreUnknownKeys = true
-                                isLenient = true
-                            }.decodeFromString(string = concreteCustomFields.toString())
+                            "hash" to passwordData.hash,
+                            "favorite" to passwordData.favorite.toString()
                         )
-                        if (passwordData.favorite) params["favorite"] = "true"
 
                         MainViewModel.setRefreshing(refreshing = true)
                         NextcloudApiProvider.updatePasswordRequest(params = params)
@@ -211,11 +208,8 @@ fun PasswordDetails(passwordData: Password) {
                         )
                         Text(
                             text = context.getString(
-                                R.string.security_status, when (passwordData.status) {
-                                    0 -> context.getString(R.string.good)
-                                    2 -> context.getString(R.string.bad)
-                                    else -> context.getString(R.string.weak)
-                                }
+                                R.string.security_status,
+                                passwordData.statusCode
                             ),
                             fontSize = 14.sp,
                             color = when (passwordData.status) {
@@ -261,13 +255,23 @@ fun PasswordDetails(passwordData: Password) {
                                     enabled = state,
                                     folder = storedFolders.indexOfFirst { passwordData.folder == it.id })
                             }
-                            FavoriteIcon(favorite = passwordData.favorite) {
+                            FavoriteButton(favorite = passwordData.favorite) {
                                 MainViewModel.setRefreshing(refreshing = true)
 
-                                NextcloudApiProvider.updatePasswordRequest(
-                                    params = if (!passwordData.favorite)
-                                        mutableMapOf("favorite" to "true") else mutableMapOf()
+                                val params = mapOf(
+                                    "id" to passwordData.id,
+                                    "label" to passwordData.label,
+                                    "username" to passwordData.username,
+                                    "password" to passwordData.password,
+                                    "url" to passwordData.url,
+                                    "notes" to passwordData.notes,
+                                    "customFields" to passwordData.customFields,
+                                    "folder" to passwordData.folder,
+                                    "hash" to passwordData.hash,
+                                    "favorite" to it.toString()
                                 )
+
+                                NextcloudApiProvider.updatePasswordRequest(params = params)
                             }
                         }
                     }
