@@ -74,20 +74,22 @@ fun PasswordDetails(passwordData: Password) {
     val favicon by passwordData.favicon.collectAsState()
 
     MyScaffoldLayout(fab = {
-        FloatingActionButton({
+        FloatingActionButton(onClick = {
             if (edit) {
                 if (label.isNotEmpty() && password.isNotEmpty()) {
                     MainViewModel.showDialog(
                         title = context.getString(R.string.update_password),
                         body = {
                             Text(
-                                text = context.getString(R.string.update_password_body),
+                                text = context.getString(R.string.update_action_body),
                                 fontSize = 14.sp
                             )
                         },
                         confirm = true
                     ) {
                         edit = false
+
+                        MainViewModel.setRefreshing(refreshing = true)
 
                         val concreteCustomFields = mutableListOf<Map<String, String>>()
                         customFields.forEach { customField ->
@@ -123,9 +125,8 @@ fun PasswordDetails(passwordData: Password) {
                             "favorite" to passwordData.favorite.toString()
                         )
 
-                        MainViewModel.setRefreshing(refreshing = true)
                         NextcloudApiProvider.updatePasswordRequest(params = params)
-                        MainViewModel.showSnackbar(message = context.getString(R.string.update_password_snack))
+                        MainViewModel.showSnackbar(message = context.getString(R.string.password_updated_snack))
                     }
                 } else MainViewModel.showDialog(
                     title = context.getString(R.string.missing_info),
@@ -143,7 +144,6 @@ fun PasswordDetails(passwordData: Password) {
                     tint = colors!!.onBackground
                 )
             }
-
         }
     }, bottomBar = {
         BottomAppBar(cutoutShape = CircleShape) {
@@ -159,11 +159,9 @@ fun PasswordDetails(passwordData: Password) {
                         notes = passwordData.notes
                         customFields = passwordData.customFieldsMap
 
-                        MainViewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { passwordData.folder == it.id })
-                    } else {
-                        MainViewModel.popBackStack()
-                    }
-                },
+                        MainViewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == passwordData.folder })
+                    } else MainViewModel.popBackStack()
+                }
             ) {
                 Crossfade(targetState = edit) { state ->
                     Icon(

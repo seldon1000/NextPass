@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -23,10 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,26 +44,89 @@ import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
+import eu.seldon1000.nextpass.ui.theme.colors
 
 @Composable
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
-fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO support PATCH method */
+fun FolderDetails(folder: Folder) {
     val context = LocalContext.current
 
     val scrollState = rememberScrollState()
 
-    val label by remember { mutableStateOf(value = folder.label) }
+    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    MyScaffoldLayout(fab = {}, bottomBar = {
+    val currentFolder by MainViewModel.currentFolder.collectAsState()
+
+    var edit by remember { mutableStateOf(value = false) }
+
+    var label by remember { mutableStateOf(value = folder.label) }
+
+    MyScaffoldLayout(fab = {
+        FloatingActionButton(onClick = {
+            if (edit) {
+                if (label.isNotEmpty()) {
+                    MainViewModel.showDialog(
+                        title = context.getString(R.string.update_folder),
+                        body = {
+                            Text(
+                                text = context.getString(R.string.update_action_body),
+                                fontSize = 14.sp
+                            )
+                        },
+                        confirm = true
+                    ) {
+                        edit = false
+
+                        MainViewModel.setRefreshing(refreshing = true)
+
+                        val params = mapOf(
+                            "id" to folder.id,
+                            "label" to label,
+                            "parent" to storedFolders[currentFolder].id,
+                            "favorite" to folder.favorite.toString()
+                        )
+
+                        NextcloudApiProvider.updateFolderRequest(params = params)
+                        MainViewModel.showSnackbar(message = context.getString(R.string.folder_updated_snack))
+                    }
+                } else MainViewModel.showDialog(
+                    title = context.getString(R.string.missing_info),
+                    body = {
+                        Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
+                    }
+                )
+            } else edit = true
+        }) {
+            Crossfade(targetState = edit) { state ->
+                Icon(
+                    painter = if (state) painterResource(id = R.drawable.ic_round_save_24)
+                    else painterResource(id = R.drawable.ic_round_edit_24),
+                    contentDescription = "save",
+                    tint = colors!!.onBackground
+                )
+            }
+        }
+    }, bottomBar = {
         BottomAppBar(cutoutShape = CircleShape) {
             IconButton(
-                onClick = { MainViewModel.popBackStack() },
+                onClick = {
+                    if (edit) {
+                        edit = false
+
+                        label = folder.label
+
+                        MainViewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == folder.parent })
+                    } else MainViewModel.popBackStack()
+                }
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
-                    contentDescription = "back"
-                )
+                Crossfade(targetState = edit) { state ->
+                    Icon(
+                        painter = if (state) painterResource(id = R.drawable.ic_round_settings_backup_restore_24)
+                        else painterResource(id = R.drawable.ic_round_back_arrow_24),
+                        contentDescription = "restore"
+                    )
+                }
             }
         }
     }) { paddingValues ->
@@ -125,25 +186,31 @@ fun FolderDetails(folder: Folder) { /*TODO: allow proper folder edit, once SSO s
                                 .padding(vertical = 16.dp)
                         ) {
                             DropdownFolderList(
-                                enabled = false,
-                                folder = MainViewModel.currentFolder.value
+                                enabled = edit,
+                                folder = storedFolders.indexOfFirst { it.id == folder.parent }
                             )
-                            FavoriteButton(favorite = folder.favorite) {}
+                            FavoriteButton(favorite = folder.favorite) {
+                                MainViewModel.setRefreshing(refreshing = true)
+
+                                val params = mapOf(
+                                    "id" to folder.id,
+                                    "label" to folder.label,
+                                    "parent" to storedFolders[currentFolder].id,
+                                    "favorite" to it.toString()
+                                )
+
+                                NextcloudApiProvider.updateFolderRequest(params = params)
+                            }
                         }
                     }
                     TextFieldItem(
                         text = label,
-                        onTextChanged = {},
+                        onTextChanged = { label = it },
                         label = context.getString(R.string.label),
-                        enabled = false,
+                        enabled = edit,
                         required = true,
                         capitalized = true
-                    ) {
-                        CopyButton(
-                            label = context.getString(R.string.folder_label),
-                            clip = label
-                        )
-                    }
+                    ) { CopyButton(label = context.getString(R.string.folder_label), clip = label) }
                     TextFieldItem(
                         text = folder.parent,
                         onTextChanged = {},

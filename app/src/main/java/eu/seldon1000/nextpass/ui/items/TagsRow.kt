@@ -73,11 +73,16 @@ fun TagsRow(
         (tags ?: storedTags).forEachIndexed { index, tag ->
             val color = Color(android.graphics.Color.parseColor(tag.color))
 
-            Surface(modifier = Modifier.shadow(elevation = 8.dp, shape = RoundedCornerShape(size = 8.dp))) {
+            Surface(
+                modifier = Modifier.shadow(
+                    elevation = 8.dp,
+                    shape = RoundedCornerShape(size = 8.dp)
+                )
+            ) {
                 Crossfade(targetState = selected) { state ->
                     var expanded by remember { mutableStateOf(value = false) }
 
-                    //var label by remember { mutableStateOf(value = tag.label)}
+                    var label by remember { mutableStateOf(value = tag.label) }
 
                     Card(
                         backgroundColor = color.copy(alpha = if (tags != null || state == index) 0.75f else 0.3f),
@@ -111,7 +116,7 @@ fun TagsRow(
                         onDismissRequest = { expanded = false },
                         modifier = Modifier.width(width = 120.dp)
                     ) {
-                        /*DropdownMenuItem(onClick = { // TODO: enable tag update action once SSO supports PATCH method
+                        DropdownMenuItem(onClick = {
                             expanded = false
 
                             MainViewModel.showDialog(title = "Edit tag", body = {
@@ -122,10 +127,29 @@ fun TagsRow(
                                         label = context.getString(R.string.label),
                                         required = true,
                                         capitalized = true
-                                    ) {}
+                                    ) {
+                                        CopyButton(
+                                            label = context.getString(R.string.tag_label),
+                                            clip = label
+                                        )
+                                    }
                                     ColorPicker { newTagColor = it }
                                 }
-                            }, confirm = true) {}
+                            }, confirm = true) {
+                                MainViewModel.setRefreshing(refreshing = true)
+
+                                val params = mapOf(
+                                    "id" to tag.id,
+                                    "label" to label,
+                                    "color" to "#${
+                                        String.format("%06X", newTagColor.toArgb())
+                                            .removePrefix(prefix = "FF")
+                                    }"
+                                )
+
+                                NextcloudApiProvider.updateTagRequest(params = params)
+                                MainViewModel.showSnackbar(message = context.getString(R.string.tag_updated_snack))
+                            }
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_edit_24),
@@ -135,7 +159,7 @@ fun TagsRow(
                                 text = "Edit",
                                 modifier = Modifier.padding(horizontal = 8.dp)
                             )
-                        }*/
+                        }
                         DropdownMenuItem(onClick = {
                             MainViewModel.showDialog(
                                 title = context.getString(R.string.delete_tag),
@@ -198,7 +222,8 @@ fun TagsRow(
                         val params = mapOf(
                             "label" to newTagLabel,
                             "color" to "#${
-                                String.format("%06X", newTagColor.toArgb()).removePrefix("FF")
+                                String.format("%06X", newTagColor.toArgb())
+                                    .removePrefix(prefix = "FF")
                             }"
                         )
 

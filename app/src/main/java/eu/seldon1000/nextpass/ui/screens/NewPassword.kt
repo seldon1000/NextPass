@@ -127,7 +127,7 @@ fun NewPassword() {
                     MainViewModel.setRefreshing(refreshing = true)
                     NextcloudApiProvider.createPasswordRequest(params = params)
                     MainViewModel.popBackStack()
-                    MainViewModel.showSnackbar(message = context.getString(R.string.new_password_snack))
+                    MainViewModel.showSnackbar(message = context.getString(R.string.password_created_snack))
                 }
             } else MainViewModel.showDialog(
                 title = context.getString(R.string.missing_info),

@@ -43,6 +43,10 @@ import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
     val context = LocalContext.current
 
+    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+
+    val currentFolder by MainViewModel.currentFolder.collectAsState()
+
     var expanded by remember { mutableStateOf(value = false) }
 
     Card(
@@ -76,7 +80,18 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 maxLines = 1,
                 modifier = Modifier.weight(weight = 1f)
             )
-            FavoriteButton(favorite = folder.favorite) {}
+            FavoriteButton(favorite = folder.favorite) {
+                MainViewModel.setRefreshing(refreshing = true)
+
+                val params = mapOf(
+                    "id" to folder.id,
+                    "label" to folder.label,
+                    "parent" to storedFolders[currentFolder].id,
+                    "favorite" to it.toString()
+                )
+
+                NextcloudApiProvider.updateFolderRequest(params = params)
+            }
         }
         if (icon == null) {
             DropdownMenu(

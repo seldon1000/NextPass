@@ -449,16 +449,17 @@ object NextcloudApiProvider : ViewModel() {
 
     fun updatePasswordRequest(params: Map<String, String>) {
         viewModelScope.launch(Dispatchers.IO) {
-            client.patch<Any>(urlString = "$server$endpoint/password/update") {
-                params.forEach { parameter(key = it.key, value = it.value) }
-            }
-
-            val updatedPassword =
-                client.post<Password>(urlString = "$server$endpoint/password/show") {
-                    parameter(key = "id", value = params["id"]!!)
-                    parameter(key = "details", value = "model+tags")
-                }
             try {
+                client.patch<Any>(urlString = "$server$endpoint/password/update") {
+                    params.forEach { parameter(key = it.key, value = it.value) }
+                }
+
+                val updatedPassword =
+                    client.post<Password>(urlString = "$server$endpoint/password/show") {
+                        parameter(key = "id", value = params["id"]!!)
+                        parameter(key = "details", value = "model+tags")
+                    }
+
                 val index = storedPasswordsState.value.indexOfFirst { it.id == params["id"]!! }
 
                 if (params["url"]!! != storedPasswordsState.value[index].url)
@@ -466,6 +467,52 @@ object NextcloudApiProvider : ViewModel() {
                 else updatedPassword.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
 
                 storedPasswordsState.value[index] = updatedPassword
+
+                MainViewModel.setRefreshing(refreshing = false)
+            } catch (e: Exception) {
+                showError()
+            }
+        }
+    }
+
+    fun updateFolderRequest(params: Map<String, String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            client.patch<Any>(urlString = "$server$endpoint/folder/update") {
+                params.forEach { parameter(key = it.key, value = it.value) }
+            }
+
+            val updatedFolder =
+                client.post<Folder>(urlString = "$server$endpoint/folder/show") {
+                    parameter(key = "id", value = params["id"]!!)
+                }
+            try {
+
+                storedFoldersState.value[storedFoldersState.value.indexOfFirst {
+                    it.id == params["id"]!!
+                }] = updatedFolder
+
+                MainViewModel.setRefreshing(refreshing = false)
+            } catch (e: Exception) {
+                showError()
+            }
+        }
+    }
+
+    fun updateTagRequest(params: Map<String, String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                client.patch<Any>(urlString = "$server$endpoint/tag/update") {
+                    params.forEach { parameter(key = it.key, value = it.value) }
+                }
+
+                val updatedTag =
+                    client.post<Tag>(urlString = "$server$endpoint/tag/show") {
+                        parameter(key = "id", value = params["id"]!!)
+                    }
+
+                storedTagsState.value[storedTagsState.value.indexOfFirst {
+                    it.id == params["id"]!!
+                }] = updatedTag
 
                 MainViewModel.setRefreshing(refreshing = false)
             } catch (e: Exception) {
