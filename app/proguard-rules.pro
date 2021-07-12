@@ -12,7 +12,6 @@
 #   public *;
 #}
 
--keep class com.nextcloud.android.sso.** {*;}
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
 
