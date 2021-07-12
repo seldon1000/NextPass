@@ -54,7 +54,6 @@
                 tools:ignore="UnusedAttribute" />
 
             <ImageView
-                android:id="@+id/lock_icon"
                 android:layout_width="12dp"
                 android:layout_height="12dp"
                 android:layout_marginStart="6dp"

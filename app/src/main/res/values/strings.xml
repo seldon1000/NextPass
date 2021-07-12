@@ -5,7 +5,7 @@
     <string name="login">Login</string>
     <string name="logout">Logout</string>
     <string name="switch_account">Switch account</string>
-    <string name="need_help">Need some help or wanna share ideas?</string>
+    <string name="need_help">Need some help or want to share ideas?</string>
     <string name="need_help_tip">Click here to quickly open an issue on GitHub. Remember to follow the template you choose, so that we can act faster and more efficiently.</string>
     <string name="error">Something went wrong!</string>
     <string name="confirm">Confirm</string>
@@ -16,7 +16,7 @@
     <string name="create_new_pin">Create new PIN</string>
     <string name="insert_current_pin">Insert current PIN</string>
     <string name="prevent_screen_capture">Prevent screen capture</string>
-    <string name="prevent_screen_capture_tip">If enabled, this will prevent the user from capturing the screen when using NextPass (i.e. screenshots...).</string>
+    <string name="prevent_screen_capture_tip">If enabled, this will prevent the user from capturing the screen when using NextPass (i.e. screenshots…).</string>
     <string name="cancel">Cancel</string>
     <string name="access_nextpass">Access NextPass</string>
     <string name="access_nextpass_body">Use your biometric system to authenticate.</string>
@@ -27,8 +27,6 @@
     <string name="service_terminated_snack">Autofill service terminated</string>
     <string name="service_not_enabled_snack">You must enable autofill service first</string>
     <string name="search_message">What are you looking for?</string>
-    <string name="missing_nextcloud">Missing Nextcloud Files app!</string>
-    <string name="missing_nextcloud_body">NextPass needs the Nextcloud Files app to be installed and updated.\n\nDo you want to install it now?</string>
     <string name="passwords_tip">NextPass works on top of Passwords app for Nextcloud. Click here to check it out.</string>
     <string name="send_email">Send us an email</string>
     <string name="send_email_tip">Click here to quickly send us an email. We\'ll get back to you as soon as possible.</string>
@@ -132,7 +130,6 @@
     <string name="timeout_expired_body">NextPass waits approximately 60 seconds for you to complete login. Time\'s up, try again.</string>
     <string name="tag_created_snack">Tag created</string>
     <string name="add_new_tag">Add new tag</string>
-    <string name="no_tags">No tags</string>
     <string name="warning">Warning!</string>
     <string name="restore_preferences_body">This will reset all your preferences. Are you sure you want to proceed?</string>
     <string name="delete_tag_body">This tag will be deleted. Are you sure you want to continue?</string>

@@ -76,7 +76,7 @@ fun NewFolder() {
                     MainViewModel.setRefreshing(refreshing = true)
                     NextcloudApiProvider.createFolderRequest(params = params)
                     MainViewModel.popBackStack()
-                    MainViewModel.showSnackbar(message = context.getString(R.string.password_created_snack))
+                    MainViewModel.showSnackbar(message = context.getString(R.string.folder_created_snack))
                 }
 
             } else MainViewModel.showDialog(
