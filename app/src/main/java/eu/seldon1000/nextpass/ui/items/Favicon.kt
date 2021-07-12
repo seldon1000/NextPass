@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -34,7 +35,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.placeholder
-import com.google.accompanist.placeholder.material.shimmer
+import com.google.accompanist.placeholder.shimmer
 
 @Composable
 fun Favicon(favicon: Bitmap?, size: Dp) {
@@ -45,7 +46,10 @@ fun Favicon(favicon: Bitmap?, size: Dp) {
                 RoundedCornerShape(size = 8.dp),
                 clip = true
             )
-            .placeholder(visible = favicon == null, highlight = PlaceholderHighlight.shimmer())
+            .placeholder(
+                visible = favicon == null,
+                highlight = PlaceholderHighlight.shimmer(highlightColor = Color.Gray)
+            )
     ) {
         Crossfade(
             targetState = favicon,
