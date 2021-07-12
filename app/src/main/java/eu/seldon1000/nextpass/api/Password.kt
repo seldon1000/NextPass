@@ -18,7 +18,6 @@ package eu.seldon1000.nextpass.api
 
 import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
-import androidx.annotation.Keep
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +25,6 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.util.*
 
-@Keep
 @Serializable
 data class Password(
     val favorite: Boolean,

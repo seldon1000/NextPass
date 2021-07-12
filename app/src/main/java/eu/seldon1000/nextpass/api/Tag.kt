@@ -16,10 +16,8 @@
 
 package eu.seldon1000.nextpass.api
 
-import androidx.annotation.Keep
 import kotlinx.serialization.Serializable
 
-@Keep
 @Serializable
 data class Tag(
     val id: String,

@@ -98,7 +98,7 @@ fun PasswordCard(index: Int, password: Password) {
             FavoriteButton(favorite = password.favorite) {
                 MainViewModel.setRefreshing(refreshing = true)
 
-                val params = mapOf(
+                val params = mutableMapOf(
                     "id" to password.id,
                     "label" to password.label,
                     "username" to password.username,
@@ -111,9 +111,9 @@ fun PasswordCard(index: Int, password: Password) {
                         ), value = password.customFieldsList
                     ),
                     "folder" to password.folder,
-                    "hash" to password.hash,
-                    "favorite" to it.toString()
+                    "hash" to password.hash
                 )
+                if (it) params["favorite"] = "true"
 
                 NextcloudApiProvider.updatePasswordRequest(params = params, tags = password.tags)
             }

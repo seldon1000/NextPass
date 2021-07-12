@@ -83,12 +83,12 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
             FavoriteButton(favorite = folder.favorite) {
                 MainViewModel.setRefreshing(refreshing = true)
 
-                val params = mapOf(
+                val params = mutableMapOf(
                     "id" to folder.id,
                     "label" to folder.label,
-                    "parent" to storedFolders[currentFolder].id,
-                    "favorite" to it.toString()
+                    "parent" to storedFolders[currentFolder].id
                 )
+                if (it) params["favorite"] = "true"
 
                 NextcloudApiProvider.updateFolderRequest(params = params)
             }

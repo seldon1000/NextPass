@@ -111,7 +111,7 @@ fun PasswordDetails(passwordData: Password) {
                             } catch (e: Exception) {
                             }
                         }
-                        val params = mapOf(
+                        val params = mutableMapOf(
                             "id" to passwordData.id,
                             "label" to label,
                             "username" to username,
@@ -120,9 +120,9 @@ fun PasswordDetails(passwordData: Password) {
                             "notes" to notes,
                             "customFields" to NextcloudApiProvider.json.encodeToString(value = concreteCustomFields),
                             "folder" to storedFolders[selectedFolder].id,
-                            "hash" to passwordData.hash,
-                            "favorite" to passwordData.favorite.toString()
+                            "hash" to passwordData.hash
                         )
+                        if (passwordData.favorite) params["favorite"] = "true"
 
                         NextcloudApiProvider.updatePasswordRequest(params = params, tags = tags)
                         MainViewModel.showSnackbar(message = context.getString(R.string.password_updated_snack))
@@ -264,7 +264,7 @@ fun PasswordDetails(passwordData: Password) {
                             FavoriteButton(favorite = passwordData.favorite) {
                                 MainViewModel.setRefreshing(refreshing = true)
 
-                                val params = mapOf(
+                                val params = mutableMapOf(
                                     "id" to passwordData.id,
                                     "label" to passwordData.label,
                                     "username" to passwordData.username,
@@ -277,9 +277,9 @@ fun PasswordDetails(passwordData: Password) {
                                         ), value = passwordData.customFieldsList
                                     ),
                                     "folder" to passwordData.folder,
-                                    "hash" to passwordData.hash,
-                                    "favorite" to it.toString()
+                                    "hash" to passwordData.hash
                                 )
+                                if (it) params["favorite"] = "true"
 
                                 NextcloudApiProvider.updatePasswordRequest(
                                     params = params,

@@ -80,12 +80,12 @@ fun FolderDetails(folder: Folder) {
 
                         MainViewModel.setRefreshing(refreshing = true)
 
-                        val params = mapOf(
+                        val params = mutableMapOf(
                             "id" to folder.id,
                             "label" to label,
-                            "parent" to storedFolders[currentFolder].id,
-                            "favorite" to folder.favorite.toString()
+                            "parent" to storedFolders[currentFolder].id
                         )
+                        if (folder.favorite) params["favorite"] = "true"
 
                         NextcloudApiProvider.updateFolderRequest(params = params)
                         MainViewModel.showSnackbar(message = context.getString(R.string.folder_updated_snack))
@@ -192,12 +192,12 @@ fun FolderDetails(folder: Folder) {
                             FavoriteButton(favorite = folder.favorite) {
                                 MainViewModel.setRefreshing(refreshing = true)
 
-                                val params = mapOf(
+                                val params = mutableMapOf(
                                     "id" to folder.id,
                                     "label" to folder.label,
-                                    "parent" to storedFolders[currentFolder].id,
-                                    "favorite" to it.toString()
+                                    "parent" to storedFolders[currentFolder].id
                                 )
+                                if (it) params["favorite"] = "true"
 
                                 NextcloudApiProvider.updateFolderRequest(params = params)
                             }
