@@ -91,6 +91,9 @@ object MainViewModel : ViewModel() {
     private val selectedFolderState = MutableStateFlow(value = currentFolder.value)
     val selectedFolder = selectedFolderState
 
+    private val foldersState = MutableStateFlow(value = false)
+    val folders = foldersState
+
     private val tagsState = MutableStateFlow(value = false)
     val tags = tagsState
 
@@ -157,6 +160,12 @@ object MainViewModel : ViewModel() {
             biometricProtectedState.value = sharedPreferences!!.contains("biometric")
         }
 
+        if (sharedPreferences!!.contains("folders")) {
+            setFolderMode(mode = true)
+            foldersState.value = true
+        } else setFolderMode(mode = false)
+
+
         if (!sharedPreferences!!.contains("tags")) enableTags(refresh = false)
         else tagsState.value = sharedPreferences!!.getBoolean("tags", true)
 
@@ -168,10 +177,13 @@ object MainViewModel : ViewModel() {
     }
 
     fun resetUserSettings() {
-        stopAutofillService()
+        stopAutofillService(show = false)
         disablePin()
         disableAutostart()
         disableScreenProtection()
+        disableFolders()
+
+        showSnackbar(message = context!!.getString(R.string.preferences_restored_snack))
     }
 
     fun setPrimaryClip(label: String, clip: String) {
@@ -247,14 +259,12 @@ object MainViewModel : ViewModel() {
         } else false
     }
 
-    fun stopAutofillService() {
-        if (!autofillState.value)
-            showSnackbar(message = context!!.getString(R.string.service_not_enabled_snack))
-        else {
+    fun stopAutofillService(show: Boolean = true) {
+        if (autofillState.value) {
             context!!.stopService(autofillIntent)
 
-            showSnackbar(message = context!!.getString(R.string.service_terminated_snack))
-        }
+            if (show) showSnackbar(message = context!!.getString(R.string.service_terminated_snack))
+        } else if (show) showSnackbar(message = context!!.getString(R.string.service_not_enabled_snack))
     }
 
     fun enableAutofill() {
@@ -463,6 +473,20 @@ object MainViewModel : ViewModel() {
     fun setFolderMode(mode: Boolean? = null) {
         if (mode == null) folderModeState.value = !folderModeState.value
         else folderModeState.value = mode
+    }
+
+    fun enableFolders() {
+        sharedPreferences!!.edit().putBoolean("folders", false).apply()
+        foldersState.value = true
+
+        setFolderMode(mode = true)
+    }
+
+    fun disableFolders() {
+        sharedPreferences!!.edit().remove("folders").apply()
+        foldersState.value = false
+
+        setFolderMode(mode = false)
     }
 
     fun setCurrentFolder(folder: Int? = null) {

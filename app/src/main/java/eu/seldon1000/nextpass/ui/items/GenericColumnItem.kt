@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 fun GenericColumnItem(
     title: String,
     body: String,
+    titleColor: Color = Color.Unspecified,
     icon: @Composable (() -> Unit)? = null,
     item: @Composable (() -> Unit)? = null,
     action: () -> Unit
@@ -51,7 +52,8 @@ fun GenericColumnItem(
             Text(
                 text = title,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                color = titleColor
             )
             Crossfade(targetState = body) { state ->
                 Text(

@@ -68,6 +68,7 @@ fun Settings() {
     val screenProtection by MainViewModel.screenProtection.collectAsState()
     val autofill by MainViewModel.autofill.collectAsState()
     val autostart by MainViewModel.autostart.collectAsState()
+    val folders by MainViewModel.folders.collectAsState()
     val tags by MainViewModel.tags.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
@@ -419,7 +420,7 @@ fun Settings() {
             }
             item {
                 Text(
-                    text = "Appearance",
+                    text = context.getString(R.string.appearance),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = NextcloudBlue,
@@ -428,8 +429,25 @@ fun Settings() {
             }
             item {
                 GenericColumnItem(
-                    title = "Always show passwords tags",
-                    body = "If enabled, NextPass will show tags to better organize your passwords by default in 'Passwords', 'Favorites' and 'Search' screens, not just in details screens.",
+                    title = context.getString(R.string.always_folder_mode),
+                    body = context.getString(R.string.always_folder_mode_tip),
+                    item = {
+                        Switch(
+                            checked = folders,
+                            onCheckedChange = {
+                                if (folders) MainViewModel.disableFolders()
+                                else MainViewModel.enableFolders()
+                            },
+                            colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
+                            modifier = Modifier.padding(all = 16.dp)
+                        )
+                    }
+                ) {}
+            }
+            item {
+                GenericColumnItem(
+                    title = context.getString(R.string.always_show_tags),
+                    body = context.getString(R.string.always_show_tags_tip),
                     item = {
                         Switch(
                             checked = tags,
@@ -442,6 +460,29 @@ fun Settings() {
                         )
                     }
                 ) {}
+            }
+            item {
+                Text(
+                    text = context.getString(R.string.danger_zone),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Red,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+            item {
+                GenericColumnItem(
+                    title = context.getString(R.string.restore_preferences),
+                    body = context.getString(R.string.restore_preferences_tip),
+                    titleColor = Color.Red,
+                    item = {}
+                ) {
+                    MainViewModel.showDialog(
+                        title = context.getString(R.string.warning),
+                        body = { Text(text = context.getString(R.string.restore_preferences_body)) },
+                        confirm = true
+                    ) { MainViewModel.resetUserSettings() }
+                }
             }
         }
     }
