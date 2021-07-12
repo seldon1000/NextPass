@@ -36,149 +36,57 @@ import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @Composable
-fun ChangePin(change: Boolean) {
+fun ChangePin() {
     val context = LocalContext.current
-
-    val protected by MainViewModel.pinProtected.collectAsState()
 
     var pin by remember { mutableStateOf(value = "") }
     var tempPin by remember { mutableStateOf(value = "") }
 
     var showed by remember { mutableStateOf(value = false) }
-    var ready by remember { mutableStateOf(value = false) }
     var confirm by remember { mutableStateOf(value = false) }
 
     MyScaffoldLayout(fab = {
         FloatingActionButton({
-            if (protected) {
-                if (change) {
-                    if (confirm) {
-                        if (pin == tempPin) {
-                            MainViewModel.showDialog(
-                                title = context.getString(R.string.change_pin),
-                                body = {
-                                    Text(
-                                        text = context.getString(R.string.change_pin_body),
-                                        fontSize = 14.sp
-                                    )
-                                },
-                                confirm = true
-                            ) {
-                                MainViewModel.setNewPin(pin = pin)
-                                MainViewModel.popBackStack()
-                                MainViewModel.showSnackbar(message = context.getString(R.string.pin_changed_snack))
-                            }
-                        } else MainViewModel.showDialog(
-                            title = context.getString(R.string.wrong_pin),
-                            body = {
-                                Text(
-                                    text = context.getString(R.string.wrong_pin_body),
-                                    fontSize = 14.sp
-                                )
-                            }
-                        )
-                    } else if (ready) {
-                        if (pin.length >= 4) {
-                            tempPin = pin
-                            pin = ""
-                            showed = false
-                            confirm = true
-                        } else MainViewModel.showDialog(
-                            title = context.getString(R.string.pin_short),
-                            body = {
-                                Text(
-                                    text = context.getString(R.string.pin_short_body),
-                                    fontSize = 14.sp
-                                )
-                            }
-                        )
-                    } else {
-                        if (MainViewModel.checkPin(pin = pin)) {
-                            pin = ""
-                            showed = false
-                            ready = true
-                        } else {
-                            MainViewModel.showDialog(
-                                title = context.getString(R.string.wrong_pin),
-                                body = {
-                                    Text(
-                                        text = context.getString(R.string.wrong_pin_body),
-                                        fontSize = 14.sp
-                                    )
-                                }
-                            )
-                        }
-                    }
-                } else {
-                    if (MainViewModel.checkPin(pin = pin)) {
-                        MainViewModel.showDialog(
-                            title = context.getString(R.string.disable_pin),
-                            body = {
-                                Text(
-                                    text = context.getString(R.string.disable_pin_body),
-                                    fontSize = 14.sp
-                                )
-                            },
-                            confirm = true
-                        ) {
-                            MainViewModel.disablePin()
-                            MainViewModel.showSnackbar(message = context.getString(R.string.pin_disabled_snack))
-                        }
-                    } else {
-                        MainViewModel.showDialog(
-                            title = context.getString(R.string.wrong_pin),
-                            body = {
-                                Text(
-                                    text = context.getString(R.string.wrong_pin_body),
-                                    fontSize = 14.sp
-                                )
-                            }
-                        )
-                    }
-                }
-            } else {
-                if (confirm) {
-                    if (pin == tempPin) {
-                        MainViewModel.showDialog(
-                            title = context.getString(R.string.change_pin),
-                            body = {
-                                Text(
-                                    text = context.getString(R.string.change_pin_body),
-                                    fontSize = 14.sp
-                                )
-                            },
-                            confirm = true
-                        ) {
-                            MainViewModel.setNewPin(pin = pin)
-                            MainViewModel.setLockTimeout(timeout = 0)
-                            MainViewModel.popBackStack()
-                            MainViewModel.showSnackbar(message = context.getString(R.string.pin_changed_snack))
-                        }
-                    } else MainViewModel.showDialog(
-                        title = context.getString(R.string.wrong_pin),
+            if (confirm) {
+                if (pin == tempPin) {
+                    MainViewModel.showDialog(
+                        title = context.getString(R.string.change_pin),
                         body = {
                             Text(
-                                text = context.getString(R.string.wrong_pin_body),
+                                text = context.getString(R.string.change_pin_body),
                                 fontSize = 14.sp
                             )
-                        }
-                    )
-                } else {
-                    if (pin.length >= 4) {
-                        tempPin = pin
-                        pin = ""
-                        showed = false
+                        },
                         confirm = true
-                    } else MainViewModel.showDialog(
-                        title = context.getString(R.string.pin_short),
-                        body = {
-                            Text(
-                                text = context.getString(R.string.pin_short_body),
-                                fontSize = 13.sp
-                            )
-                        }
-                    )
-                }
+                    ) {
+                        MainViewModel.setNewPin(pin = pin)
+                        MainViewModel.popBackStack()
+                        MainViewModel.showSnackbar(message = context.getString(R.string.pin_changed_snack))
+                    }
+                } else MainViewModel.showDialog(
+                    title = context.getString(R.string.wrong_pin),
+                    body = {
+                        Text(
+                            text = context.getString(R.string.wrong_pin_body),
+                            fontSize = 14.sp
+                        )
+                    }
+                )
+            } else {
+                if (pin.length >= 4) {
+                    tempPin = pin
+                    pin = ""
+                    showed = false
+                    confirm = true
+                } else MainViewModel.showDialog(
+                    title = context.getString(R.string.pin_short),
+                    body = {
+                        Text(
+                            text = context.getString(R.string.pin_short_body),
+                            fontSize = 13.sp
+                        )
+                    }
+                )
             }
         }) {
             Icon(
@@ -208,15 +116,9 @@ fun ChangePin(change: Boolean) {
         ) {
             Header(
                 expanded = false,
-                title = if (protected) {
-                    when {
-                        confirm -> context.getString(R.string.confirm_new_pin)
-                        ready -> context.getString(R.string.create_new_pin)
-                        else -> context.getString(R.string.insert_current_pin)
-                    }
-                } else {
-                    if (confirm) context.getString(R.string.confirm_new_pin)
-                    else context.getString(R.string.create_new_pin)
+                title = when {
+                    confirm -> context.getString(R.string.confirm_new_pin)
+                    else -> context.getString(R.string.create_new_pin)
                 }
             )
             Box(

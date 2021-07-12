@@ -33,15 +33,13 @@ sealed class Routes(val route: String) {
     object Favorites : Routes(route = "favorites")
     object Settings : Routes(route = "settings")
     object About : Routes(route = "about")
+    object Pin : Routes(route = "pin")
+
     object PasswordDetails : Routes(route = "password-details/{data}") {
         fun getRoute(arg: Int) = "password-details/$arg"
     }
 
     object FolderDetails : Routes(route = "folder-details/{data}") {
         fun getRoute(arg: Int) = "folder-details/$arg"
-    }
-
-    object Pin : Routes(route = "pin/{change}") {
-        fun getRoute(arg: Boolean) = "pin/$arg"
     }
 }

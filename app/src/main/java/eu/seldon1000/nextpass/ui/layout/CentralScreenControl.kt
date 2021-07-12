@@ -88,6 +88,7 @@ fun CentralScreenControl() {
                 composable(route = Routes.Favorites.route) { Favorites() }
                 composable(route = Routes.Settings.route) { Settings() }
                 composable(route = Routes.About.route) { About() }
+                composable(route = Routes.Pin.route) { ChangePin() }
                 composable(
                     route = Routes.PasswordDetails.route,
                     listOf(navArgument(name = "data") { type = NavType.IntType })
@@ -96,10 +97,6 @@ fun CentralScreenControl() {
                     route = Routes.FolderDetails.route,
                     listOf(navArgument(name = "data") { type = NavType.IntType })
                 ) { FolderDetails(folder = storedFolders[it.arguments?.getInt("data")!!]) }
-                composable(
-                    route = Routes.Pin.route,
-                    listOf(navArgument(name = "change") { type = NavType.BoolType })
-                ) { ChangePin(change = it.arguments?.getBoolean("change")!!) }
             }
         }
     }

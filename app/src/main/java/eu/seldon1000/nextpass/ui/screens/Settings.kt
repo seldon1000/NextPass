@@ -189,19 +189,15 @@ fun Settings() {
                         Switch(
                             checked = protected,
                             onCheckedChange = {
-                                MainViewModel.navigate(
-                                    route = Routes.Pin.getRoute(
-                                        arg = false
-                                    )
-                                )
+                                if (protected) MainViewModel.disablePin()
+                                else MainViewModel.navigate(route = Routes.Pin.route)
                             },
                             colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
                 ) {
-                    if (protected)
-                        MainViewModel.navigate(route = Routes.Pin.getRoute(arg = true))
+                    if (protected) MainViewModel.changePin()
                     else
                         MainViewModel.showDialog(
                             title = context.getString(R.string.pin_not_enabled),
@@ -212,7 +208,7 @@ fun Settings() {
                                 )
                             },
                             confirm = true
-                        ) { MainViewModel.navigate(route = Routes.Pin.getRoute(arg = false)) }
+                        ) { MainViewModel.navigate(route = Routes.Pin.route) }
                 }
             }
             item {

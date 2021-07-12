@@ -349,6 +349,16 @@ object MainViewModel : ViewModel() {
         } else false
     }
 
+    fun changePin() {
+        pendingUnlockAction = { navigate(route = Routes.Pin.route) }
+
+        if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
+        else {
+            pendingUnlockAction!!()
+            pendingUnlockAction = {}
+        }
+    }
+
     fun setNewPin(pin: String) {
         sharedPreferences!!.edit().putString("PIN", pin).apply()
 
@@ -360,13 +370,19 @@ object MainViewModel : ViewModel() {
     }
 
     fun disablePin() {
-        sharedPreferences!!.edit().remove("PIN").apply()
-        pinProtectedState.value = false
-        sharedPreferences!!.edit().remove("timeout").apply()
-        lockTimeoutState.value = (-1).toLong()
-        disableBiometric()
+        pendingUnlockAction = {
+            sharedPreferences!!.edit().remove("PIN").apply()
+            pinProtectedState.value = false
+            sharedPreferences!!.edit().remove("timeout").apply()
+            lockTimeoutState.value = (-1).toLong()
+            disableBiometric()
+        }
 
-        unlock()
+        if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
+        else {
+            pendingUnlockAction!!()
+            pendingUnlockAction = {}
+        }
     }
 
     fun enableBiometric() {
