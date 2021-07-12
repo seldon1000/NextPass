@@ -177,13 +177,23 @@ object MainViewModel : ViewModel() {
     }
 
     fun resetUserSettings() {
-        stopAutofillService(show = false)
-        disablePin()
-        disableAutostart()
-        disableScreenProtection()
-        disableFolders()
+        pendingUnlockAction = {
+            stopAutofillService(show = false)
+            disableAutostart()
+            disableAutofill()
+            disableScreenProtection(lock = false)
+            disableFolders()
+            enableTags()
+            disablePin()
 
-        showSnackbar(message = context!!.getString(R.string.preferences_restored_snack))
+            showSnackbar(message = context!!.getString(R.string.preferences_restored_snack))
+        }
+
+        if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
+        else {
+            pendingUnlockAction()
+            pendingUnlockAction = {}
+        }
     }
 
     fun setPrimaryClip(label: String, clip: String) {
@@ -231,14 +241,14 @@ object MainViewModel : ViewModel() {
         screenProtectionState.value = true
     }
 
-    fun disableScreenProtection() {
+    fun disableScreenProtection(lock: Boolean = true) {
         pendingUnlockAction = {
             context!!.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             sharedPreferences!!.edit().remove("screen").apply()
             screenProtectionState.value = false
         }
 
-        if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
+        if (pinProtectedState.value && lock) lock(shouldRaiseBiometric = true)
         else {
             pendingUnlockAction()
             pendingUnlockAction = {}

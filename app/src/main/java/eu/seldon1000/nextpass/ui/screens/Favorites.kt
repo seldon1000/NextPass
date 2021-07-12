@@ -84,10 +84,13 @@ fun Favorites() {
                     PasswordCard(index = index, password = password)
             }
             item {
+                val count = storedPasswords.count { it.favorite }
+
                 CountMessage(
                     message = context.resources.getQuantityString(
                         R.plurals.favorites_number,
-                        storedPasswords.count { it.favorite }
+                        count,
+                        count
                     )
                 )
             }

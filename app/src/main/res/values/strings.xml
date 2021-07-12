@@ -32,6 +32,7 @@
     <string name="send_email_tip">Click here to quickly send us an email. We\'ll get back to you as soon as possible.</string>
     <string name="passwords">Passwords</string>
     <string name="autofill">Autofill</string>
+    <string name="on_restart">On restart</string>
     <string name="stop_service_now">Stop service now</string>
     <string name="stop_service_now_tip">Click here to manually terminate the background autofill service. Note that it will automatically restart if you restart NextPass.</string>
     <string name="lock_timeout">Lock timeout</string>

@@ -16,15 +16,23 @@
 
 <resources>
     <plurals name="passwords_number">
-        <item quantity="one">You have %1$d password</item>
-        <item quantity="other">You have %1$d passwords</item>
+        <item quantity="one">You have %d password</item>
+        <item quantity="other">You have %d passwords</item>
     </plurals>
     <plurals name="favorites_number">
-        <item quantity="one">You have %1$d favorite password</item>
-        <item quantity="other">You have %1$d favorite passwords</item>
+        <item quantity="one">You have %d favorite password</item>
+        <item quantity="other">You have %d favorite passwords</item>
     </plurals>
-    <plurals name="search_results">
+    <plurals name="results_number">
         <item quantity="one">There is %d result</item>
         <item quantity="other">There are %d results</item>
+    </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
     </plurals>
 </resources>

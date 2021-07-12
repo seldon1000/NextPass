@@ -274,10 +274,18 @@ fun Settings() {
                                     text = when (lockTimeout) {
                                         0.toLong() -> context.getString(R.string.immediately)
                                         (-1).toLong() -> context.getString(R.string.never)
-                                        (-2).toLong() -> "On restart"
+                                        (-2).toLong() -> context.getString(R.string.on_restart)
                                         else -> when {
-                                            lockTimeout < 3600000 -> "${lockTimeout / 60000} minutes"
-                                            else -> "${lockTimeout / 3600000} hours"
+                                            lockTimeout < 3600000 -> context.resources.getQuantityString(
+                                                R.plurals.minutes,
+                                                (lockTimeout / 60000).toInt(),
+                                                (lockTimeout / 60000).toInt()
+                                            )
+                                            else -> context.resources.getQuantityString(
+                                                R.plurals.minutes,
+                                                (lockTimeout / 60000).toInt(),
+                                                (lockTimeout / 3600000).toInt()
+                                            )
                                         }
                                     },
                                     modifier = Modifier.padding(start = 8.dp, end = 16.dp)
@@ -306,10 +314,18 @@ fun Settings() {
                                             text = when (option) {
                                                 0.toLong() -> context.getString(R.string.immediately)
                                                 (-1).toLong() -> context.getString(R.string.never)
-                                                (-2).toLong() -> "On restart"
+                                                (-2).toLong() -> context.getString(R.string.on_restart)
                                                 else -> when {
-                                                    option < 3600000 -> "${option / 60000} minutes"
-                                                    else -> "${option / 3600000} hours"
+                                                    option < 3600000 -> context.resources.getQuantityString(
+                                                        R.plurals.minutes,
+                                                        (option / 60000).toInt(),
+                                                        (option / 60000).toInt()
+                                                    )
+                                                    else -> context.resources.getQuantityString(
+                                                        R.plurals.hours,
+                                                        (option / 3600000).toInt(),
+                                                        (option / 3600000).toInt()
+                                                    )
                                                 }
                                             },
                                             color = if (lockTimeout == option) Color.Gray else Color.White

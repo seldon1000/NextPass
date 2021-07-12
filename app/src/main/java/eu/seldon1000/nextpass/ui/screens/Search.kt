@@ -119,21 +119,23 @@ fun Search() {
                 }
             }
             item {
+                val count = storedPasswords.count { password ->
+                    (if (currentTag != null) password.tags.any { it == currentTag }
+                    else true) && (password.url.contains(searchedText, ignoreCase = true) ||
+                            password.label.contains(searchedText, ignoreCase = true) ||
+                            password.username.contains(searchedText, ignoreCase = true) ||
+                            password.notes.contains(searchedText, ignoreCase = true))
+                } + storedFolders.count {
+                    it.label.contains(
+                        searchedText,
+                        ignoreCase = true
+                    )
+                }
+
                 CountMessage(
-                    message = if (searchedText.isNotEmpty()) context.resources.getQuantityString(
-                        R.plurals.passwords_number, storedPasswords.count { password ->
-                            (if (currentTag != null) password.tags.any { it == currentTag }
-                            else true) && (password.url.contains(searchedText, ignoreCase = true) ||
-                                    password.label.contains(searchedText, ignoreCase = true) ||
-                                    password.username.contains(searchedText, ignoreCase = true) ||
-                                    password.notes.contains(searchedText, ignoreCase = true))
-                        } + storedFolders.count {
-                            it.label.contains(
-                                searchedText,
-                                ignoreCase = true
-                            )
-                        }
-                    ) else context.getString(R.string.search_message)
+                    message = if (searchedText.isNotEmpty())
+                        context.resources.getQuantityString(R.plurals.results_number, count, count)
+                    else context.getString(R.string.search_message)
                 )
             }
         }
