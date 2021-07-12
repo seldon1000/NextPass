@@ -279,7 +279,12 @@ object NextcloudApiProvider : ViewModel() {
                             else -> "tag"
                         }
                     }/list"
-                ) { if (T::class == Password::class) parameter("details", "model+tags") })
+                ) {
+                    if (T::class == Password::class) parameter(
+                        key = "details",
+                        value = "model+tags"
+                    )
+                })
         } catch (e: Exception) {
             showError()
 
@@ -291,10 +296,15 @@ object NextcloudApiProvider : ViewModel() {
         MainViewModel.setRefreshing(refreshing = true)
 
         viewModelScope.launch {
-            val passwords: SnapshotStateList<Password> = listRequest()
+            val passwords = listRequest<Password>()
 
             passwords.sortBy { it.label.lowercase() }
-            passwords.forEach { faviconRequest(data = it) }
+            passwords.forEachIndexed { index, password ->
+                if (storedPasswordsState.value.size > index &&
+                    password.url == storedPasswordsState.value[index].url
+                ) password.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
+                else faviconRequest(data = password)
+            }
 
             storedPasswordsState.value = passwords
 
@@ -303,7 +313,7 @@ object NextcloudApiProvider : ViewModel() {
 
         if (refreshFolders) {
             viewModelScope.launch {
-                val folders: SnapshotStateList<Folder> = listRequest()
+                val folders = listRequest<Folder>()
 
                 folders.sortBy { it.label.lowercase() }
                 folders.add(index = 0, element = baseFolder)
@@ -314,7 +324,7 @@ object NextcloudApiProvider : ViewModel() {
 
         if (refreshTags)
             viewModelScope.launch {
-                val tags: SnapshotStateList<Tag> = listRequest()
+                val tags = listRequest<Tag>()
 
                 tags.sortBy { it.label.lowercase() }
 
@@ -322,19 +332,31 @@ object NextcloudApiProvider : ViewModel() {
             }
     }
 
+    private suspend inline fun <reified T> showRequest(id: String): T {
+        return json.decodeFromString(
+            deserializer = serializer(),
+            string = client.post(
+                urlString = "$server$endpoint/${
+                    when (T::class) {
+                        Password::class -> "password"
+                        Folder::class -> "folder"
+                        else -> "tag"
+                    }
+                }/show"
+            ) {
+                parameter(key = "id", value = id)
+                if (T::class == Password::class) parameter(key = "details", value = "model+tags")
+            })
+    }
+
     fun createPasswordRequest(params: Map<String, String>) {
         viewModelScope.launch {
             try {
-                val response =
-                    client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
+                val newPassword = showRequest<Password>(
+                    id = client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
                         params.forEach { parameter(key = it.key, value = it.value) }
                     }["id"]!!.jsonPrimitive.content
-
-                val newPassword =
-                    client.post<Password>(urlString = "$server$endpoint/password/show") {
-                        parameter(key = "id", value = response)
-                        parameter(key = "details", value = "model+tags")
-                    }
+                )
 
                 faviconRequest(data = newPassword)
 
@@ -357,15 +379,11 @@ object NextcloudApiProvider : ViewModel() {
     fun createFolderRequest(params: Map<String, String>) {
         viewModelScope.launch {
             try {
-                val response =
-                    client.post<JsonObject>(urlString = "$server$endpoint/folder/create") {
+                val newFolder = showRequest<Folder>(
+                    id = client.post<JsonObject>(urlString = "$server$endpoint/folder/create") {
                         params.forEach { parameter(key = it.key, value = it.value) }
                     }["id"]!!.jsonPrimitive.content
-
-                val newFolder =
-                    client.post<Folder>(urlString = "$server$endpoint/folder/show") {
-                        parameter(key = "id", value = response)
-                    }
+                )
 
                 val data = storedFoldersState.value
 
@@ -390,15 +408,11 @@ object NextcloudApiProvider : ViewModel() {
     fun createTagRequest(params: Map<String, String>) {
         viewModelScope.launch {
             try {
-                val response =
-                    client.post<JsonObject>(urlString = "$server$endpoint/tag/create") {
+                val newTag = showRequest<Tag>(
+                    id = client.post<JsonObject>(urlString = "$server$endpoint/tag/create") {
                         params.forEach { parameter(key = it.key, value = it.value) }
                     }["id"]!!.jsonPrimitive.content
-
-                val newTag =
-                    client.post<Tag>(urlString = "$server$endpoint/tag/show") {
-                        parameter(key = "id", value = response)
-                    }
+                )
 
                 val data = storedTagsState.value
 
