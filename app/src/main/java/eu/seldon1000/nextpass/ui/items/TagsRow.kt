@@ -257,9 +257,9 @@ fun TagsRow(
                         text = if (storedTags.size < 1) context.getString(R.string.add_new_tag) else "",
                         fontSize = 14.sp,
                         modifier = Modifier.padding(
-                            start = if ((storedTags.size < 1)) 18.dp else 0.dp,
+                            start = if (storedTags.size < 1) 18.dp else 0.dp,
                             top = 8.dp,
-                            end = if ((storedTags.size < 1)) 18.dp else 0.dp,
+                            end = if (storedTags.size < 1) 18.dp else 0.dp,
                             bottom = 8.dp
                         )
                     )
@@ -267,7 +267,7 @@ fun TagsRow(
                         painter = painterResource(id = R.drawable.ic_round_add_24),
                         contentDescription = "add_tag",
                         modifier = Modifier.padding(
-                            start = if ((storedTags.size < 1)) 0.dp else 6.dp,
+                            start = if (storedTags.size < 1) 0.dp else 6.dp,
                             end = 6.dp
                         )
                     )
