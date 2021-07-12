@@ -224,7 +224,7 @@ object NextcloudApiProvider : ViewModel() {
                                 fontSize = 14.sp
                             )
                         })
-                    else {
+                    else if (i <= 120) {
                         server = loginResponse["server"]!!.jsonPrimitive.content
                         loginName = loginResponse["loginName"]!!.jsonPrimitive.content
                         appPassword = loginResponse["appPassword"]!!.jsonPrimitive.content
