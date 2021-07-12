@@ -606,9 +606,4 @@ object NextcloudApiProvider : ViewModel() {
 
         MainViewModel.setRefreshing(refreshing = false)
     }
-
-    fun stopNextcloudApi() {
-        viewModelScope.coroutineContext.cancelChildren()
-        context = null
-    }
 }

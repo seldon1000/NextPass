@@ -53,7 +53,7 @@ object MainViewModel : ViewModel() {
     val navController = navControllerState
     private var snackbarHostState: SnackbarHostState? = null
 
-    private var pendingUnlockAction = {}
+    private var pendingUnlockAction: (() -> Unit)? = null
 
     private val screenProtectionState = MutableStateFlow(value = false)
     val screenProtection = screenProtectionState
@@ -191,8 +191,8 @@ object MainViewModel : ViewModel() {
 
         if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
         else {
-            pendingUnlockAction()
-            pendingUnlockAction = {}
+            pendingUnlockAction!!()
+            pendingUnlockAction = null
         }
     }
 
@@ -250,8 +250,8 @@ object MainViewModel : ViewModel() {
 
         if (pinProtectedState.value && lock) lock(shouldRaiseBiometric = true)
         else {
-            pendingUnlockAction()
-            pendingUnlockAction = {}
+            pendingUnlockAction!!()
+            pendingUnlockAction = null
         }
     }
 
@@ -320,13 +320,13 @@ object MainViewModel : ViewModel() {
 
         if (navControllerState.value?.previousBackStackEntry?.destination?.route != Routes.Welcome.route) {
             navControllerState.value?.popBackStack(
-                route = navControllerState.value?.currentBackStackEntry?.destination?.route!!,
+                route = navControllerState.value?.currentDestination?.route!!,
                 inclusive = true
             )
         } else openApp()
 
-        pendingUnlockAction()
-        pendingUnlockAction = {}
+        pendingUnlockAction?.let { it() }
+        pendingUnlockAction = null
     }
 
     fun openApp(shouldRememberScreen: Boolean = false) {
@@ -441,11 +441,11 @@ object MainViewModel : ViewModel() {
                 restoreState = true
             }
 
-            if (navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.AccessPin.route ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Welcome.route ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Settings.route ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.About.route ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Pin.route
+            if (navControllerState.value?.currentDestination?.route!! == Routes.AccessPin.route ||
+                navControllerState.value?.currentDestination?.route!! == Routes.Welcome.route ||
+                navControllerState.value?.currentDestination?.route!! == Routes.Settings.route ||
+                navControllerState.value?.currentDestination?.route!! == Routes.About.route ||
+                navControllerState.value?.currentDestination?.route!! == Routes.Pin.route
             ) refreshingState.value = false
         }
 
@@ -455,11 +455,11 @@ object MainViewModel : ViewModel() {
     fun popBackStack(): Boolean {
         try {
             return if ((navControllerState.value?.previousBackStackEntry?.destination?.route!! == Routes.Welcome.route &&
-                        navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.WebView.route) ||
+                        navControllerState.value?.currentDestination?.route!! == Routes.WebView.route) ||
                 navControllerState.value?.previousBackStackEntry?.destination?.route!! == Routes.AccessPin.route ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Welcome.route ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.AccessPin.route ||
-                navControllerState.value?.currentBackStackEntry?.destination?.route!! == Routes.Passwords.route
+                navControllerState.value?.currentDestination?.route!! == Routes.Welcome.route ||
+                (navControllerState.value?.currentDestination?.route!! == Routes.AccessPin.route && pendingUnlockAction == null) ||
+                navControllerState.value?.currentDestination?.route!! == Routes.Passwords.route
             )
                 if (currentFolderState.value != 0) {
                     setCurrentFolder()
@@ -468,7 +468,7 @@ object MainViewModel : ViewModel() {
             else {
                 navControllerState.value?.popBackStack()
 
-                if (navControllerState.value?.currentBackStackEntry?.destination?.route!! != Routes.NewPassword.route)
+                if (navControllerState.value?.currentDestination?.route!! != Routes.NewPassword.route)
                     NextcloudApiProvider.faviconRequest(data = "")
 
                 setKeyboardMode()
