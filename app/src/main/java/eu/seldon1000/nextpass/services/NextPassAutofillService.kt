@@ -174,7 +174,7 @@ class NextPassAutofillService : AutofillService() {
                 )
             }
 
-            NextcloudApiProvider.createPasswordRequest(params = params)
+            NextcloudApiProvider.createPasswordRequest(params = params, tags = emptyList())
 
             callback.onSuccess()
         }

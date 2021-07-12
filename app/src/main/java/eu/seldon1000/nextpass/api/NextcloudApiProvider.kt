@@ -349,12 +349,13 @@ object NextcloudApiProvider : ViewModel() {
             })
     }
 
-    fun createPasswordRequest(params: Map<String, String>) {
+    fun createPasswordRequest(params: Map<String, String>, tags: List<Tag>) {
         viewModelScope.launch {
             try {
                 val newPassword = showRequest<Password>(
                     id = client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
                         params.forEach { parameter(key = it.key, value = it.value) }
+                        tags.forEach { parameter(key = "tags[]", value = it.id) }
                     }["id"]!!.jsonPrimitive.content
                 )
 

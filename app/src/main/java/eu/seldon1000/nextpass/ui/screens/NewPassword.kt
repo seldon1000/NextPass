@@ -17,6 +17,7 @@
 package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -24,7 +25,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,11 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.MainViewModel
-import eu.seldon1000.nextpass.ui.items.DropdownFolderList
-import eu.seldon1000.nextpass.ui.items.Favicon
-import eu.seldon1000.nextpass.ui.items.FavoriteButton
-import eu.seldon1000.nextpass.ui.items.TextFieldItem
+import eu.seldon1000.nextpass.ui.items.*
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.colors
@@ -48,6 +46,7 @@ import kotlinx.serialization.encodeToString
 import java.math.BigInteger
 import java.security.MessageDigest
 
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
 fun NewPassword() {
@@ -68,8 +67,9 @@ fun NewPassword() {
     var username by remember { mutableStateOf(value = "") }
     var password by remember { mutableStateOf(value = "") }
     var notes by remember { mutableStateOf(value = "") }
+    val tags by remember { mutableStateOf(value = mutableStateListOf<Tag>()) }
+    val customFields by remember { mutableStateOf(value = mutableStateListOf<SnapshotStateMap<String, String>>()) }
     val favicon by NextcloudApiProvider.currentRequestedFavicon.collectAsState()
-    val customFields = SnapshotStateList<SnapshotStateMap<String, String>>()
 
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = {
@@ -125,14 +125,17 @@ fun NewPassword() {
                     if (favorite) params["favorite"] = "true"
 
                     MainViewModel.setRefreshing(refreshing = true)
-                    NextcloudApiProvider.createPasswordRequest(params = params)
+                    NextcloudApiProvider.createPasswordRequest(params = params, tags = tags)
                     MainViewModel.popBackStack()
                     MainViewModel.showSnackbar(message = context.getString(R.string.password_created_snack))
                 }
             } else MainViewModel.showDialog(
                 title = context.getString(R.string.missing_info),
                 body = {
-                    Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
+                    Text(
+                        text = context.getString(R.string.missing_info_body),
+                        fontSize = 14.sp
+                    )
                 }
             )
         }) {
@@ -175,12 +178,21 @@ fun NewPassword() {
                         bottom = paddingValues.calculateBottomPadding() + 48.dp
                     )
                 ) {
+                    TagsRow(
+                        tags = tags,
+                        alignment = Alignment.Start
+                    ) {
+                        if (it != null) {
+                            if (tags.contains(element = it)) tags.remove(element = it)
+                            else tags.add(element = it)
+                        }
+                    }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp)
+                            .padding(bottom = 16.dp)
                     ) {
                         DropdownFolderList(folder = selectedFolder)
                         FavoriteButton(favorite = favorite) { favorite = !favorite }
