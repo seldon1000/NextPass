@@ -48,7 +48,7 @@ fun Favicon(favicon: Bitmap?, size: Dp) {
             )
             .placeholder(
                 visible = favicon == null,
-                highlight = PlaceholderHighlight.shimmer(highlightColor = Color.Gray)
+                highlight = PlaceholderHighlight.shimmer(highlightColor = Color.DarkGray)
             )
     ) {
         Crossfade(
