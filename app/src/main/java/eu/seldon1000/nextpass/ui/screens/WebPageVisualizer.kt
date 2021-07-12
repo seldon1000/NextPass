@@ -16,45 +16,27 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import android.annotation.SuppressLint
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.layout.Header
 
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun WebPageVisualizer(urlToRender: String) {
-    val context = LocalContext.current
-
-    Column {
-        Header(expanded = false, title = context.getString(R.string.login))
-        Surface(
-            shape = RoundedCornerShape(size = 16.dp),
-            elevation = 8.dp,
-            modifier = Modifier.padding(all = 16.dp)
-        ) {
-            AndroidView(
-                factory = {
-                    WebView(it).apply {
-                        settings.safeBrowsingEnabled = true
-                        settings.javaScriptEnabled = true
-                        settings.cacheMode = WebSettings.LOAD_NO_CACHE
-                        webViewClient = WebViewClient()
-                        loadUrl(urlToRender)
-                    }
-                }, modifier = Modifier.fillMaxSize()
-            )
-        }
-    }
+    AndroidView(
+        factory = {
+            WebView(it).apply {
+                settings.safeBrowsingEnabled = true
+                settings.javaScriptEnabled = true
+                settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                webViewClient = WebViewClient()
+                loadUrl(urlToRender)
+            }
+        }, modifier = Modifier.fillMaxSize()
+    )
 }
