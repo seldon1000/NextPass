@@ -188,15 +188,12 @@ object NextcloudApiProvider : ViewModel() {
                 try {
                     val response = client.post<JsonObject>(urlString = url.value)
 
-                    val login = response["login"]!!.jsonPrimitive.content
+                    val login =
+                        URLEncoder.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
                     val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
                     val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
 
-                    MainViewModel.navigate(
-                        route = Routes.WebView.getRoute(
-                            arg = URLEncoder.encode(login, "UTF-8")
-                        )
-                    )
+                    MainViewModel.navigate(route = Routes.WebView.getRoute(login))
 
                     var i = 0
                     var loginResponse = JsonObject(mapOf())
@@ -216,7 +213,10 @@ object NextcloudApiProvider : ViewModel() {
 
                     if (server.isNotEmpty()) MainViewModel.popBackStack()
 
-                    if (i > 120) MainViewModel.showDialog(
+                    if (i > 120 &&
+                        MainViewModel.navController.value!!.currentDestination!!.route ==
+                        Routes.WebView.getRoute(arg = login)
+                    ) MainViewModel.showDialog(
                         title = context!!.getString(R.string.timeout_expired),
                         body = {
                             Text(
