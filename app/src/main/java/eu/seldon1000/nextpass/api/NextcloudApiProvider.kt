@@ -248,6 +248,12 @@ object NextcloudApiProvider : ViewModel() {
                         }
 
                         MainViewModel.openApp(shouldRememberScreen = server.isEmpty())
+                        MainViewModel.showSnackbar(
+                            message = context!!.getString(
+                                R.string.connected_snack,
+                                loginName
+                            )
+                        )
                     }
 
                     val cookieManager = CookieManager.getInstance()
@@ -284,6 +290,17 @@ object NextcloudApiProvider : ViewModel() {
     fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
         MainViewModel.setRefreshing(refreshing = true)
 
+        viewModelScope.launch {
+            val passwords: SnapshotStateList<Password> = listRequest()
+
+            passwords.sortBy { it.label.lowercase() }
+            passwords.forEach { faviconRequest(data = it) }
+
+            storedPasswordsState.value = passwords
+
+            MainViewModel.setRefreshing(refreshing = false)
+        }
+
         if (refreshFolders) {
             viewModelScope.launch {
                 val folders: SnapshotStateList<Folder> = listRequest()
@@ -303,17 +320,6 @@ object NextcloudApiProvider : ViewModel() {
 
                 storedTagsState.value = tags
             }
-
-        viewModelScope.launch {
-            val passwords: SnapshotStateList<Password> = listRequest()
-
-            passwords.sortBy { it.label.lowercase() }
-            passwords.forEach { faviconRequest(data = it) }
-
-            storedPasswordsState.value = passwords
-
-            MainViewModel.setRefreshing(refreshing = false)
-        }
     }
 
     fun createPasswordRequest(params: Map<String, String>) {
