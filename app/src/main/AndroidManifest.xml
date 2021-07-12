@@ -20,7 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NextPass">
 
-        <receiver android:name=".services.StartupBroadcastReceiver">
+        <receiver
+            android:name=".services.StartupBroadcastReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -42,21 +44,11 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".api.NextcloudWebAccessActivity"
-            android:configChanges="orientation"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.NextPass.NoActionBar"
-            android:windowSoftInputMode="adjustResize"
-            tools:ignore="LockedOrientationActivity" />
-
         <service
             android:name=".services.NextPassAutofillService"
+            android:exported="true"
             android:label="NextPass Autofill Service"
-            android:permission="android.permission.BIND_AUTOFILL_SERVICE"
-            android:supportsInlineSuggestions="true">
+            android:permission="android.permission.BIND_AUTOFILL_SERVICE">
             <intent-filter>
                 <action android:name="android.service.autofill.AutofillService" />
             </intent-filter>
