@@ -179,7 +179,7 @@ object NextcloudApiProvider : ViewModel() {
                 required = true
             )
         }, confirm = true) {
-            if (!url.value.startsWith(prefix = "https://") ||
+            if (!url.value.startsWith(prefix = "https://") &&
                 !url.value.startsWith(prefix = "http://")
             ) url.value = "https://${url.value}"
             url.value = "${url.value}/index.php/login/v2"

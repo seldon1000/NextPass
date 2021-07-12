@@ -43,7 +43,7 @@ fun Favicon(favicon: Bitmap?, size: Dp) {
         modifier = Modifier
             .shadow(
                 elevation = if (favicon != null) 8.dp else 0.dp,
-                RoundedCornerShape(size = 8.dp),
+                shape = RoundedCornerShape(size = if (size > 44.dp) 16.dp else 8.dp),
                 clip = true
             )
             .placeholder(
