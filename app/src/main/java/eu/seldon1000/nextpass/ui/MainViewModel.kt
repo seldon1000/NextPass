@@ -359,7 +359,7 @@ object MainViewModel : ViewModel() {
         }
     }
 
-    fun setNewPin(pin: String) {
+    fun setPin(pin: String) {
         sharedPreferences!!.edit().putString("PIN", pin).apply()
 
         if (!pinProtectedState.value) {

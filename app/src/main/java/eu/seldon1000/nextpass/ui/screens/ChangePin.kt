@@ -59,7 +59,7 @@ fun ChangePin() {
                         },
                         confirm = true
                     ) {
-                        MainViewModel.setNewPin(pin = pin)
+                        MainViewModel.setPin(pin = pin)
                         MainViewModel.popBackStack()
                         MainViewModel.showSnackbar(message = context.getString(R.string.pin_changed_snack))
                     }
@@ -83,7 +83,7 @@ fun ChangePin() {
                     body = {
                         Text(
                             text = context.getString(R.string.pin_short_body),
-                            fontSize = 13.sp
+                            fontSize = 14.sp
                         )
                     }
                 )
