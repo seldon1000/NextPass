@@ -52,7 +52,6 @@ import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 @Composable
 fun TagsRow(
     tags: List<Tag>? = null,
-    full: Boolean = true,
     alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     tagClickAction: (tag: Tag?) -> Unit
 ) {
@@ -71,7 +70,7 @@ fun TagsRow(
         alignment = alignment,
         modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
     ) {
-        (if (full) storedTags else tags)?.forEachIndexed { index, tag ->
+        storedTags.forEachIndexed { index, tag ->
             val color = Color(android.graphics.Color.parseColor(tag.color))
 
             Surface(
@@ -101,7 +100,7 @@ fun TagsRow(
                             )
                             .combinedClickable(
                                 onClick = {
-                                    if (full) tagClickAction(tag)
+                                    tagClickAction(tag)
                                     if (tags == null) selected = if (state == index) -1 else index
                                 },
                                 onLongClick = { expanded = true })
@@ -202,7 +201,7 @@ fun TagsRow(
                 }
             }
         }
-        if (full || tags!!.isEmpty()) Surface(
+        Surface(
             shape = RoundedCornerShape(size = 8.dp),
             modifier = Modifier.shadow(
                 elevation = 8.dp,
@@ -242,7 +241,6 @@ fun TagsRow(
                         newTagColor = Color.Blue
                     }
                 },
-                enabled = full,
                 shape = RoundedCornerShape(size = 8.dp),
                 modifier = Modifier.animateContentSize(
                     animationSpec = tween(
@@ -253,22 +251,20 @@ fun TagsRow(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = if (full) {
-                            if (storedTags.size < 1) context.getString(R.string.add_new_tag) else ""
-                        } else context.getString(R.string.no_tags),
+                        text = if (storedTags.size < 1) context.getString(R.string.add_new_tag) else "",
                         fontSize = 14.sp,
                         modifier = Modifier.padding(
-                            start = if ((full && storedTags.size < 1) || (!full && tags!!.isEmpty())) 18.dp else 0.dp,
+                            start = if ((storedTags.size < 1)) 18.dp else 0.dp,
                             top = 8.dp,
-                            end = if ((full && storedTags.size < 1) || (!full && tags!!.isEmpty())) 18.dp else 0.dp,
+                            end = if ((storedTags.size < 1)) 18.dp else 0.dp,
                             bottom = 8.dp
                         )
                     )
-                    if (full) Icon(
+                    Icon(
                         painter = painterResource(id = R.drawable.ic_round_add_24),
                         contentDescription = "add_tag",
                         modifier = Modifier.padding(
-                            start = if ((full && storedTags.size < 1) || (!full && tags!!.isEmpty())) 0.dp else 6.dp,
+                            start = if ((storedTags.size < 1)) 0.dp else 6.dp,
                             end = 6.dp
                         )
                     )

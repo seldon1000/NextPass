@@ -77,7 +77,7 @@ data class Password(
         faviconState.value = bitmap
     }
 
-    fun reset() {
+    fun resetCustomFields() {
         customFieldsList = try {
             NextcloudApiProvider.json.decodeFromString(
                 deserializer = SnapshotListSerializer(CustomField.serializer()),

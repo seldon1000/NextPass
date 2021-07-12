@@ -151,13 +151,14 @@ fun PasswordDetails(passwordData: Password) {
                     if (edit) {
                         edit = false
 
-                        passwordData.reset()
                         url = passwordData.url
                         label = passwordData.label
                         username = passwordData.username
                         password = passwordData.password
                         notes = passwordData.notes
                         tags = passwordData.tags
+
+                        passwordData.resetCustomFields()
                         customFields = passwordData.customFieldsList
 
                         MainViewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == passwordData.folder })
@@ -243,11 +244,32 @@ fun PasswordDetails(passwordData: Password) {
                         )
                         TagsRow(
                             tags = tags,
-                            full = edit,
                             alignment = Alignment.Start
                         ) {
-                            if (tags.contains(element = it)) tags.remove(element = it)
-                            else tags.add(element = it!!)
+                            if (it != null) {
+                                MainViewModel.setRefreshing(refreshing = true)
+
+                                if (tags.contains(element = it)) tags.remove(element = it)
+                                else tags.add(element = it)
+
+                                val params = mutableMapOf(
+                                    "id" to passwordData.id,
+                                    "label" to passwordData.label,
+                                    "username" to passwordData.username,
+                                    "password" to passwordData.password,
+                                    "url" to passwordData.url,
+                                    "notes" to passwordData.notes,
+                                    "customFields" to passwordData.customFields,
+                                    "folder" to passwordData.folder,
+                                    "hash" to passwordData.hash
+                                )
+                                if (passwordData.favorite) params["favorite"] = "true"
+
+                                NextcloudApiProvider.updatePasswordRequest(
+                                    params = params,
+                                    tags = tags
+                                )
+                            }
                         }
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -271,11 +293,7 @@ fun PasswordDetails(passwordData: Password) {
                                     "password" to passwordData.password,
                                     "url" to passwordData.url,
                                     "notes" to passwordData.notes,
-                                    "customFields" to NextcloudApiProvider.json.encodeToString(
-                                        serializer = SnapshotListSerializer(
-                                            dataSerializer = CustomField.serializer()
-                                        ), value = passwordData.customFieldsList
-                                    ),
+                                    "customFields" to passwordData.customFields,
                                     "folder" to passwordData.folder,
                                     "hash" to passwordData.hash
                                 )
