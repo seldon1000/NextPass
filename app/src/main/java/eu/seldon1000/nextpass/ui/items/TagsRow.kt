@@ -155,6 +155,9 @@ fun TagsRow(
 
                                 NextcloudApiProvider.updateTagRequest(params = params)
                                 MainViewModel.showSnackbar(message = context.getString(R.string.tag_updated_snack))
+
+                                tagClickAction(storedTags[selected])
+                                selected = -1
                             }
                         }) {
                             Icon(

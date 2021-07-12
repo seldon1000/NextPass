@@ -55,7 +55,7 @@ fun ColorPicker(onClickAction: (color: Color) -> Unit) {
                     },
                     modifier = Modifier
                         .size(size = 56.dp)
-                        .background(color = color.copy(alpha = 0.7f))
+                        .background(color = color.copy(alpha = 0.75f))
                         .border(width = 3.dp, color = color, shape = CircleShape)
                 ) {
                     Crossfade(targetState = selected) { state ->
