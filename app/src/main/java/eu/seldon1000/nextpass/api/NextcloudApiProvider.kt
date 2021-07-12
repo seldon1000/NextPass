@@ -36,7 +36,7 @@ import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Routes
 import io.ktor.client.*
-import io.ktor.client.engine.android.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
 import io.ktor.client.features.auth.*
 import io.ktor.client.features.auth.providers.*
@@ -63,7 +63,7 @@ object NextcloudApiProvider : ViewModel() {
         isLenient = true
     }
 
-    private var client = HttpClient(Android) {
+    private var client = HttpClient(CIO) {
         install(feature = JsonFeature) {
             serializer = KotlinxSerializer(json = json)
         }
@@ -77,7 +77,7 @@ object NextcloudApiProvider : ViewModel() {
 
     private val baseFolder = json.decodeFromString(
         deserializer = Folder.serializer(),
-        string = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"Base\",\"parent\":null,\"favorite\":\"false\",\"created\":0,\"edited\":0}"
+        string = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"Base\",\"parent\":\"\",\"favorite\":\"false\",\"created\":0,\"edited\":0}"
     )
 
     private val storedPasswordsState = MutableStateFlow(value = mutableStateListOf<Password>())
@@ -154,7 +154,7 @@ object NextcloudApiProvider : ViewModel() {
             sharedPreferences!!.edit().remove("loginName").apply()
             sharedPreferences!!.edit().remove("appPassword").apply()
 
-            client = HttpClient(Android) {
+            client = HttpClient(CIO) {
                 install(JsonFeature) {
                     serializer = KotlinxSerializer(json = json)
                 }
@@ -284,8 +284,8 @@ object NextcloudApiProvider : ViewModel() {
     fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
         MainViewModel.setRefreshing(refreshing = true)
 
-        viewModelScope.launch(context = Dispatchers.IO) {
-            if (refreshFolders) {
+        if (refreshFolders) {
+            viewModelScope.launch {
                 val folders: SnapshotStateList<Folder> = listRequest()
 
                 folders.sortBy { it.label.lowercase() }
@@ -293,8 +293,10 @@ object NextcloudApiProvider : ViewModel() {
 
                 storedFoldersState.value = folders
             }
+        }
 
-            if (refreshTags) {
+        if (refreshTags)
+            viewModelScope.launch {
                 val tags: SnapshotStateList<Tag> = listRequest()
 
                 tags.sortBy { it.label.lowercase() }
@@ -302,6 +304,7 @@ object NextcloudApiProvider : ViewModel() {
                 storedTagsState.value = tags
             }
 
+        viewModelScope.launch {
             val passwords: SnapshotStateList<Password> = listRequest()
 
             passwords.sortBy { it.label.lowercase() }
@@ -314,7 +317,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun createPasswordRequest(params: Map<String, String>) {
-        viewModelScope.launch(context = Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 val response =
                     client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
@@ -346,7 +349,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun createFolderRequest(params: Map<String, String>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 val response =
                     client.post<JsonObject>(urlString = "$server$endpoint/folder/create") {
@@ -379,7 +382,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun createTagRequest(params: Map<String, String>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 val response =
                     client.post<JsonObject>(urlString = "$server$endpoint/tag/create") {
@@ -406,7 +409,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun deletePasswordRequest(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 client.delete<Any>(urlString = "$server$endpoint/password/delete") {
                     parameter(key = "id", value = id)
@@ -420,7 +423,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun deleteFolderRequest(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 client.delete<Any>(urlString = "$server$endpoint/folder/delete") {
                     parameter(key = "id", value = id)
@@ -434,7 +437,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun deleteTagRequest(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 client.delete<Any>(urlString = "$server$endpoint/tag/delete") {
                     parameter(key = "id", value = id)
@@ -448,7 +451,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun updatePasswordRequest(params: Map<String, String>, tags: List<Tag>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 client.patch<Any>(urlString = "$server$endpoint/password/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
@@ -477,7 +480,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun updateFolderRequest(params: Map<String, String>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 client.patch<Any>(urlString = "$server$endpoint/folder/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
@@ -500,7 +503,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun updateTagRequest(params: Map<String, String>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
                 client.patch<Any>(urlString = "$server$endpoint/tag/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
@@ -523,23 +526,21 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     suspend fun generatePassword(): String {
-        return withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
-            try {
-                client.get<JsonObject>(urlString = "$server$endpoint/service/password") {
-                    expectSuccess = false
-                    parameter("details", "model+tags")
-                }["password"]!!.jsonPrimitive.content
-            } catch (e: Exception) {
-                showError()
+        return try {
+            client.get<JsonObject>(urlString = "$server$endpoint/service/password") {
+                expectSuccess = false
+                parameter("details", "model+tags")
+            }["password"]!!.jsonPrimitive.content
+        } catch (e: Exception) {
+            showError()
 
-                ""
-            }
+            ""
         }
     }
 
     fun faviconRequest(data: Any) {
         when (data) {
-            is Password -> viewModelScope.launch(Dispatchers.IO) {
+            is Password -> viewModelScope.launch(context = Dispatchers.IO) {
                 try {
                     data.setFavicon(
                         BitmapFactory.decodeStream(
@@ -553,7 +554,7 @@ object NextcloudApiProvider : ViewModel() {
                 } catch (e: Exception) {
                 }
             }
-            is String -> viewModelScope.launch(Dispatchers.IO) {
+            is String -> viewModelScope.launch {
                 if (data.isNotEmpty()) {
                     try {
                         currentRequestedFaviconState.value = BitmapFactory.decodeStream(

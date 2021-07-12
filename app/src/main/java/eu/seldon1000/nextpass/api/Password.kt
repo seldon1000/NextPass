@@ -60,7 +60,7 @@ data class Password(
     val editedDate: String = formatter.format(Date(edited * 1000))
 
     @Contextual
-    var customFieldsMap = try {
+    var customFieldsList = try {
         NextcloudApiProvider.json.decodeFromString(
             deserializer = SnapshotListSerializer(CustomField.serializer()),
             string = customFields
@@ -80,7 +80,7 @@ data class Password(
     }
 
     fun reset() {
-        customFieldsMap = try {
+        customFieldsList = try {
             NextcloudApiProvider.json.decodeFromString(
                 deserializer = SnapshotListSerializer(CustomField.serializer()),
                 string = customFields

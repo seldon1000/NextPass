@@ -69,7 +69,7 @@ fun PasswordDetails(passwordData: Password) {
     var password by remember { mutableStateOf(value = passwordData.password) }
     var notes by remember { mutableStateOf(value = passwordData.notes) }
     var tags by remember { mutableStateOf(value = passwordData.tags) }
-    var customFields by remember { mutableStateOf(value = passwordData.customFieldsMap) }
+    var customFields by remember { mutableStateOf(value = passwordData.customFieldsList) }
     val favicon by passwordData.favicon.collectAsState()
 
     MyScaffoldLayout(fab = {
@@ -158,7 +158,7 @@ fun PasswordDetails(passwordData: Password) {
                         password = passwordData.password
                         notes = passwordData.notes
                         tags = passwordData.tags
-                        customFields = passwordData.customFieldsMap
+                        customFields = passwordData.customFieldsList
 
                         MainViewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == passwordData.folder })
                     } else MainViewModel.popBackStack()
@@ -274,7 +274,7 @@ fun PasswordDetails(passwordData: Password) {
                                     "customFields" to NextcloudApiProvider.json.encodeToString(
                                         serializer = SnapshotListSerializer(
                                             dataSerializer = CustomField.serializer()
-                                        ), value = passwordData.customFieldsMap
+                                        ), value = passwordData.customFieldsList
                                     ),
                                     "folder" to passwordData.folder,
                                     "hash" to passwordData.hash,

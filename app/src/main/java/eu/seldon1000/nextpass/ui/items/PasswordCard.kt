@@ -108,7 +108,7 @@ fun PasswordCard(index: Int, password: Password) {
                     "customFields" to NextcloudApiProvider.json.encodeToString(
                         serializer = SnapshotListSerializer(
                             dataSerializer = CustomField.serializer()
-                        ), value = password.customFieldsMap
+                        ), value = password.customFieldsList
                     ),
                     "folder" to password.folder,
                     "hash" to password.hash,

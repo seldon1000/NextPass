@@ -302,7 +302,7 @@ class NextPassAutofillService : AutofillService() {
                     )
                 } catch (e: Exception) {
                     false
-                } || password.customFieldsMap.any { customField ->
+                } || password.customFieldsList.any { customField ->
                     customField.value.value.contains(other = idPackage, ignoreCase = true)
                 })))
     }
