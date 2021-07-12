@@ -47,12 +47,6 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
     }
-    lintOptions {
-        quiet true
-        abortOnError false
-        ignoreWarnings true
-        checkReleaseBuilds false
-    }
 }
 
 dependencies {
