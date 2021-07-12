@@ -56,7 +56,7 @@ fun FolderDetails(folder: Folder) {
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val currentFolder by MainViewModel.currentFolder.collectAsState()
+    val currentFolder by MainViewModel.selectedFolder.collectAsState()
 
     var edit by remember { mutableStateOf(value = false) }
 
@@ -172,7 +172,7 @@ fun FolderDetails(folder: Folder) {
                             text = context.getString(
                                 R.string.date_info,
                                 folder.createdDate,
-                                folder.editedDate
+                                folder.updatedDate
                             ),
                             fontSize = 14.sp,
                             color = Color.Gray,

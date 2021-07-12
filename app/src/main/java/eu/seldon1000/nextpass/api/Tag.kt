@@ -18,6 +18,7 @@ package eu.seldon1000.nextpass.api
 
 import kotlinx.serialization.Serializable
 
+
 @Serializable
 data class Tag(
     val id: String,

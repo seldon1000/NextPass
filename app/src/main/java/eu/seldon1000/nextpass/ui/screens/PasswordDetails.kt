@@ -235,7 +235,7 @@ fun PasswordDetails(passwordData: Password) {
                             text = context.getString(
                                 R.string.date_info,
                                 passwordData.createdDate,
-                                passwordData.editedDate
+                                passwordData.updatedDate
                             ),
                             fontSize = 14.sp,
                             color = Color.Gray,

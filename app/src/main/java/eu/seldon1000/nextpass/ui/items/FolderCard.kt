@@ -138,6 +138,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                     }
                 }
                 DropdownMenuItem({
+                    MainViewModel.setCurrentFolder(folder = storedFolders.indexOfFirst { it.id == folder.parent })
                     MainViewModel.navigate(route = Routes.FolderDetails.getRoute(arg = index))
 
                     expanded = false

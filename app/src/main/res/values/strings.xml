@@ -99,7 +99,7 @@
     <string name="no">No</string>
     <string name="favorite_passwords_number">You have %1$d favorite passwords</string>
     <string name="passwords_number">You have %1$d passwords</string>
-    <string name="date_info">Created: %1$s\nLast edited: %2$s</string>
+    <string name="date_info">Created: %1$s\nLast update: %2$s</string>
     <string name="update_action_body">These changes will be applied and synced on the Nextcloud server. Are you sure you want to proceed?</string>
     <string name="create_password_body">A new password will be created and synced with your Nextcloud server. Are you sure you want to proceed?</string>
     <string name="delete_password">Delete password?</string>

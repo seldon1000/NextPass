@@ -63,7 +63,7 @@ object NextcloudApiProvider : ViewModel() {
         isLenient = true
     }
 
-    private var client = HttpClient(CIO) {
+    private var client = HttpClient(engineFactory = CIO) {
         install(feature = JsonFeature) {
             serializer = KotlinxSerializer(json = json)
         }
@@ -77,7 +77,7 @@ object NextcloudApiProvider : ViewModel() {
 
     private val baseFolder = json.decodeFromString(
         deserializer = Folder.serializer(),
-        string = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"Base\",\"parent\":\"\",\"favorite\":\"false\",\"created\":0,\"edited\":0}"
+        string = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"Base\",\"parent\":\"\",\"favorite\":\"false\",\"created\":0,\"updated\":0}"
     )
 
     private val storedPasswordsState = MutableStateFlow(value = mutableStateListOf<Password>())

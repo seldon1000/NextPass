@@ -46,7 +46,7 @@ data class Password(
     val status: Int,
 
     private val created: Long,
-    private val edited: Long
+    private val updated: Long
 ) {
     @Contextual
     private val formatter = SimpleDateFormat.getDateTimeInstance()
@@ -55,7 +55,7 @@ data class Password(
     val createdDate: String = formatter.format(Date(created * 1000))
 
     @Contextual
-    val editedDate: String = formatter.format(Date(edited * 1000))
+    val updatedDate: String = formatter.format(Date(updated * 1000))
 
     @Contextual
     var customFieldsList = try {
