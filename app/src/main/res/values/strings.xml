@@ -14,7 +14,6 @@
     <string name="link_broken_snack">Could\'t open the link. Is it broken?</string>
     <string name="confirm_new_pin">Confirm new PIN</string>
     <string name="create_new_pin">Create new PIN</string>
-    <string name="insert_current_pin">Insert current PIN</string>
     <string name="prevent_screen_capture">Prevent screen capture</string>
     <string name="prevent_screen_capture_tip">If enabled, this will prevent the user from capturing the screen when using NextPass (i.e. screenshots…).</string>
     <string name="cancel">Cancel</string>
