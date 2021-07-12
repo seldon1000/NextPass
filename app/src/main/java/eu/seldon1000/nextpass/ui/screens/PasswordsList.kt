@@ -139,7 +139,8 @@ fun PasswordList() {
                     FolderCard(index = index, folder = folder)
             }
             itemsIndexed(items = storedPasswords) { index, password ->
-                if (if (currentTag != null) password.tags.contains(element = currentTag) else !folderMode || password.folder == storedFolders[currentFolder].id
+                if (if (currentTag != null) password.tags.contains(element = currentTag)
+                    else !folderMode || password.folder == storedFolders[currentFolder].id
                 ) PasswordCard(index = index, password = password)
             }
             item {

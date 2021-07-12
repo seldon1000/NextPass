@@ -479,11 +479,7 @@ object NextcloudApiProvider : ViewModel() {
                     tags.forEach { parameter(key = "tags[]", value = it.id) }
                 }
 
-                val updatedPassword =
-                    client.post<Password>(urlString = "$server$endpoint/password/show") {
-                        parameter(key = "id", value = params["id"]!!)
-                        parameter(key = "details", value = "model+tags")
-                    }
+                val updatedPassword = showRequest<Password>(id = params["id"]!!)
 
                 val index = storedPasswordsState.value.indexOfFirst { it.id == params["id"]!! }
 
@@ -507,10 +503,7 @@ object NextcloudApiProvider : ViewModel() {
                     params.forEach { parameter(key = it.key, value = it.value) }
                 }
 
-                val updatedFolder =
-                    client.post<Folder>(urlString = "$server$endpoint/folder/show") {
-                        parameter(key = "id", value = params["id"]!!)
-                    }
+                val updatedFolder = showRequest<Folder>(id = params["id"]!!)
 
                 storedFoldersState.value[storedFoldersState.value.indexOfFirst {
                     it.id == params["id"]!!
@@ -530,16 +523,13 @@ object NextcloudApiProvider : ViewModel() {
                     params.forEach { parameter(key = it.key, value = it.value) }
                 }
 
-                val updatedTag =
-                    client.post<Tag>(urlString = "$server$endpoint/tag/show") {
-                        parameter(key = "id", value = params["id"]!!)
-                    }
+                val updatedTag = showRequest<Tag>(id = params["id"]!!)
 
                 storedTagsState.value[storedTagsState.value.indexOfFirst {
                     it.id == params["id"]!!
                 }] = updatedTag
 
-                MainViewModel.setRefreshing(refreshing = false)
+                refreshServerList(refreshFolders = false, refreshTags = false)
             } catch (e: Exception) {
                 showError()
             }
