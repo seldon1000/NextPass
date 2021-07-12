@@ -16,11 +16,9 @@
 
 package eu.seldon1000.nextpass.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 
 private val DarkColorPalette = darkColors(
@@ -29,30 +27,11 @@ private val DarkColorPalette = darkColors(
     secondary = NextcloudBlue
 )
 
-private val LightColorPalette = lightColors(
-    primary = Orange500,
-    primaryVariant = Orange700,
-    secondary = NextcloudBlue
-
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
-)
-
 var colors: Colors? = null
 
 @Composable
-fun NextPassTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
-    colors = /*if (darkTheme) {*/
-        DarkColorPalette
-    //} else {
-    //    LightColorPalette
-    //}
+fun NextPassTheme(content: @Composable () -> Unit) {
+    colors = DarkColorPalette
 
     MaterialTheme(
         colors = colors!!,

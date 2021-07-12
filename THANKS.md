@@ -1,6 +1,6 @@
 # Special thanks and mentions
 
-NextPass was made possibile thanks to the amazing work of many people. This is a list of all the tools, services and libraries used to build NextPass. Big thanks to all people involved.
+NextPass was made possible thanks to the amazing work of many people. This is a list of all the tools, services and libraries used to build NextPass. Big thanks to all people involved.
 
 **Nextcloud** (https://nextcloud.com/)
 

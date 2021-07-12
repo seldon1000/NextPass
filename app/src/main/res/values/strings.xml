@@ -55,7 +55,6 @@
     <string name="autostart_service">Autostart service</string>
     <string name="autostart_service_tip">If enabled, this will allow NextPass to run a background service as soon as your device boots, in order to provide suggestions automatically without opening the app first.</string>
     <string name="search_hint">Type here to search…</string>
-    <string name="results_number">There are %1$d results</string>
     <string name="security">Security</string>
     <string name="pin_authentication">PIN authentication</string>
     <string name="pin_authentication_tip">Protect the app using a PIN code, at least 4-digit long. Click here to modify the current pin.</string>
@@ -95,8 +94,6 @@
     <string name="tag_label">Tag label</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="favorite_passwords_number">You have %1$d favorite passwords</string>
-    <string name="passwords_number">You have %1$d passwords</string>
     <string name="date_info">Created: %1$s\nLast update: %2$s</string>
     <string name="update_action_body">These changes will be applied and synced on the Nextcloud server. Are you sure you want to proceed?</string>
     <string name="create_password_body">A new password will be created and synced with your Nextcloud server. Are you sure you want to proceed?</string>

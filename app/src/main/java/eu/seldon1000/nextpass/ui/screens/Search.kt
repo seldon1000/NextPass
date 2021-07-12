@@ -120,8 +120,8 @@ fun Search() {
             }
             item {
                 CountMessage(
-                    message = if (searchedText.isNotEmpty()) context.getString(
-                        R.string.results_number, storedPasswords.count { password ->
+                    message = if (searchedText.isNotEmpty()) context.resources.getQuantityString(
+                        R.plurals.passwords_number, storedPasswords.count { password ->
                             (if (currentTag != null) password.tags.any { it == currentTag }
                             else true) && (password.url.contains(searchedText, ignoreCase = true) ||
                                     password.label.contains(searchedText, ignoreCase = true) ||

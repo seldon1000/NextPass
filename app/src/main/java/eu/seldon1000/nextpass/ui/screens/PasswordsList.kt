@@ -145,8 +145,8 @@ fun PasswordList() {
             }
             item {
                 CountMessage(
-                    message = context.getString(
-                        R.string.passwords_number,
+                    message = context.resources.getQuantityString(
+                        R.plurals.passwords_number,
                         storedPasswords.size
                     )
                 )

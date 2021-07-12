@@ -85,8 +85,8 @@ fun Favorites() {
             }
             item {
                 CountMessage(
-                    message = context.getString(
-                        R.string.favorite_passwords_number,
+                    message = context.resources.getQuantityString(
+                        R.plurals.favorites_number,
                         storedPasswords.count { it.favorite }
                     )
                 )

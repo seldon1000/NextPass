@@ -34,27 +34,29 @@ class StartupBroadcastReceiver : BroadcastReceiver() {
         .build()
 
     override fun onReceive(context: Context, intent: Intent?) {
-        val autofillManager = context.getSystemService(AutofillManager::class.java)
+        if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
+            val autofillManager = context.getSystemService(AutofillManager::class.java)
 
-        if (autofillManager.hasEnabledAutofillServices() &&
-            context.getSharedPreferences("nextpass", 0).contains("autostart")
-        ) {
-            (context.getSystemService(ConnectivityManager::class.java))
-                .registerNetworkCallback(
-                    networkRequest,
-                    object : ConnectivityManager.NetworkCallback() {
-                        override fun onAvailable(network: Network) {
-                            super.onAvailable(network)
+            if (autofillManager.hasEnabledAutofillServices() &&
+                context.getSharedPreferences("nextpass", 0).contains("autostart")
+            ) {
+                (context.getSystemService(ConnectivityManager::class.java))
+                    .registerNetworkCallback(
+                        networkRequest,
+                        object : ConnectivityManager.NetworkCallback() {
+                            override fun onAvailable(network: Network) {
+                                super.onAvailable(network)
 
-                            val autofillIntent =
-                                Intent(context, NextPassAutofillService::class.java)
+                                val autofillIntent =
+                                    Intent(context, NextPassAutofillService::class.java)
 
-                            MainViewModel.setAutofillIntent(intent = autofillIntent)
+                                MainViewModel.setAutofillIntent(intent = autofillIntent)
 
-                            context.startService(autofillIntent)
+                                context.startService(autofillIntent)
+                            }
                         }
-                    }
-                )
+                    )
+            }
         }
     }
 }
