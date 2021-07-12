@@ -180,6 +180,8 @@ fun TagsRow(
                                 },
                                 confirm = true
                             ) {
+                                MainViewModel.setRefreshing(refreshing = true)
+
                                 NextcloudApiProvider.deleteTagRequest(id = tag.id)
                                 MainViewModel.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
 
@@ -257,10 +259,8 @@ fun TagsRow(
                         text = if (storedTags.size < 1) context.getString(R.string.add_new_tag) else "",
                         fontSize = 14.sp,
                         modifier = Modifier.padding(
-                            start = if (storedTags.size < 1) 18.dp else 0.dp,
-                            top = 8.dp,
-                            end = if (storedTags.size < 1) 18.dp else 0.dp,
-                            bottom = 8.dp
+                            horizontal = if (storedTags.size < 1) 18.dp else 0.dp,
+                            vertical = 8.dp
                         )
                     )
                     Icon(
