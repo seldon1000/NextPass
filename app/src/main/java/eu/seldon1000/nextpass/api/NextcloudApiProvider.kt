@@ -295,16 +295,13 @@ object NextcloudApiProvider : ViewModel() {
     fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
         MainViewModel.setRefreshing(refreshing = true)
 
+        client.coroutineContext.cancelChildren()
+
         viewModelScope.launch {
             val passwords = listRequest<Password>()
 
             passwords.sortBy { it.label.lowercase() }
-            passwords.forEachIndexed { index, password ->
-                if (storedPasswordsState.value.size > index &&
-                    password.url == storedPasswordsState.value[index].url
-                ) password.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
-                else faviconRequest(data = password)
-            }
+            passwords.forEach { password -> faviconRequest(data = password) }
 
             storedPasswordsState.value = passwords
 
