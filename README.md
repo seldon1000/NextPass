@@ -1,7 +1,7 @@
 ![ic_launcher_round](https://user-images.githubusercontent.com/55358113/122177060-8e66b500-ce85-11eb-89d4-ee1b7636bf12.png)
 
 # NextPass
-NextPass is an Android client for Passwords (https://git.mdns.eu/nextcloud/passwords), a simple yet feature-rich password manager for Nextcloud.<br />NextPass is still in development and will receive further updates. **Icon is temporary**.<br />Check 'Know issues' section down below before using the app.
+NextPass is an Android client for Passwords (https://git.mdns.eu/nextcloud/passwords), a simple yet feature-rich password manager for Nextcloud.<br />NextPass is still in development and will receive further updates. **Icon is temporary**.<br />
 
 # Screenshots 
 (taken in version 1.6.0)
@@ -9,8 +9,10 @@ NextPass is an Android client for Passwords (https://git.mdns.eu/nextcloud/passw
 
 
 # Build and run
-NextPass is built entirely using Jetpack Compose toolkit, hence Android Studio Arctic Fox (currently Beta branch) or Bumblebee (currently Canary branch, recommended, used to develop version 1.0) and Kotlin >=1.4.32 are **required** to build the app without issues.
-Just import the project from Version Control, let Gradle do its (endless) magic and then build&run.<br />Nextcloud app is required by NextPass to work and communicate with the Nextcloud server: you can install it yourself from  the official GitHub repo, Play Store or FDroid, or you can just open NextPass and you will be redirected to Nextcloud's Play Store page at some point.<br />Note that Passwords (https://apps.nextcloud.com/apps/passwords) needs to be installed on your server.
+Android Studio Arctic Fox (currently Beta branch) or Bumblebee (currently Canary branch, recommended) and Kotlin >=1.4.32 are **required** to build the app without issues. Just import the project from Version Control, let Gradle do its (endless) magic and then build&run. **Do not change gradle and proguard configuration**.<br />Note that Passwords (https://apps.nextcloud.com/apps/passwords) needs to be installed on your server.
+
+# Technologies
+NextPass is built using only the latest and greatest. It is 100% Kotlin and a single-activity app. Starting from version 2.0.0, NextPass does not use third party Java libraries anymore. As of now, NextPass uses Ktor library to make netowrk request, with its http engine CIO to garantee concurrency, ans Kotlinx-serialization library to manage json responses.<br />NextPass also relies on Jetpack Compose to build the UI. These technologies project NextPass into the future (or just the present, perhaps).
 
 
 # Requirements
@@ -20,12 +22,6 @@ NextPass officially supports Android up from 8.0. Please, if you experience issu
 # Known issues
 **Jetpack Compose**<br />
 Compose is still in beta, that means that you could experience some glitches and/or poor performance depending on your device. NextPass UI also lacks many animations, due to Compose's navigation and foundation libraries still not supporting them. I will update the toolkit ASAP to provide the best possible experience.
-
-
-**Password edit**<br />
-Editing passwords is possible in NextPass, although it's not perfect. Instead of directly updating a password with the new information, NextPass generates a totally new password and then deletes the old one. That leads to several (kinda) issues: the password's ID, which should be immutable, changes; the old password is moved to 'Trash', which is confusing; the actual password's creation date is updated to the current date, again, confusing; shared passwords won't be shared anymore (probably); the updated password will lose its tags. Apart from this, editing passwords works exactly as intended.
-
-This is because NextPass communicates with the Nextcloud server through Nextcloud's official SingleSignOn library (https://github.com/nextcloud/Android-SingleSignOn). As of now, SSO does not support PATCH http method, which is required to perform the update action on the passwords. NextPass' workaround is temporary and will stay that way until either SSO provides full PATCH method support (for now, some talks are being made here http://github.com/nextcloud/Android-SingleSignOn/issues/355) or I switch to a different library to perform http requests.
 
 
 # Translations
