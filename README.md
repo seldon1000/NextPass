@@ -12,7 +12,7 @@ NextPass is an Android client for Passwords (https://git.mdns.eu/nextcloud/passw
 Android Studio Arctic Fox (currently Beta branch) or Bumblebee (currently Canary branch, recommended) and Kotlin >=1.4.32 are **required** to build the app without issues. Just import the project from Version Control, let Gradle do its (endless) magic and then build&run. **Do not change gradle and proguard configuration**.<br />Note that Passwords (https://apps.nextcloud.com/apps/passwords) needs to be installed on your server.
 
 # Technologies
-NextPass is built using only the latest and greatest. It is 100% Kotlin and a single-activity app. Starting from version 2.0.0, NextPass does not use third party Java libraries anymore. As of now, NextPass uses Ktor library to make netowrk request, with its http engine CIO to garantee concurrency, ans Kotlinx-serialization library to manage json responses.<br />NextPass also relies on Jetpack Compose to build the UI. These technologies project NextPass into the future (or just the present, perhaps).
+NextPass is built using only the latest and greatest. It is 100% Kotlin and a single-activity app. Starting from version 2.0.0, NextPass does not use third party Java libraries anymore. As of now, NextPass uses Ktor library to make network requests, with its http engine CIO to garantee concurrency, and Kotlinx-serialization library to manage json responses.<br />NextPass also relies on Jetpack Compose to build the UI. These technologies project NextPass into the future (or just the present, perhaps).
 
 
 # Requirements
