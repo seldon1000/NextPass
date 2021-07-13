@@ -29,6 +29,3 @@ Currently, NextPass only supports english, but translations are so very welcome.
 
 # Special thanks and mentions
 Go to: https://github.com/seldon1000/NextPass/blob/master/THANKS.md
-
-
-***README IN PROGRESS***
