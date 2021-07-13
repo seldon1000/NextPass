@@ -18,6 +18,7 @@ package eu.seldon1000.nextpass.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -90,13 +91,22 @@ fun About() {
                         )
                     }
                     Text(
-                        text = context.getString(
-                            R.string.app_version,
-                            context.packageManager.getPackageInfo(
-                                context.packageName,
-                                0
-                            ).versionName
-                        ),
+                        text = "${
+                            context.getString(
+                                R.string.app_version,
+                                context.packageManager.getPackageInfo(
+                                    context.packageName,
+                                    0
+                                ).versionName
+                            )
+                        }${
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) " (${
+                                context.packageManager.getPackageInfo(
+                                    context.packageName,
+                                    0
+                                ).longVersionCode
+                            })" else ""
+                        }",
                         fontSize = 14.sp,
                         color = Color.Gray
                     )
