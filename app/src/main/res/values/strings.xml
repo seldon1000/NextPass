@@ -105,7 +105,7 @@
     <string name="folder_label">Folder label</string>
     <string name="copy_folder_label">Copy folder label</string>
     <string name="tag_updated_snack">Tag updated</string>
-    <string name="edit">Edit tag</string>
+    <string name="edit_tag">Edit tag</string>
     <string name="password_shared">Shared password: %1$s</string>
     <string name="delete_tag">Delete tag?</string>
     <string name="tag_deleted_snack">Tag deleted</string>
@@ -128,6 +128,7 @@
     <string name="tag_created_snack">Tag created</string>
     <string name="add_new_tag">Add new tag</string>
     <string name="warning">Warning!</string>
+
     <string name="restore_preferences_body">This will reset all your preferences. Are you sure you want to proceed?</string>
     <string name="delete_tag_body">This tag will be deleted. Are you sure you want to continue?</string>
     <string name="logout_body">Your Nextcloud account will be disconnected from the app. NextPass will require a new Nextcloud account to work and will reset all the settings. Are you sure you want to proceed?</string>

@@ -122,7 +122,7 @@ fun TagsRow(
                             expanded = false
 
                             MainViewModel.showDialog(
-                                title = context.getString(R.string.edit),
+                                title = context.getString(R.string.edit_tag),
                                 body = {
                                     Column {
                                         TextFieldItem(
@@ -165,7 +165,7 @@ fun TagsRow(
                                 contentDescription = "password_details"
                             )
                             Text(
-                                text = "Edit",
+                                text = context.getString(R.string.edit_tag),
                                 modifier = Modifier.padding(horizontal = 8.dp)
                             )
                         }
