@@ -86,7 +86,7 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        coroutineScope.cancel()
+        coroutineScope.coroutineContext.cancelChildren()
     }
 
     override fun onBackPressed() {

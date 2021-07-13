@@ -184,7 +184,7 @@ object MainViewModel : ViewModel() {
             disableScreenProtection(lock = false)
             disableFolders()
             enableTags()
-            disablePin()
+            disablePin(lock = false)
 
             showSnackbar(message = context!!.getString(R.string.preferences_restored_snack))
         }
@@ -369,7 +369,7 @@ object MainViewModel : ViewModel() {
         }
     }
 
-    fun disablePin() {
+    fun disablePin(lock: Boolean = true) {
         pendingUnlockAction = {
             sharedPreferences!!.edit().remove("PIN").apply()
             pinProtectedState.value = false
@@ -378,7 +378,7 @@ object MainViewModel : ViewModel() {
             disableBiometric()
         }
 
-        if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
+        if (pinProtectedState.value && lock) lock(shouldRaiseBiometric = true)
         else {
             pendingUnlockAction!!()
             pendingUnlockAction = {}
