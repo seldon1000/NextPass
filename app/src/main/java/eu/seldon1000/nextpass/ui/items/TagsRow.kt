@@ -116,7 +116,7 @@ fun TagsRow(
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
-                        modifier = Modifier.width(width = 120.dp)
+                        modifier = Modifier.width(width = 140.dp)
                     ) {
                         DropdownMenuItem(onClick = {
                             expanded = false
