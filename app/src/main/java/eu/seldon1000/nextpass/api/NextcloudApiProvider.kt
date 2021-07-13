@@ -582,7 +582,7 @@ object NextcloudApiProvider : ViewModel() {
         }
     }
 
-    private fun Bitmap.toRoundedCorners(cornerRadius: Float = 32F): Bitmap? {
+    fun Bitmap.toRoundedCorners(cornerRadius: Float = 32F): Bitmap? {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         Canvas(bitmap).apply {
             clipPath(Path().apply {

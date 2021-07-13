@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.assist.AssistStructure
 import android.app.assist.AssistStructure.ViewNode
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.CancellationSignal
 import android.service.autofill.*
@@ -29,6 +30,7 @@ import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApiProvider.toRoundedCorners
 import eu.seldon1000.nextpass.api.Password
 import kotlinx.serialization.decodeFromString
 import java.math.BigInteger
@@ -206,7 +208,11 @@ class NextPassAutofillService : AutofillService() {
                         )
                         credentialsPresentation.setImageViewBitmap(
                             R.id.favicon,
-                            password.favicon.value
+                            if (password.favicon.value != null) password.favicon.value
+                            else BitmapFactory.decodeResource(
+                                resources,
+                                R.drawable.ic_app_icon
+                            ).toRoundedCorners()
                         )
 
                         fillResponse.addDataset(
