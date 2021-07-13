@@ -493,7 +493,7 @@ fun Settings() {
                         title = context.getString(R.string.warning),
                         body = { Text(text = context.getString(R.string.restore_preferences_body)) },
                         confirm = true
-                    ) { MainViewModel.resetUserSettings() }
+                    ) { MainViewModel.restoreUserPreferences() }
                 }
             }
         }
