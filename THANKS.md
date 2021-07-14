@@ -12,9 +12,9 @@ NextPass was made possible thanks to the amazing work of many people. This is a 
 
 **Kotlin** (https://kotlinlang.org/)
 
-**Ktor library** (https://github.com/ktorio/ktor)
+**Ktor framework** (https://github.com/ktorio/ktor)
 
-**Kotlinx-serialization** (https://github.com/Kotlin/kotlinx.serialization)
+**Kotlinx-serialization library** (https://github.com/Kotlin/kotlinx.serialization)
 
 **Material Design guidelines** (https://material.io)
 
