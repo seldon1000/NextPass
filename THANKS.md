@@ -17,6 +17,3 @@ NextPass was made possible thanks to the amazing work of many people. This is a 
 **Kotlinx-serialization library** (https://github.com/Kotlin/kotlinx.serialization)
 
 **Material Design guidelines** (https://material.io)
-
-
-***List will be updated during development***
