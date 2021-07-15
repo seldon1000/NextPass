@@ -75,7 +75,7 @@ fun Favorites() {
         ) {
             item { Header(expanded = true, title = context.getString(R.string.favorites)) }
             if (tags) item { TagsRow { currentTag = if (it == currentTag) null else it } }
-            else item { Box(modifier = Modifier.height(12.dp)) }
+            else item { Box(modifier = Modifier.height(height = 12.dp)) }
             itemsIndexed(items = storedFolders) { index, folder ->
                 if (folder.favorite) FolderCard(index = index, folder = folder)
             }

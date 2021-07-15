@@ -126,7 +126,7 @@ fun PasswordList() {
                 }
             }
             if (tags) item { TagsRow { currentTag = if (it == currentTag) null else it } }
-            else item { Box(modifier = Modifier.height(12.dp)) }
+            else item { Box(modifier = Modifier.height(height = 12.dp)) }
             if (currentFolder != 0 && folderMode) item {
                 FolderCard(
                     currentFolder,

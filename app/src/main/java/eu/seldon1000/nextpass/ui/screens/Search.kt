@@ -98,7 +98,7 @@ fun Search() {
         ) {
             item { Header(expanded = true, title = context.getString(R.string.search)) }
             if (tags) item { TagsRow { currentTag = if (it == currentTag) null else it } }
-            else item { Box(modifier = Modifier.height(12.dp)) }
+            else item { Box(modifier = Modifier.height(height = 12.dp)) }
             if (searchedText.isNotEmpty()) {
                 itemsIndexed(items = storedFolders) { index, folder ->
                     if (if (index > 0) folder.label.contains(searchedText, ignoreCase = true)
