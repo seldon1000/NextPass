@@ -249,8 +249,7 @@ fun NewPassword() {
                                 rotation = 0F
 
                                 MainViewModel.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
-                            }
-                            rotation += 360F
+                            } else rotation += 360F
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_autorenew_24),
