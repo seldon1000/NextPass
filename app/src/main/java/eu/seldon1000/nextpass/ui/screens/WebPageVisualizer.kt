@@ -70,7 +70,10 @@ fun WebPageVisualizer(urlToRender: String) {
             cutoutShape = CircleShape,
             modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
         ) {
-            IconButton(onClick = { MainViewModel.popBackStack() }) {
+            IconButton(onClick = {
+                if (webView.canGoBack()) webView.goBack()
+                else MainViewModel.popBackStack()
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"
