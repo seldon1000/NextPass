@@ -16,13 +16,11 @@
 
 package eu.seldon1000.nextpass.ui.layout
 
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -65,8 +63,7 @@ fun MyAlertDialog() {
                 )
             },
             text = dialogBody,
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.width(width = 300.dp)
+            shape = RoundedCornerShape(8.dp)
         )
     }
 }

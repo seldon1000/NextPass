@@ -47,14 +47,16 @@ fun ColorPicker(onClickAction: (color: Color) -> Unit) {
         modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
     ) {
         MainViewModel.pickerColors.forEachIndexed { index, color ->
-            Surface(modifier = Modifier.shadow(elevation = 8.dp, shape = CircleShape)) {
+            Surface(
+                modifier = Modifier.shadow(elevation = 8.dp, shape = CircleShape)
+            ) {
                 IconButton(
                     onClick = {
                         selected = index
                         onClickAction(MainViewModel.pickerColors[selected])
                     },
                     modifier = Modifier
-                        .size(size = 56.dp)
+                        .size(size = 60.dp)
                         .background(color = color.copy(alpha = 0.75f))
                         .border(width = 3.dp, color = color, shape = CircleShape)
                 ) {
