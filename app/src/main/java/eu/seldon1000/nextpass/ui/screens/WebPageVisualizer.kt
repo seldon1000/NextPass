@@ -20,6 +20,9 @@ import android.annotation.SuppressLint
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,12 +30,10 @@ import androidx.compose.material.BottomAppBar
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -57,12 +58,32 @@ fun WebPageVisualizer(urlToRender: String) {
         })
     }
 
+    var rotation by remember { mutableStateOf(value = 0F) }
+    val angle by animateFloatAsState(
+        targetValue = rotation,
+        animationSpec = tween(
+            durationMillis = 1000,
+            easing = LinearOutSlowInEasing
+        )
+    )
+
     MyScaffoldLayout(fab = {
-        FloatingActionButton(onClick = { webView.loadUrl(urlToRender) }) {
+        FloatingActionButton(onClick = {
+            webView.stopLoading()
+            webView.loadUrl(urlToRender)
+
+            if (rotation >= 360F * 10) {
+                rotation = 0F
+
+                MainViewModel.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
+            }
+            rotation += 360F
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_refresh_24),
                 contentDescription = "refresh",
-                tint = colors!!.onBackground
+                tint = colors!!.onBackground,
+                modifier = Modifier.rotate(degrees = angle)
             )
         }
     }, bottomBar = {

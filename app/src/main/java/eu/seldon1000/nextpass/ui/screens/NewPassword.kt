@@ -17,6 +17,9 @@
 package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -29,6 +32,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -227,15 +231,32 @@ fun NewPassword() {
                         protected = true,
                         showed = showed
                     ) {
+                        var rotation by remember { mutableStateOf(value = 0F) }
+                        val angle by animateFloatAsState(
+                            targetValue = rotation,
+                            animationSpec = tween(
+                                durationMillis = 1000,
+                                easing = LinearOutSlowInEasing
+                            )
+                        )
+
                         IconButton(onClick = {
                             coroutineScope.launch {
                                 password = NextcloudApiProvider.generatePassword()
                             }
+
+                            if (rotation >= 360F * 10) {
+                                rotation = 0F
+
+                                MainViewModel.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
+                            }
+                            rotation += 360F
                         }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_round_autorenew_24),
                                 contentDescription = "generate_password",
-                                tint = colors!!.onBackground
+                                tint = colors!!.onBackground,
+                                modifier = Modifier.rotate(degrees = angle)
                             )
                         }
                         IconButton(onClick = { showed = !showed }) {
