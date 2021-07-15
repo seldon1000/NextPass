@@ -25,10 +25,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -43,7 +45,6 @@ import eu.seldon1000.nextpass.ui.items.PasswordCard
 import eu.seldon1000.nextpass.ui.items.TagsRow
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
-import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
@@ -61,16 +62,11 @@ fun Search() {
 
     var currentTag: Tag? by remember { mutableStateOf(value = null) }
 
-    MyScaffoldLayout(fab = {
-        FloatingActionButton({ searchedText = "" }) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_round_search_off_24),
-                contentDescription = "restore_search",
-                tint = colors!!.onBackground
-            )
-        }
-    }, bottomBar = {
-        BottomAppBar(cutoutShape = CircleShape) {
+    MyScaffoldLayout(fab = {}, bottomBar = {
+        BottomAppBar(
+            cutoutShape = CircleShape,
+            modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+        ) {
             IconButton(onClick = { MainViewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),

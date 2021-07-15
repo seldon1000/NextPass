@@ -29,6 +29,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -53,7 +54,10 @@ fun About() {
     val greetings = context.resources.getStringArray(R.array.greetings)
 
     MyScaffoldLayout(fab = {}, bottomBar = {
-        BottomAppBar(cutoutShape = CircleShape) {
+        BottomAppBar(
+            cutoutShape = CircleShape,
+            modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+        ) {
             IconButton(onClick = { MainViewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),

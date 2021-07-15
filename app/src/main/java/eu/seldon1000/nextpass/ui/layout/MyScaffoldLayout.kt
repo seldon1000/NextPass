@@ -31,7 +31,7 @@ fun MyScaffoldLayout(
 ) {
     Scaffold(
         floatingActionButton = fab,
-        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true,
         bottomBar = bottomBar,
         modifier = Modifier.fillMaxSize()

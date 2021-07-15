@@ -68,7 +68,7 @@ fun Favorites() {
             contentPadding = PaddingValues(
                 start = 16.dp,
                 end = 16.dp,
-                bottom = paddingValues.calculateBottomPadding() + 28.dp
+                bottom = paddingValues.calculateBottomPadding() + 52.dp
             ),
             state = lazyListState,
             modifier = Modifier.fillMaxSize()

@@ -19,10 +19,12 @@ package eu.seldon1000.nextpass.ui.screens
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -96,7 +98,10 @@ fun ChangePin() {
             )
         }
     }, bottomBar = {
-        BottomAppBar(cutoutShape = CircleShape) {
+        BottomAppBar(
+            cutoutShape = CircleShape,
+            modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+        ) {
             IconButton(onClick = {
                 if (confirm) {
                     confirm = false
