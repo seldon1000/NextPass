@@ -17,9 +17,6 @@ android {
         buildConfigField "long", "VERSION_DATE", System.currentTimeMillis() + "L"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary true
-        }
     }
 
     buildTypes {
