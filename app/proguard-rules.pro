@@ -12,6 +12,8 @@
 #   public *;
 #}
 
+-dontobfuscate
+
 -dontwarn org.slf4j.**
 
 -keepattributes *Annotation*, InnerClasses
