@@ -17,6 +17,7 @@
 package eu.seldon1000.nextpass.ui.items
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -57,16 +58,31 @@ fun PasswordCard(index: Int, password: Password) {
     Card(
         onClick = { expanded = true },
         elevation = 4.dp,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(8.dp),
         modifier = Modifier.padding(bottom = 12.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Box(modifier = Modifier.padding(all = 10.dp)) {
-                Favicon(favicon = favicon, size = 44.dp)
+            Column(modifier = Modifier.width(width = 4.dp)) {
+                password.tags.forEach {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(height = (64 / password.tags.size).dp)
+                            .background(color = Color(android.graphics.Color.parseColor(it.color)))
+                    )
+                }
             }
+            Box(
+                modifier = Modifier.padding(
+                    start = 6.dp,
+                    top = 10.dp,
+                    end = 10.dp,
+                    bottom = 10.dp
+                )
+            ) { Favicon(favicon = favicon, size = 44.dp) }
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
