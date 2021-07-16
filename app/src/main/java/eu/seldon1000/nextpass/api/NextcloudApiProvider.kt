@@ -43,14 +43,16 @@ import io.ktor.client.features.auth.providers.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.serializer
-import java.net.URLEncoder
 
 @SuppressLint("StaticFieldLeak")
 object NextcloudApiProvider : ViewModel() {
@@ -188,8 +190,7 @@ object NextcloudApiProvider : ViewModel() {
                 try {
                     val response = client.post<JsonObject>(urlString = url.value)
 
-                    val login =
-                        URLEncoder.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
+                    val login = Uri.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
                     val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
                     val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
 
