@@ -71,7 +71,11 @@ fun PasswordCard(index: Int, password: Password) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(height = (64 / password.tags.size).dp)
-                            .background(color = Color(android.graphics.Color.parseColor(it.color)).copy(alpha = 0.75f))
+                            .background(
+                                color = Color(android.graphics.Color.parseColor(it.color)).copy(
+                                    alpha = 0.75f
+                                )
+                            )
                     )
                 }
             }
