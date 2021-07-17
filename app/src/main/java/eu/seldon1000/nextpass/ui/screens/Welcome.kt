@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -24,7 +25,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,6 +45,13 @@ fun WelcomeScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize(),
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.ic_app_icon),
+            contentDescription = "app_icon",
+            modifier = Modifier
+                .size(size = 144.dp)
+                .clip(shape = RoundedCornerShape(size = 16.dp))
+        )
         Text(
             text = context.getString(R.string.welcome_message),
             modifier = Modifier.padding(all = 56.dp), textAlign = TextAlign.Center,

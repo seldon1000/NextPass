@@ -20,6 +20,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -82,18 +83,14 @@ fun About() {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Card(
-                        shape = RoundedCornerShape(size = 16.dp),
-                        elevation = 0.dp,
-                        onClick = { MainViewModel.showSnackbar(message = greetings.random()) },
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_app_icon),
-                            contentDescription = "app_icon",
-                            modifier = Modifier.size(size = 144.dp)
-                        )
-                    }
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_app_icon),
+                        contentDescription = "app_icon",
+                        modifier = Modifier
+                            .size(size = 144.dp)
+                            .clip(shape = RoundedCornerShape(size = 16.dp))
+                            .clickable { MainViewModel.showSnackbar(message = greetings.random()) }
+                    )
                     Text(
                         text = "${
                             context.getString(
@@ -112,7 +109,8 @@ fun About() {
                             })" else ""
                         }",
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                     Text(
                         text = context.getString(
