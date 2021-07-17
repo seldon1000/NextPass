@@ -47,6 +47,7 @@ import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
+import eu.seldon1000.nextpass.ui.theme.pickerColors
 
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
@@ -61,7 +62,7 @@ fun TagsRow(
     val storedTags by NextcloudApiProvider.storedTags.collectAsState()
 
     var newTagLabel by remember { mutableStateOf(value = "") }
-    var newTagColor by remember { mutableStateOf(value = MainViewModel.pickerColors[0]) }
+    var newTagColor by remember { mutableStateOf(value = pickerColors[0]) }
 
     var selected by remember { mutableStateOf(value = -1) }
 

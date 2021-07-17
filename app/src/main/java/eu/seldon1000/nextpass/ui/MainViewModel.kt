@@ -115,27 +115,6 @@ object MainViewModel : ViewModel() {
     private var promptInfo: BiometricPrompt.PromptInfo? = null
     private var biometricPrompt: BiometricPrompt? = null
 
-    val pickerColors = listOf(
-        Color(color = android.graphics.Color.parseColor("#d50000")),
-        Color(color = android.graphics.Color.parseColor("#c41061")),
-        Color(color = android.graphics.Color.parseColor("#aa00ff")),
-        Color(color = android.graphics.Color.parseColor("#6200ea")),
-        Color(color = android.graphics.Color.parseColor("#304ffe")),
-        Color(color = android.graphics.Color.parseColor("#2962ff")),
-        Color(color = android.graphics.Color.parseColor("#0091ea")),
-        Color(color = android.graphics.Color.parseColor("#00b8d4")),
-        Color(color = android.graphics.Color.parseColor("#00bfa5")),
-        Color(color = android.graphics.Color.parseColor("#00c853")),
-        Color(color = android.graphics.Color.parseColor("#64dd17")),
-        Color(color = android.graphics.Color.parseColor("#aeea00")),
-        Color(color = android.graphics.Color.parseColor("#ffd600")),
-        Color(color = android.graphics.Color.parseColor("#ffab00")),
-        Color(color = android.graphics.Color.parseColor("#ff6d00")),
-        Color(color = android.graphics.Color.parseColor("#dd2c00")),
-        Color(color = android.graphics.Color.parseColor("#4e342e")),
-        Color(color = android.graphics.Color.parseColor("#37474f"))
-    )
-
     fun setContext(context: FragmentActivity) {
         this.context = context
 

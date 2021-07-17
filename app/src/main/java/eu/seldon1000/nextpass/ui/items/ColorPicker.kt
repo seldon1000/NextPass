@@ -33,8 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
+import eu.seldon1000.nextpass.ui.theme.pickerColors
 
 @Composable
 fun ColorPicker(onClickAction: (color: Color) -> Unit) {
@@ -46,14 +46,12 @@ fun ColorPicker(onClickAction: (color: Color) -> Unit) {
         alignment = Alignment.Start,
         modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
     ) {
-        MainViewModel.pickerColors.forEachIndexed { index, color ->
-            Surface(
-                modifier = Modifier.shadow(elevation = 8.dp, shape = CircleShape)
-            ) {
+        pickerColors.forEachIndexed { index, color ->
+            Surface(modifier = Modifier.shadow(elevation = 8.dp, shape = CircleShape)) {
                 IconButton(
                     onClick = {
                         selected = index
-                        onClickAction(MainViewModel.pickerColors[selected])
+                        onClickAction(pickerColors[selected])
                     },
                     modifier = Modifier
                         .size(size = 60.dp)

@@ -62,6 +62,7 @@ fun ChangePin() {
                         confirm = true
                     ) {
                         MainViewModel.setPin(pin = pin)
+                        MainViewModel.setLockTimeout(timeout = 0)
                         MainViewModel.popBackStack()
                         MainViewModel.showSnackbar(message = context.getString(R.string.pin_changed_snack))
                     }
