@@ -17,9 +17,8 @@
 -dontwarn org.slf4j.**
 
 -keepattributes *Annotation*, InnerClasses
--dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
+-dontnote kotlinx.serialization.AnnotationsKt
 
-# kotlinx-serialization-json specific. Add this if you have java.lang.NoClassDefFoundError kotlinx.serialization.json.JsonObjectSerializer
 -keepclassmembers class kotlinx.serialization.json.** {
     *** Companion;
 }
@@ -27,20 +26,10 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
-# Change here com.yourcompany.yourpackage
--keep,includedescriptorclasses class eu.seldon1000.nextpass.**$$serializer { *; } # <-- change package name to your app's
--keepclassmembers class eu.seldon1000.nextpass.** { # <-- change package name to your app's
+-keep,includedescriptorclasses class eu.seldon1000.nextpass.**$$serializer { *; }
+-keepclassmembers class eu.seldon1000.nextpass.** {
     *** Companion;
 }
--keepclasseswithmembers class com.yourcompany.yourpackage.** { # <-- change package name to your app's
+-keepclasseswithmembers class eu.seldon1000.nextpass.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
-
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
