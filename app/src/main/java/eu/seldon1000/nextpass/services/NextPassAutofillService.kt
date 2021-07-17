@@ -53,7 +53,7 @@ class NextPassAutofillService : AutofillService() {
     override fun onCreate() {
         super.onCreate()
 
-        NextcloudApiProvider.setContext(context = this)
+        NextcloudApiProvider.setContext(res = resources, pref = getSharedPreferences("nextpass", 0))
 
         usernameHints = resources.getStringArray(R.array.username_hints)
     }

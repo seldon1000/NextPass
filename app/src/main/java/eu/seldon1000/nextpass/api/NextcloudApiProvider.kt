@@ -17,8 +17,8 @@
 package eu.seldon1000.nextpass.api
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Resources
 import android.graphics.*
 import android.net.Uri
 import android.webkit.CookieManager
@@ -28,7 +28,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import eu.seldon1000.nextpass.R
@@ -56,8 +55,7 @@ import kotlinx.serialization.serializer
 
 @SuppressLint("StaticFieldLeak")
 object NextcloudApiProvider : ViewModel() {
-    private var context: Context? = null
-
+    private var resources: Resources? = null
     private var sharedPreferences: SharedPreferences? = null
 
     val json = Json {
@@ -94,28 +92,25 @@ object NextcloudApiProvider : ViewModel() {
     private val currentRequestedFaviconState = MutableStateFlow<Bitmap?>(value = null)
     val currentRequestedFavicon = currentRequestedFaviconState
 
-    fun setContext(context: Any) {
-        if (context is FragmentActivity || this.context == null) {
-            this.context = context as Context
+    fun setContext(res: Resources, pref: SharedPreferences) {
+        if (resources == null && sharedPreferences == null) {
+            resources = res
+            sharedPreferences = pref
 
-            if (sharedPreferences == null) {
-                sharedPreferences = this.context!!.getSharedPreferences("nextpass", 0)
+            if (sharedPreferences!!.contains("server")) {
+                server = sharedPreferences!!.getString("server", "")!!
+                loginName = sharedPreferences!!.getString("loginName", "")!!
+                appPassword = sharedPreferences!!.getString("appPassword", "")!!
 
-                if (sharedPreferences!!.contains("server")) {
-                    server = sharedPreferences!!.getString("server", "")!!
-                    loginName = sharedPreferences!!.getString("loginName", "")!!
-                    appPassword = sharedPreferences!!.getString("appPassword", "")!!
-
-                    client = client.config {
-                        install(Auth) {
-                            basic {
-                                sendWithoutRequest { true }
-                                credentials {
-                                    BasicAuthCredentials(
-                                        username = loginName,
-                                        password = appPassword
-                                    )
-                                }
+                client = client.config {
+                    install(Auth) {
+                        basic {
+                            sendWithoutRequest { true }
+                            credentials {
+                                BasicAuthCredentials(
+                                    username = loginName,
+                                    password = appPassword
+                                )
                             }
                         }
                     }
@@ -130,8 +125,8 @@ object NextcloudApiProvider : ViewModel() {
 
     fun attemptLogout() {
         MainViewModel.showDialog(
-            title = context!!.getString(R.string.logout),
-            body = { Text(text = context!!.getString(R.string.logout_body), fontSize = 14.sp) },
+            title = resources!!.getString(R.string.logout),
+            body = { Text(text = resources!!.getString(R.string.logout_body), fontSize = 14.sp) },
             confirm = true
         ) {
             try {
@@ -165,7 +160,7 @@ object NextcloudApiProvider : ViewModel() {
             MainViewModel.setRefreshing(refreshing = false)
             MainViewModel.restoreUserPreferences()
             MainViewModel.navigate(route = Routes.Welcome.route)
-            MainViewModel.showSnackbar(message = context!!.getString(R.string.disconnected_snack))
+            MainViewModel.showSnackbar(message = resources!!.getString(R.string.disconnected_snack))
         }
     }
 
@@ -173,11 +168,11 @@ object NextcloudApiProvider : ViewModel() {
     fun attemptLogin() {
         val url = mutableStateOf(value = "")
 
-        MainViewModel.showDialog(title = context!!.getString(R.string.insert_server_url), body = {
+        MainViewModel.showDialog(title = resources!!.getString(R.string.insert_server_url), body = {
             TextFieldItem(
                 text = url.value,
                 onTextChanged = { url.value = it },
-                label = context!!.getString(R.string.url),
+                label = resources!!.getString(R.string.url),
                 required = true
             )
         }, confirm = true) {
@@ -218,10 +213,10 @@ object NextcloudApiProvider : ViewModel() {
                         MainViewModel.navController.value!!.currentDestination!!.route ==
                         Routes.WebView.getRoute(arg = login)
                     ) MainViewModel.showDialog(
-                        title = context!!.getString(R.string.timeout_expired),
+                        title = resources!!.getString(R.string.timeout_expired),
                         body = {
                             Text(
-                                text = context!!.getString(R.string.timeout_expired_body),
+                                text = resources!!.getString(R.string.timeout_expired_body),
                                 fontSize = 14.sp
                             )
                         })
@@ -250,7 +245,7 @@ object NextcloudApiProvider : ViewModel() {
 
                         MainViewModel.openApp(shouldRememberScreen = server.isEmpty())
                         MainViewModel.showSnackbar(
-                            message = context!!.getString(
+                            message = resources!!.getString(
                                 R.string.connected_snack,
                                 loginName
                             )
@@ -598,8 +593,8 @@ object NextcloudApiProvider : ViewModel() {
 
     private fun showError() {
         MainViewModel.showDialog(
-            title = context!!.getString(R.string.error),
-            body = { Text(text = context!!.getString(R.string.error_body), fontSize = 14.sp) }
+            title = resources!!.getString(R.string.error),
+            body = { Text(text = resources!!.getString(R.string.error_body), fontSize = 14.sp) }
         )
 
         MainViewModel.setRefreshing(refreshing = false)
