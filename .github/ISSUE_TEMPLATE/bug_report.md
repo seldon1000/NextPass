@@ -19,7 +19,7 @@ A clear and concise description of what you expected to happen.
 **Screenshots/Videos/GIFs**
 If applicable, add media files to help explain your problem.
 
-**Device informations**
+**Device information**
  - Manufacturer
  - Device model
  - Android version

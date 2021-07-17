@@ -26,7 +26,6 @@ import android.view.autofill.AutofillManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

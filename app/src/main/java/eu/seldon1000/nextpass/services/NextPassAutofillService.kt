@@ -160,7 +160,7 @@ class NextPassAutofillService : AutofillService() {
                     else -> "Unknown"
                 },
                 "username" to saveUsername,
-                "url" to if (viewWebDomain.isNotEmpty()) viewWebDomain else "$appName.com",
+                "url" to viewWebDomain.ifEmpty { "$appName.com" },
                 "hash" to hash
             )
 
