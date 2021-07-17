@@ -420,15 +420,13 @@ object MainViewModel : ViewModel() {
     private fun setKeyboardMode() {
         if (navControllerState.value?.currentDestination?.route!! == Routes.Search.route ||
             navControllerState.value?.currentDestination?.route!! == Routes.Pin.route
-        )
-            context!!.window.setSoftInputMode(16)
-        else
-            context!!.window.setSoftInputMode(32)
+        ) context!!.window.setSoftInputMode(16)
+        else context!!.window.setSoftInputMode(32)
     }
 
     fun navigate(route: String) {
-        if (navControllerState.value?.currentDestination?.route!!.substringBefore("/") !=
-            route.substringBefore("/")
+        if (navControllerState.value?.currentDestination?.route!!
+                .substringBefore(delimiter = "/") != route.substringBefore(delimiter = "/")
         ) {
             navControllerState.value?.navigate(route = route) {
                 launchSingleTop = true
