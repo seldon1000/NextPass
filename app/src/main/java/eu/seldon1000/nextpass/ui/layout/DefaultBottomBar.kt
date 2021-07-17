@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -44,6 +45,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
     val currentScreen by MainViewModel.navController.collectAsState().value!!.currentBackStackEntryAsState()
 
     BottomAppBar(
+        backgroundColor = Color.Black,
         cutoutShape = CircleShape,
         modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
     ) {

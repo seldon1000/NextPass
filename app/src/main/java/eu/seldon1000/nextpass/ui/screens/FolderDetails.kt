@@ -110,6 +110,7 @@ fun FolderDetails(folder: Folder) {
         }
     }, bottomBar = {
         BottomAppBar(
+            backgroundColor = Color.Black,
             cutoutShape = CircleShape,
             modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
         ) {
