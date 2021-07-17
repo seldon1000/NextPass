@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -29,8 +30,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.MainViewModel
@@ -40,6 +43,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun DefaultBottomBar(lazyListState: LazyListState) {
+    val context = LocalContext.current
+
     val coroutineScope = rememberCoroutineScope()
 
     val currentScreen by MainViewModel.navController.collectAsState().value!!.currentBackStackEntryAsState()
@@ -50,6 +55,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
         modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
     ) {
         BottomNavigationItem(
+            label = { Text(text = context.getString(R.string.favorites), fontSize = 10.sp)},
             selected = currentScreen?.destination?.route == Routes.Favorites.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Favorites.route)
@@ -66,6 +72,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
+            label = { Text(text = context.getString(R.string.passwords), fontSize = 10.sp)},
             selected = currentScreen?.destination?.route == Routes.Passwords.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Passwords.route)
@@ -86,6 +93,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
         )
         BottomNavigationItem(selected = false, onClick = {}, enabled = false, icon = {})
         BottomNavigationItem(
+            label = { Text(text = context.getString(R.string.search), fontSize = 10.sp)},
             selected = currentScreen?.destination?.route == Routes.Search.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Search.route)
@@ -101,6 +109,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
+            label = { Text(text = context.getString(R.string.settings), fontSize = 10.sp)},
             selected = currentScreen?.destination?.route == Routes.Settings.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Settings.route)
