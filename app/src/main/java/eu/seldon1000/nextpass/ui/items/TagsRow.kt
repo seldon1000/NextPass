@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,7 +65,7 @@ fun TagsRow(
     var newTagLabel by remember { mutableStateOf(value = "") }
     var newTagColor by remember { mutableStateOf(value = pickerColors[0]) }
 
-    var selected by remember { mutableStateOf(value = -1) }
+    var selected by rememberSaveable { mutableStateOf(value = -1) }
 
     SimpleFlowRow(
         verticalGap = 8.dp,
@@ -90,7 +91,7 @@ fun TagsRow(
                         backgroundColor = color.copy(
                             alpha = if ((tags != null && tags.contains(element = tag)) ||
                                 state == index
-                            ) 0.75f else 0.3f
+                            ) 0.8f else 0.3f
                         ),
                         modifier = Modifier
                             .padding(end = 4.dp, bottom = 2.dp)
@@ -261,6 +262,7 @@ fun TagsRow(
                     Text(
                         text = if (storedTags.size < 1) context.getString(R.string.add_new_tag) else "",
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(
                             horizontal = if (storedTags.size < 1) 18.dp else 0.dp,
                             vertical = 8.dp

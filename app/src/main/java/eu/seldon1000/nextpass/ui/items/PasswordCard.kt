@@ -74,7 +74,7 @@ fun PasswordCard(index: Int, password: Password) {
                             .background(
                                 color = Color(
                                     color = android.graphics.Color.parseColor(it.color)
-                                ).copy(alpha = 0.75f)
+                                ).copy(alpha = 0.8f)
                             )
                     )
                 }
