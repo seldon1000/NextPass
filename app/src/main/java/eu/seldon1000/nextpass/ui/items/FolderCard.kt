@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Folder
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 
@@ -45,14 +45,14 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val currentFolder by MainViewModel.currentFolder.collectAsState()
+    val currentFolder by CentralAppControl.currentFolder.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
 
     Card(
         onClick = {
             if (icon == null) expanded = true
-            else MainViewModel.setCurrentFolder()
+            else CentralAppControl.setCurrentFolder()
         },
         elevation = 4.dp,
         shape = RoundedCornerShape(12.dp),
@@ -81,7 +81,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 modifier = Modifier.weight(weight = 1f)
             )
             FavoriteButton(favorite = folder.favorite) {
-                MainViewModel.setRefreshing(refreshing = true)
+                CentralAppControl.setRefreshing(refreshing = true)
 
                 val params = mutableMapOf(
                     "id" to folder.id,
@@ -101,9 +101,9 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 modifier = Modifier.width(width = 200.dp)
             ) {
                 DropdownMenuItem({
-                    MainViewModel.setFolderMode(mode = true)
-                    MainViewModel.setCurrentFolder(folder = index)
-                    MainViewModel.navigate(route = Routes.Passwords.route)
+                    CentralAppControl.setFolderMode(mode = true)
+                    CentralAppControl.setCurrentFolder(folder = index)
+                    CentralAppControl.navigate(route = Routes.Passwords.route)
 
                     expanded = false
                 }) {
@@ -119,7 +119,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                     }
                 }
                 DropdownMenuItem({
-                    MainViewModel.setPrimaryClip(
+                    CentralAppControl.setPrimaryClip(
                         label = context.getString(R.string.folder_label),
                         clip = folder.label
                     )
@@ -138,8 +138,8 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                     }
                 }
                 DropdownMenuItem({
-                    MainViewModel.setCurrentFolder(folder = storedFolders.indexOfFirst { it.id == folder.parent })
-                    MainViewModel.navigate(route = Routes.FolderDetails.getRoute(arg = index))
+                    CentralAppControl.setCurrentFolder(folder = storedFolders.indexOfFirst { it.id == folder.parent })
+                    CentralAppControl.navigate(route = Routes.FolderDetails.getRoute(arg = index))
 
                     expanded = false
                 }) {
@@ -153,7 +153,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                     )
                 }
                 DropdownMenuItem({
-                    MainViewModel.showDialog(
+                    CentralAppControl.showDialog(
                         title = context.getString(R.string.delete_folder),
                         body = {
                             Text(
@@ -164,7 +164,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                         confirm = true
                     ) {
                         NextcloudApiProvider.deleteFolderRequest(id = folder.id)
-                        MainViewModel.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
+                        CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
                     }
 
                     expanded = false

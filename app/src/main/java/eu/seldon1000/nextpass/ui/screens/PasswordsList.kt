@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.api.Tag
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
 import eu.seldon1000.nextpass.ui.items.PasswordCard
@@ -55,13 +55,13 @@ fun PasswordList() {
 
     val lazyListState = rememberLazyListState()
 
-    val folderMode by MainViewModel.folderMode.collectAsState()
-    val currentFolder by MainViewModel.currentFolder.collectAsState()
+    val folderMode by CentralAppControl.folderMode.collectAsState()
+    val currentFolder by CentralAppControl.currentFolder.collectAsState()
 
     val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val tags by MainViewModel.tags.collectAsState()
+    val tags by CentralAppControl.tags.collectAsState()
 
     var currentTag: Tag? by remember { mutableStateOf(value = null) }
 
@@ -89,7 +89,7 @@ fun PasswordList() {
                             if (folderMode) {
                                 Crossfade(targetState = folderMode) {
                                     IconButton(
-                                        onClick = { MainViewModel.setCurrentFolder(folder = 0) },
+                                        onClick = { CentralAppControl.setCurrentFolder(folder = 0) },
                                         enabled = currentFolder != 0
                                     ) {
                                         Icon(
@@ -99,7 +99,7 @@ fun PasswordList() {
                                     }
                                 }
                                 Crossfade(targetState = folderMode) {
-                                    IconButton(onClick = { MainViewModel.navigate(route = Routes.NewFolder.route) }) {
+                                    IconButton(onClick = { CentralAppControl.navigate(route = Routes.NewFolder.route) }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_round_create_new_folder_24),
                                             contentDescription = "new_folder"
@@ -111,8 +111,8 @@ fun PasswordList() {
                                 Card(shape = CircleShape, elevation = if (state) 8.dp else 0.dp) {
                                     IconButton(onClick = {
                                         if (folderMode)
-                                            MainViewModel.setCurrentFolder(folder = 0)
-                                        MainViewModel.setFolderMode()
+                                            CentralAppControl.setCurrentFolder(folder = 0)
+                                        CentralAppControl.setFolderMode()
                                     }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_round_folder_24),

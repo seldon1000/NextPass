@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Routes
 import io.ktor.client.*
@@ -47,6 +47,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
@@ -75,9 +76,13 @@ object NextcloudApiProvider : ViewModel() {
 
     private const val endpoint = "/index.php/apps/passwords/api/1.0"
 
-    private val baseFolder = json.decodeFromString(
-        deserializer = Folder.serializer(),
-        string = "{\"id\":\"00000000-0000-0000-0000-000000000000\",\"label\":\"Base\",\"parent\":\"\",\"favorite\":\"false\",\"created\":0,\"updated\":0}"
+    private val baseFolder = json.decodeFromString<Folder>(
+        string = "{\"id\":\"00000000-0000-0000-0000-000000000000\"," +
+                "\"label\":\"Base\"," +
+                "\"parent\":\"\"," +
+                "\"favorite\":\"false\"," +
+                "\"created\":0," +
+                "\"updated\":0}"
     )
 
     private val storedPasswordsState = MutableStateFlow(value = mutableStateListOf<Password>())
@@ -92,7 +97,7 @@ object NextcloudApiProvider : ViewModel() {
     private val currentRequestedFaviconState = MutableStateFlow<Bitmap?>(value = null)
     val currentRequestedFavicon = currentRequestedFaviconState
 
-    fun setContext(res: Resources, pref: SharedPreferences) {
+    fun initializeApi(res: Resources, pref: SharedPreferences) {
         if (resources == null && sharedPreferences == null) {
             resources = res
             sharedPreferences = pref
@@ -123,8 +128,107 @@ object NextcloudApiProvider : ViewModel() {
 
     fun isLogged() = server.isNotEmpty()
 
+    @ExperimentalMaterialApi
+    fun attemptLogin() {
+        val url = mutableStateOf(value = "")
+
+        CentralAppControl.showDialog(title = resources!!.getString(R.string.insert_server_url), body = {
+            TextFieldItem(
+                text = url.value,
+                onTextChanged = { url.value = it },
+                label = resources!!.getString(R.string.url),
+                required = true
+            )
+        }, confirm = true) {
+            if (!url.value.startsWith(prefix = "https://") &&
+                !url.value.startsWith(prefix = "http://")
+            ) url.value = "https://${url.value}"
+            url.value = "${url.value}/index.php/login/v2"
+
+            viewModelScope.launch {
+                try {
+                    val response = client.post<JsonObject>(urlString = url.value)
+
+                    val login = Uri.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
+                    val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
+                    val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
+
+                    CentralAppControl.navigate(route = Routes.WebView.getRoute(login))
+
+                    var i = 0
+                    var loginResponse = mapOf<String, String>()
+
+                    while (loginResponse.isEmpty() && i <= 120) {
+                        try {
+                            loginResponse = client.post(urlString = endpoint) {
+                                expectSuccess = false
+                                parameter(key = "token", value = token)
+                            }
+                        } catch (e: Exception) {
+                        }
+
+                        delay(timeMillis = 500)
+                        i++
+                    }
+
+                    if (server.isNotEmpty()) CentralAppControl.popBackStack()
+
+                    if (i > 120 &&
+                        CentralAppControl.navController.value!!.currentDestination!!.route ==
+                        Routes.WebView.getRoute(arg = login)
+                    ) CentralAppControl.showDialog(
+                        title = resources!!.getString(R.string.timeout_expired),
+                        body = {
+                            Text(
+                                text = resources!!.getString(R.string.timeout_expired_body),
+                                fontSize = 14.sp
+                            )
+                        })
+                    else if (i <= 120) {
+                        server = loginResponse["server"]!!
+                        loginName = loginResponse["loginName"]!!
+                        appPassword = loginResponse["appPassword"]!!
+
+                        sharedPreferences!!.edit().putString("server", server).apply()
+                        sharedPreferences!!.edit().putString("loginName", loginName).apply()
+                        sharedPreferences!!.edit().putString("appPassword", appPassword).apply()
+
+                        client = client.config {
+                            install(Auth) {
+                                basic {
+                                    sendWithoutRequest { true }
+                                    credentials {
+                                        BasicAuthCredentials(
+                                            username = loginName,
+                                            password = appPassword
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        CentralAppControl.openApp(shouldRememberScreen = server.isEmpty())
+                        CentralAppControl.showSnackbar(
+                            message = resources!!.getString(
+                                R.string.connected_snack,
+                                loginName
+                            )
+                        )
+                    }
+
+                    val cookieManager = CookieManager.getInstance()
+                    cookieManager.removeSessionCookies {}
+                    cookieManager.removeAllCookies {}
+                    cookieManager.flush()
+                } catch (e: Exception) {
+                    showError()
+                }
+            }
+        }
+    }
+
     fun attemptLogout() {
-        MainViewModel.showDialog(
+        CentralAppControl.showDialog(
             title = resources!!.getString(R.string.logout),
             body = { Text(text = resources!!.getString(R.string.logout_body), fontSize = 14.sp) },
             confirm = true
@@ -157,109 +261,10 @@ object NextcloudApiProvider : ViewModel() {
                 }
             }
 
-            MainViewModel.setRefreshing(refreshing = false)
-            MainViewModel.resetUserPreferences()
-            MainViewModel.navigate(route = Routes.Welcome.route)
-            MainViewModel.showSnackbar(message = resources!!.getString(R.string.disconnected_snack))
-        }
-    }
-
-    @ExperimentalMaterialApi
-    fun attemptLogin() {
-        val url = mutableStateOf(value = "")
-
-        MainViewModel.showDialog(title = resources!!.getString(R.string.insert_server_url), body = {
-            TextFieldItem(
-                text = url.value,
-                onTextChanged = { url.value = it },
-                label = resources!!.getString(R.string.url),
-                required = true
-            )
-        }, confirm = true) {
-            if (!url.value.startsWith(prefix = "https://") &&
-                !url.value.startsWith(prefix = "http://")
-            ) url.value = "https://${url.value}"
-            url.value = "${url.value}/index.php/login/v2"
-
-            viewModelScope.launch {
-                try {
-                    val response = client.post<JsonObject>(urlString = url.value)
-
-                    val login = Uri.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
-                    val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
-                    val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
-
-                    MainViewModel.navigate(route = Routes.WebView.getRoute(login))
-
-                    var i = 0
-                    var loginResponse = mapOf<String, String>()
-
-                    while (loginResponse.isEmpty() && i <= 120) {
-                        try {
-                            loginResponse = client.post(urlString = endpoint) {
-                                expectSuccess = false
-                                parameter(key = "token", value = token)
-                            }
-                        } catch (e: Exception) {
-                        }
-
-                        delay(timeMillis = 500)
-                        i++
-                    }
-
-                    if (server.isNotEmpty()) MainViewModel.popBackStack()
-
-                    if (i > 120 &&
-                        MainViewModel.navController.value!!.currentDestination!!.route ==
-                        Routes.WebView.getRoute(arg = login)
-                    ) MainViewModel.showDialog(
-                        title = resources!!.getString(R.string.timeout_expired),
-                        body = {
-                            Text(
-                                text = resources!!.getString(R.string.timeout_expired_body),
-                                fontSize = 14.sp
-                            )
-                        })
-                    else if (i <= 120) {
-                        server = loginResponse["server"]!!
-                        loginName = loginResponse["loginName"]!!
-                        appPassword = loginResponse["appPassword"]!!
-
-                        sharedPreferences!!.edit().putString("server", server).apply()
-                        sharedPreferences!!.edit().putString("loginName", loginName).apply()
-                        sharedPreferences!!.edit().putString("appPassword", appPassword).apply()
-
-                        client = client.config {
-                            install(Auth) {
-                                basic {
-                                    sendWithoutRequest { true }
-                                    credentials {
-                                        BasicAuthCredentials(
-                                            username = loginName,
-                                            password = appPassword
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        MainViewModel.openApp(shouldRememberScreen = server.isEmpty())
-                        MainViewModel.showSnackbar(
-                            message = resources!!.getString(
-                                R.string.connected_snack,
-                                loginName
-                            )
-                        )
-                    }
-
-                    val cookieManager = CookieManager.getInstance()
-                    cookieManager.removeSessionCookies {}
-                    cookieManager.removeAllCookies {}
-                    cookieManager.flush()
-                } catch (e: Exception) {
-                    showError()
-                }
-            }
+            CentralAppControl.setRefreshing(refreshing = false)
+            CentralAppControl.resetUserPreferences()
+            CentralAppControl.navigate(route = Routes.Welcome.route)
+            CentralAppControl.showSnackbar(message = resources!!.getString(R.string.disconnected_snack))
         }
     }
 
@@ -287,7 +292,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
-        MainViewModel.setRefreshing(refreshing = true)
+        CentralAppControl.setRefreshing(refreshing = true)
 
         client.coroutineContext.cancelChildren()
 
@@ -299,7 +304,7 @@ object NextcloudApiProvider : ViewModel() {
 
             storedPasswordsState.value = passwords
 
-            MainViewModel.setRefreshing(refreshing = false)
+            CentralAppControl.setRefreshing(refreshing = false)
         }
 
         if (refreshFolders) {
@@ -359,9 +364,9 @@ object NextcloudApiProvider : ViewModel() {
 
                 storedPasswordsState.value = data
 
-                MainViewModel.setSelectedFolder(folder = MainViewModel.currentFolder.value)
+                CentralAppControl.setSelectedFolder(folder = CentralAppControl.currentFolder.value)
 
-                MainViewModel.setRefreshing(refreshing = false)
+                CentralAppControl.setRefreshing(refreshing = false)
             } catch (e: Exception) {
                 showError()
             }
@@ -386,11 +391,11 @@ object NextcloudApiProvider : ViewModel() {
 
                 storedFoldersState.value = data
 
-                MainViewModel.setCurrentFolder(folder = storedFoldersState.value.indexOfFirst {
+                CentralAppControl.setCurrentFolder(folder = storedFoldersState.value.indexOfFirst {
                     it.id == params["parent"]
                 })
 
-                MainViewModel.setRefreshing(refreshing = false)
+                CentralAppControl.setRefreshing(refreshing = false)
             } catch (e: Exception) {
                 showError()
             }
@@ -413,7 +418,7 @@ object NextcloudApiProvider : ViewModel() {
 
                 storedTagsState.value = data
 
-                MainViewModel.setRefreshing(refreshing = false)
+                CentralAppControl.setRefreshing(refreshing = false)
             } catch (e: Exception) {
                 showError()
             }
@@ -480,7 +485,7 @@ object NextcloudApiProvider : ViewModel() {
 
                 storedPasswordsState.value[index] = updatedPassword
 
-                MainViewModel.setRefreshing(refreshing = false)
+                CentralAppControl.setRefreshing(refreshing = false)
             } catch (e: Exception) {
                 showError()
             }
@@ -500,7 +505,7 @@ object NextcloudApiProvider : ViewModel() {
                     it.id == params["id"]!!
                 }] = updatedFolder
 
-                MainViewModel.setRefreshing(refreshing = false)
+                CentralAppControl.setRefreshing(refreshing = false)
             } catch (e: Exception) {
                 showError()
             }
@@ -590,11 +595,11 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     private fun showError() {
-        MainViewModel.showDialog(
+        CentralAppControl.showDialog(
             title = resources!!.getString(R.string.error),
             body = { Text(text = resources!!.getString(R.string.error_body), fontSize = 14.sp) }
         )
 
-        MainViewModel.setRefreshing(refreshing = false)
+        CentralAppControl.setRefreshing(refreshing = false)
     }
 }

@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.layout.Routes
 
 @ExperimentalMaterialApi
@@ -43,7 +43,7 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val selectedFolder by MainViewModel.selectedFolder.collectAsState()
+    val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
     var folderChanged by remember { mutableStateOf(value = false) }
@@ -106,14 +106,14 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
                         isRotated = !isRotated
                         expanded = false
                         folderChanged = true
-                        MainViewModel.setSelectedFolder(folder = index)
+                        CentralAppControl.setSelectedFolder(folder = index)
                     }) { Text(text = folder.label) }
                 }
                 if (canAdd) DropdownMenuItem(onClick = {
                     isRotated = !isRotated
                     expanded = false
 
-                    MainViewModel.navigate(route = Routes.NewFolder.route)
+                    CentralAppControl.navigate(route = Routes.NewFolder.route)
                 }) { Text(text = context.getString(R.string.add_new_folder)) }
             }
         }

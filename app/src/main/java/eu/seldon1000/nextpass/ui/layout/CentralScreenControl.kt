@@ -31,7 +31,7 @@ import androidx.navigation.compose.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.screens.*
 
 @ExperimentalFoundationApi
@@ -40,17 +40,17 @@ import eu.seldon1000.nextpass.ui.screens.*
 @Composable
 fun CentralScreenControl() {
     val navController = rememberNavController()
-    MainViewModel.setNavController(navController = navController)
+    CentralAppControl.setNavController(navController = navController)
 
     val currentScreen by navController.currentBackStackEntryAsState()
 
     val scaffoldState = rememberScaffoldState()
-    MainViewModel.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
+    CentralAppControl.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
 
     val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val refreshing by MainViewModel.refreshing.collectAsState()
+    val refreshing by CentralAppControl.refreshing.collectAsState()
     val refreshState = rememberSwipeRefreshState(isRefreshing = refreshing)
 
     MyAlertDialog()

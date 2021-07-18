@@ -27,31 +27,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 
 @Composable
 fun MyAlertDialog() {
     val context = LocalContext.current
 
-    val openDialog by MainViewModel.openDialog.collectAsState()
-    val dialogTitle by MainViewModel.dialogTitle.collectAsState()
-    val dialogBody by MainViewModel.dialogBody.collectAsState()
-    val dialogConfirm by MainViewModel.dialogConfirm.collectAsState()
-    val dialogAction by MainViewModel.dialogAction.collectAsState()
+    val openDialog by CentralAppControl.openDialog.collectAsState()
+    val dialogTitle by CentralAppControl.dialogTitle.collectAsState()
+    val dialogBody by CentralAppControl.dialogBody.collectAsState()
+    val dialogConfirm by CentralAppControl.dialogConfirm.collectAsState()
+    val dialogAction by CentralAppControl.dialogAction.collectAsState()
 
     if (openDialog) {
         AlertDialog(
-            onDismissRequest = { MainViewModel.dismissDialog() },
+            onDismissRequest = { CentralAppControl.dismissDialog() },
             confirmButton = {
                 if (dialogConfirm)
                     Button(onClick = {
                         dialogAction()
-                        MainViewModel.dismissDialog()
+                        CentralAppControl.dismissDialog()
                     }) { Text(text = context.getString(R.string.confirm)) }
             },
             dismissButton = {
                 TextButton(
-                    onClick = { MainViewModel.dismissDialog() },
+                    onClick = { CentralAppControl.dismissDialog() },
                     colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
                 ) { Text(text = context.getString(R.string.dismiss)) }
             },

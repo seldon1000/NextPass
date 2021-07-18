@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package eu.seldon1000.nextpass.ui
+package eu.seldon1000.nextpass
 
 import android.annotation.SuppressLint
 import android.content.ClipData
@@ -27,19 +27,20 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.services.NextPassAutofillService
 import eu.seldon1000.nextpass.ui.layout.Routes
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @SuppressLint("StaticFieldLeak")
-object MainViewModel : ViewModel() {
+object CentralAppControl {
+    private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
+
     private var context: FragmentActivity? = null
     private var sharedPreferences: SharedPreferences? = null
 
@@ -63,8 +64,7 @@ object MainViewModel : ViewModel() {
     private val autostartState = MutableStateFlow(value = false)
     val autostart = autostartState
 
-    private val unlockedState = MutableStateFlow(value = true)
-    val unlocked = unlockedState
+    private var unlocked = true
 
     private val pinProtectedState = MutableStateFlow(value = false)
     val pinProtected = pinProtectedState
@@ -115,14 +115,18 @@ object MainViewModel : ViewModel() {
     private var biometricPrompt: BiometricPrompt? = null
 
     fun setContext(context: FragmentActivity) {
-        this.context = context
+        CentralAppControl.context = context
 
-        sharedPreferences = this.context!!.getSharedPreferences("nextpass", 0)
+        sharedPreferences = CentralAppControl.context!!.getSharedPreferences("nextpass", 0)
 
-        NextcloudApiProvider.setContext(res = this.context!!.resources, pref = sharedPreferences!!)
+        NextcloudApiProvider.initializeApi(
+            res = CentralAppControl.context!!.resources,
+            pref = sharedPreferences!!
+        )
 
-        clipboardManager = this.context!!.getSystemService(ClipboardManager::class.java)
-        autofillManager = this.context!!.getSystemService(AutofillManager::class.java)
+        clipboardManager =
+            CentralAppControl.context!!.getSystemService(ClipboardManager::class.java)
+        autofillManager = CentralAppControl.context!!.getSystemService(AutofillManager::class.java)
 
         screenProtectionState.value = sharedPreferences!!.contains("screen")
         if (screenProtectionState.value) enableScreenProtection()
@@ -134,7 +138,7 @@ object MainViewModel : ViewModel() {
         if (sharedPreferences!!.contains("PIN")) {
             pinProtectedState.value = true
             lockTimeoutState.value = sharedPreferences!!.getLong("timeout", 0)
-            if (lockTimeoutState.value != (-1).toLong()) unlockedState.value = false
+            if (lockTimeoutState.value != (-1).toLong()) unlocked = false
             biometricProtectedState.value = sharedPreferences!!.contains("biometric")
         }
 
@@ -148,9 +152,9 @@ object MainViewModel : ViewModel() {
         else tagsState.value = sharedPreferences!!.getBoolean("tags", true)
 
         promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(MainViewModel.context!!.getString(R.string.access_nextpass))
-            .setSubtitle(MainViewModel.context!!.getString(R.string.access_nextpass_body))
-            .setNegativeButtonText(MainViewModel.context!!.getString(R.string.cancel))
+            .setTitle(CentralAppControl.context!!.getString(R.string.access_nextpass))
+            .setSubtitle(CentralAppControl.context!!.getString(R.string.access_nextpass_body))
+            .setNegativeButtonText(CentralAppControl.context!!.getString(R.string.cancel))
             .build()
     }
 
@@ -175,7 +179,7 @@ object MainViewModel : ViewModel() {
     }
 
     fun setPrimaryClip(label: String, clip: String) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             clipboardManager!!.setPrimaryClip(ClipData.newPlainText(label, clip))
         }
 
@@ -198,7 +202,7 @@ object MainViewModel : ViewModel() {
     }
 
     fun showSnackbar(message: String) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             if (navControllerState.value?.currentDestination?.route!! != Routes.AccessPin.route &&
                 navControllerState.value?.currentDestination?.route!! != Routes.Pin.route
             ) {
@@ -283,7 +287,7 @@ object MainViewModel : ViewModel() {
 
     fun lock(shouldRaiseBiometric: Boolean = true) {
         if (pinProtectedState.value) {
-            unlockedState.value = false
+            unlocked = false
 
             if (biometricProtectedState.value) biometricDismissedState.value = false
 
@@ -294,7 +298,7 @@ object MainViewModel : ViewModel() {
     }
 
     fun unlock() {
-        unlockedState.value = true
+        unlocked = true
 
         if (navControllerState.value?.previousBackStackEntry?.destination?.route != Routes.Welcome.route)
             navControllerState.value?.popBackStack()
@@ -305,7 +309,7 @@ object MainViewModel : ViewModel() {
     }
 
     fun openApp(shouldRememberScreen: Boolean = false) {
-        if (unlockedState.value) {
+        if (unlocked) {
             if (NextcloudApiProvider.isLogged()) {
                 startAutofillService()
 
@@ -318,7 +322,7 @@ object MainViewModel : ViewModel() {
 
     fun checkPin(pin: String): Boolean {
         return if (sharedPreferences!!.getString("PIN", null) == pin) {
-            unlockedState.value = true
+            unlocked = true
 
             true
         } else false

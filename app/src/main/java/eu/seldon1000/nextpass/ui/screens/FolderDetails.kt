@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Folder
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.CopyButton
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
 import eu.seldon1000.nextpass.ui.items.FavoriteButton
@@ -57,7 +57,7 @@ fun FolderDetails(folder: Folder) {
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val currentFolder by MainViewModel.selectedFolder.collectAsState()
+    val currentFolder by CentralAppControl.selectedFolder.collectAsState()
 
     var edit by remember { mutableStateOf(value = false) }
 
@@ -67,7 +67,7 @@ fun FolderDetails(folder: Folder) {
         FloatingActionButton(onClick = {
             if (edit) {
                 if (label.isNotEmpty()) {
-                    MainViewModel.showDialog(
+                    CentralAppControl.showDialog(
                         title = context.getString(R.string.update_folder),
                         body = {
                             Text(
@@ -79,7 +79,7 @@ fun FolderDetails(folder: Folder) {
                     ) {
                         edit = false
 
-                        MainViewModel.setRefreshing(refreshing = true)
+                        CentralAppControl.setRefreshing(refreshing = true)
 
                         val params = mutableMapOf(
                             "id" to folder.id,
@@ -89,9 +89,9 @@ fun FolderDetails(folder: Folder) {
                         if (folder.favorite) params["favorite"] = "true"
 
                         NextcloudApiProvider.updateFolderRequest(params = params)
-                        MainViewModel.showSnackbar(message = context.getString(R.string.folder_updated_snack))
+                        CentralAppControl.showSnackbar(message = context.getString(R.string.folder_updated_snack))
                     }
-                } else MainViewModel.showDialog(
+                } else CentralAppControl.showDialog(
                     title = context.getString(R.string.missing_info),
                     body = {
                         Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
@@ -121,8 +121,8 @@ fun FolderDetails(folder: Folder) {
 
                         label = folder.label
 
-                        MainViewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == folder.parent })
-                    } else MainViewModel.popBackStack()
+                        CentralAppControl.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == folder.parent })
+                    } else CentralAppControl.popBackStack()
                 }
             ) {
                 Crossfade(targetState = edit) { state ->
@@ -195,7 +195,7 @@ fun FolderDetails(folder: Folder) {
                                 folder = storedFolders.indexOfFirst { it.id == folder.parent }
                             )
                             FavoriteButton(favorite = folder.favorite) {
-                                MainViewModel.setRefreshing(refreshing = true)
+                                CentralAppControl.setRefreshing(refreshing = true)
 
                                 val params = mutableMapOf(
                                     "id" to folder.id,
@@ -228,7 +228,7 @@ fun FolderDetails(folder: Folder) {
                         )
                     }
                     TextButton(onClick = {
-                        MainViewModel.showDialog(
+                        CentralAppControl.showDialog(
                             title = context.getString(R.string.delete_folder),
                             body = {
                                 Text(
@@ -239,8 +239,8 @@ fun FolderDetails(folder: Folder) {
                             confirm = true
                         ) {
                             NextcloudApiProvider.deleteFolderRequest(id = folder.id)
-                            MainViewModel.popBackStack()
-                            MainViewModel.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
+                            CentralAppControl.popBackStack()
+                            CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
                         }
                     }
                     ) { Text(text = context.getString(R.string.delete), color = Color.Red) }

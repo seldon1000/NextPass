@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
 import eu.seldon1000.nextpass.ui.items.FavoriteButton
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
@@ -50,7 +50,7 @@ fun NewFolder() {
     val scrollState = rememberScrollState()
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
-    val selectedFolder by MainViewModel.selectedFolder.collectAsState()
+    val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
 
     var favorite by remember { mutableStateOf(value = false) }
 
@@ -59,7 +59,7 @@ fun NewFolder() {
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = {
             if (label.isNotEmpty()) {
-                MainViewModel.showDialog(
+                CentralAppControl.showDialog(
                     title = context.getString(R.string.create_folder),
                     body = {
                         Text(
@@ -75,13 +75,13 @@ fun NewFolder() {
                     )
                     if (favorite) params["favorite"] = "true"
 
-                    MainViewModel.setRefreshing(refreshing = true)
+                    CentralAppControl.setRefreshing(refreshing = true)
                     NextcloudApiProvider.createFolderRequest(params = params)
-                    MainViewModel.popBackStack()
-                    MainViewModel.showSnackbar(message = context.getString(R.string.folder_created_snack))
+                    CentralAppControl.popBackStack()
+                    CentralAppControl.showSnackbar(message = context.getString(R.string.folder_created_snack))
                 }
 
-            } else MainViewModel.showDialog(
+            } else CentralAppControl.showDialog(
                 title = context.getString(R.string.missing_info),
                 body = {
                     Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
@@ -100,7 +100,7 @@ fun NewFolder() {
             cutoutShape = CircleShape,
             modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
         ) {
-            IconButton(onClick = { MainViewModel.popBackStack() }) {
+            IconButton(onClick = { CentralAppControl.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"

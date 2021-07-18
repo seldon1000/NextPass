@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.*
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.layout.Routes
 
 @ExperimentalMaterialApi
@@ -47,9 +47,9 @@ fun PasswordCard(index: Int, password: Password) {
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val currentScreen by MainViewModel.navController.collectAsState().value!!.currentBackStackEntryAsState()
-    val folderMode by MainViewModel.folderMode.collectAsState()
-    val currentFolder by MainViewModel.currentFolder.collectAsState()
+    val currentScreen by CentralAppControl.navController.collectAsState().value!!.currentBackStackEntryAsState()
+    val folderMode by CentralAppControl.folderMode.collectAsState()
+    val currentFolder by CentralAppControl.currentFolder.collectAsState()
 
     val favicon by password.favicon.collectAsState()
 
@@ -116,7 +116,7 @@ fun PasswordCard(index: Int, password: Password) {
                 )
             Status(password = password)
             FavoriteButton(favorite = password.favorite) {
-                MainViewModel.setRefreshing(refreshing = true)
+                CentralAppControl.setRefreshing(refreshing = true)
 
                 val params = mutableMapOf(
                     "id" to password.id,
@@ -145,7 +145,7 @@ fun PasswordCard(index: Int, password: Password) {
             modifier = Modifier.width(width = 200.dp)
         ) {
             DropdownMenuItem(onClick = {
-                MainViewModel.setPrimaryClip(
+                CentralAppControl.setPrimaryClip(
                     label = context.getString(R.string.username),
                     clip = password.username
                 )
@@ -162,7 +162,7 @@ fun PasswordCard(index: Int, password: Password) {
                 )
             }
             DropdownMenuItem(onClick = {
-                MainViewModel.setPrimaryClip(
+                CentralAppControl.setPrimaryClip(
                     label = context.getString(R.string.password),
                     clip = password.password
                 )
@@ -179,7 +179,7 @@ fun PasswordCard(index: Int, password: Password) {
                 )
             }
             DropdownMenuItem(onClick = {
-                MainViewModel.navigate(route = Routes.PasswordDetails.getRoute(arg = index))
+                CentralAppControl.navigate(route = Routes.PasswordDetails.getRoute(arg = index))
 
                 expanded = false
             }) {
@@ -194,9 +194,9 @@ fun PasswordCard(index: Int, password: Password) {
             }
             if (password.folder != storedFolders[currentFolder].id || currentScreen?.destination?.route != "passwords")
                 DropdownMenuItem(onClick = {
-                    MainViewModel.setFolderMode(mode = true)
-                    MainViewModel.setCurrentFolder(folder = storedFolders.indexOfFirst { password.folder == it.id })
-                    MainViewModel.navigate(route = Routes.Passwords.route)
+                    CentralAppControl.setFolderMode(mode = true)
+                    CentralAppControl.setCurrentFolder(folder = storedFolders.indexOfFirst { password.folder == it.id })
+                    CentralAppControl.navigate(route = Routes.Passwords.route)
 
                     expanded = false
                 }) {
@@ -210,7 +210,7 @@ fun PasswordCard(index: Int, password: Password) {
                     )
                 }
             DropdownMenuItem(onClick = {
-                MainViewModel.showDialog(
+                CentralAppControl.showDialog(
                     title = context.getString(R.string.delete_password),
                     body = {
                         Text(
@@ -221,7 +221,7 @@ fun PasswordCard(index: Int, password: Password) {
                     confirm = true
                 ) {
                     NextcloudApiProvider.deletePasswordRequest(id = password.id)
-                    MainViewModel.showSnackbar(message = context.getString(R.string.password_deleted))
+                    CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
                 }
 
                 expanded = false

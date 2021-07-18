@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.AUTOFILL_SETTINGS_CODE
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.items.GenericColumnItem
 import eu.seldon1000.nextpass.ui.layout.DefaultBottomBar
@@ -62,14 +62,14 @@ fun Settings() {
     val coroutineScope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
 
-    val protected by MainViewModel.pinProtected.collectAsState()
-    val biometricProtected by MainViewModel.biometricProtected.collectAsState()
-    val lockTimeout by MainViewModel.lockTimeout.collectAsState()
-    val screenProtection by MainViewModel.screenProtection.collectAsState()
-    val autofill by MainViewModel.autofill.collectAsState()
-    val autostart by MainViewModel.autostart.collectAsState()
-    val folders by MainViewModel.folders.collectAsState()
-    val tags by MainViewModel.tags.collectAsState()
+    val protected by CentralAppControl.pinProtected.collectAsState()
+    val biometricProtected by CentralAppControl.biometricProtected.collectAsState()
+    val lockTimeout by CentralAppControl.lockTimeout.collectAsState()
+    val screenProtection by CentralAppControl.screenProtection.collectAsState()
+    val autofill by CentralAppControl.autofill.collectAsState()
+    val autostart by CentralAppControl.autostart.collectAsState()
+    val folders by CentralAppControl.folders.collectAsState()
+    val tags by CentralAppControl.tags.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
 
@@ -95,7 +95,7 @@ fun Settings() {
     )
 
     MyScaffoldLayout(fab = {
-        FloatingActionButton(onClick = { MainViewModel.navigate(route = Routes.About.route) }) {
+        FloatingActionButton(onClick = { CentralAppControl.navigate(route = Routes.About.route) }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_round_help_outline_24),
                 contentDescription = "about",
@@ -127,7 +127,7 @@ fun Settings() {
                     title = context.getString(R.string.current_account),
                     body = NextcloudApiProvider.getCurrentAccount()
                 ) {
-                    MainViewModel.setPrimaryClip(
+                    CentralAppControl.setPrimaryClip(
                         label = context.getString(R.string.current_account),
                         clip = NextcloudApiProvider.getCurrentAccount()
                     )
@@ -165,7 +165,7 @@ fun Settings() {
                     body = context.getString(R.string.random_password_tip)
                 ) {
                     coroutineScope.launch {
-                        MainViewModel.setPrimaryClip(
+                        CentralAppControl.setPrimaryClip(
                             label = context.getString(R.string.generated_password),
                             clip = NextcloudApiProvider.generatePassword()
                         )
@@ -189,17 +189,17 @@ fun Settings() {
                         Switch(
                             checked = protected,
                             onCheckedChange = {
-                                if (protected) MainViewModel.disablePin()
-                                else MainViewModel.navigate(route = Routes.Pin.route)
+                                if (protected) CentralAppControl.disablePin()
+                                else CentralAppControl.navigate(route = Routes.Pin.route)
                             },
                             colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
                 ) {
-                    if (protected) MainViewModel.changePin()
+                    if (protected) CentralAppControl.changePin()
                     else
-                        MainViewModel.showDialog(
+                        CentralAppControl.showDialog(
                             title = context.getString(R.string.pin_not_enabled),
                             body = {
                                 Text(
@@ -208,7 +208,7 @@ fun Settings() {
                                 )
                             },
                             confirm = true
-                        ) { MainViewModel.navigate(route = Routes.Pin.route) }
+                        ) { CentralAppControl.navigate(route = Routes.Pin.route) }
                 }
             }
             item {
@@ -219,8 +219,8 @@ fun Settings() {
                         Switch(
                             checked = biometricProtected && protected,
                             onCheckedChange = {
-                                if (protected && !biometricProtected) MainViewModel.enableBiometric()
-                                else if (biometricProtected) MainViewModel.disableBiometric()
+                                if (protected && !biometricProtected) CentralAppControl.enableBiometric()
+                                else if (biometricProtected) CentralAppControl.disableBiometric()
                             },
                             enabled = protected && BiometricManager.from(context).canAuthenticate(
                                 BiometricManager.Authenticators.BIOMETRIC_WEAK
@@ -304,7 +304,7 @@ fun Settings() {
                                         isRotated = !isRotated
                                         expanded = false
 
-                                        MainViewModel.setLockTimeout(timeout = option)
+                                        CentralAppControl.setLockTimeout(timeout = option)
                                     }, enabled = lockTimeout != option) {
                                         Text(
                                             text = when (option) {
@@ -337,7 +337,7 @@ fun Settings() {
                 GenericColumnItem(
                     title = context.getString(R.string.lock_now),
                     body = context.getString(R.string.lock_now_tip)
-                ) { MainViewModel.lock(shouldRaiseBiometric = false) }
+                ) { CentralAppControl.lock(shouldRaiseBiometric = false) }
             }
             item {
                 GenericColumnItem(
@@ -347,8 +347,8 @@ fun Settings() {
                         Switch(
                             checked = screenProtection,
                             onCheckedChange = {
-                                if (screenProtection) MainViewModel.disableScreenProtection()
-                                else MainViewModel.enableScreenProtection()
+                                if (screenProtection) CentralAppControl.disableScreenProtection()
+                                else CentralAppControl.enableScreenProtection()
                             },
                             enabled = true,
                             colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
@@ -374,9 +374,9 @@ fun Settings() {
                         Switch(
                             checked = autofill,
                             onCheckedChange = {
-                                if (autofill) MainViewModel.disableAutofill()
+                                if (autofill) CentralAppControl.disableAutofill()
                                 else {
-                                    MainViewModel.showDialog(
+                                    CentralAppControl.showDialog(
                                         title = context.getString(R.string.autofill_title),
                                         body = {
                                             Text(
@@ -413,8 +413,8 @@ fun Settings() {
                         Switch(
                             checked = autostart,
                             onCheckedChange = {
-                                if (autostart) MainViewModel.disableAutostart()
-                                else MainViewModel.enableAutostart()
+                                if (autostart) CentralAppControl.disableAutostart()
+                                else CentralAppControl.enableAutostart()
                             },
                             enabled = autofill,
                             colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
@@ -428,7 +428,7 @@ fun Settings() {
                     title = context.getString(R.string.stop_service_now),
                     body = context.getString(R.string.stop_service_now_tip),
                     item = {}
-                ) { MainViewModel.stopAutofillService() }
+                ) { CentralAppControl.stopAutofillService() }
             }
             item {
                 Text(
@@ -447,8 +447,8 @@ fun Settings() {
                         Switch(
                             checked = folders,
                             onCheckedChange = {
-                                if (folders) MainViewModel.disableFolders()
-                                else MainViewModel.enableFolders()
+                                if (folders) CentralAppControl.disableFolders()
+                                else CentralAppControl.enableFolders()
                             },
                             colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(all = 16.dp)
@@ -464,8 +464,8 @@ fun Settings() {
                         Switch(
                             checked = tags,
                             onCheckedChange = {
-                                if (tags) MainViewModel.disableTags()
-                                else MainViewModel.enableTags()
+                                if (tags) CentralAppControl.disableTags()
+                                else CentralAppControl.enableTags()
                             },
                             colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(all = 16.dp)
@@ -489,11 +489,11 @@ fun Settings() {
                     titleColor = Color.Red,
                     item = {}
                 ) {
-                    MainViewModel.showDialog(
+                    CentralAppControl.showDialog(
                         title = context.getString(R.string.warning),
                         body = { Text(text = context.getString(R.string.reset_preferences_body)) },
                         confirm = true
-                    ) { MainViewModel.resetUserPreferences() }
+                    ) { CentralAppControl.resetUserPreferences() }
                 }
             }
         }

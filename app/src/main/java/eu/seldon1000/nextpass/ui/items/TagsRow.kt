@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.api.Tag
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 import eu.seldon1000.nextpass.ui.theme.pickerColors
 
@@ -125,7 +125,7 @@ fun TagsRow(
                         DropdownMenuItem(onClick = {
                             expanded = false
 
-                            MainViewModel.showDialog(
+                            CentralAppControl.showDialog(
                                 title = context.getString(R.string.edit_tag),
                                 body = {
                                     Column {
@@ -146,7 +146,7 @@ fun TagsRow(
                                 },
                                 confirm = true
                             ) {
-                                MainViewModel.setRefreshing(refreshing = true)
+                                CentralAppControl.setRefreshing(refreshing = true)
 
                                 val params = mapOf(
                                     "id" to tag.id,
@@ -158,7 +158,7 @@ fun TagsRow(
                                 )
 
                                 NextcloudApiProvider.updateTagRequest(params = params)
-                                MainViewModel.showSnackbar(message = context.getString(R.string.tag_updated_snack))
+                                CentralAppControl.showSnackbar(message = context.getString(R.string.tag_updated_snack))
 
                                 tagClickAction(null)
                                 selected = -1
@@ -174,7 +174,7 @@ fun TagsRow(
                             )
                         }
                         DropdownMenuItem(onClick = {
-                            MainViewModel.showDialog(
+                            CentralAppControl.showDialog(
                                 title = context.getString(R.string.delete_tag),
                                 body = {
                                     Text(
@@ -184,10 +184,10 @@ fun TagsRow(
                                 },
                                 confirm = true
                             ) {
-                                MainViewModel.setRefreshing(refreshing = true)
+                                CentralAppControl.setRefreshing(refreshing = true)
 
                                 NextcloudApiProvider.deleteTagRequest(id = tag.id)
-                                MainViewModel.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
+                                CentralAppControl.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
 
                                 tagClickAction(null)
                                 selected = -1
@@ -219,7 +219,7 @@ fun TagsRow(
         ) {
             Card(
                 onClick = {
-                    MainViewModel.showDialog(title = context.getString(R.string.new_tag), body = {
+                    CentralAppControl.showDialog(title = context.getString(R.string.new_tag), body = {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             TextFieldItem(
                                 text = newTagLabel,
@@ -242,9 +242,9 @@ fun TagsRow(
                             }"
                         )
 
-                        MainViewModel.setRefreshing(refreshing = true)
+                        CentralAppControl.setRefreshing(refreshing = true)
                         NextcloudApiProvider.createTagRequest(params = params)
-                        MainViewModel.showSnackbar(message = context.getString(R.string.tag_created_snack))
+                        CentralAppControl.showSnackbar(message = context.getString(R.string.tag_created_snack))
 
                         newTagLabel = ""
                         newTagColor = Color.Blue

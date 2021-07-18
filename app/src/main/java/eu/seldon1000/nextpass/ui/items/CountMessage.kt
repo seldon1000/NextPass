@@ -30,13 +30,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 
 @Composable
 fun CountMessage(message: String) {
     val context = LocalContext.current
 
-    val refreshing by MainViewModel.refreshing.collectAsState()
+    val refreshing by CentralAppControl.refreshing.collectAsState()
 
     Crossfade(targetState = refreshing) { state ->
         Text(

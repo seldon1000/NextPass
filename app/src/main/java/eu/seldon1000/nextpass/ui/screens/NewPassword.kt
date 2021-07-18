@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.api.Tag
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.*
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
@@ -62,7 +62,7 @@ fun NewPassword() {
 
     val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
 
-    val selectedFolder by MainViewModel.selectedFolder.collectAsState()
+    val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
 
     var showed by remember { mutableStateOf(value = false) }
     var favorite by remember { mutableStateOf(value = false) }
@@ -79,7 +79,7 @@ fun NewPassword() {
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = {
             if (label.isNotEmpty() && password.isNotEmpty()) {
-                MainViewModel.showDialog(
+                CentralAppControl.showDialog(
                     title = context.getString(R.string.create_password),
                     body = {
                         Text(
@@ -129,12 +129,12 @@ fun NewPassword() {
                     )
                     if (favorite) params["favorite"] = "true"
 
-                    MainViewModel.setRefreshing(refreshing = true)
+                    CentralAppControl.setRefreshing(refreshing = true)
                     NextcloudApiProvider.createPasswordRequest(params = params, tags = tags)
-                    MainViewModel.popBackStack()
-                    MainViewModel.showSnackbar(message = context.getString(R.string.password_created_snack))
+                    CentralAppControl.popBackStack()
+                    CentralAppControl.showSnackbar(message = context.getString(R.string.password_created_snack))
                 }
-            } else MainViewModel.showDialog(
+            } else CentralAppControl.showDialog(
                 title = context.getString(R.string.missing_info),
                 body = {
                     Text(
@@ -156,7 +156,7 @@ fun NewPassword() {
             cutoutShape = CircleShape,
             modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
         ) {
-            IconButton(onClick = { MainViewModel.popBackStack() }) {
+            IconButton(onClick = { CentralAppControl.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"
@@ -249,7 +249,7 @@ fun NewPassword() {
                             if (rotation >= 360F * 10) {
                                 rotation = 0F
 
-                                MainViewModel.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
+                                CentralAppControl.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
                             } else rotation += 360F
                         }) {
                             Icon(
@@ -320,7 +320,7 @@ fun NewPassword() {
                                 if (customField["label"]!!.isNotEmpty()) {
                                     customField["type"] = "text"
                                     customField["value"] = ""
-                                } else MainViewModel.showDialog(
+                                } else CentralAppControl.showDialog(
                                     title = context.getString(R.string.missing_info),
                                     body = {
                                         Text(

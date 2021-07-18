@@ -31,7 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
@@ -52,7 +52,7 @@ fun ChangePin() {
         FloatingActionButton({
             if (confirm) {
                 if (pin == tempPin) {
-                    MainViewModel.showDialog(
+                    CentralAppControl.showDialog(
                         title = context.getString(R.string.change_pin),
                         body = {
                             Text(
@@ -62,12 +62,12 @@ fun ChangePin() {
                         },
                         confirm = true
                     ) {
-                        MainViewModel.setPin(pin = pin)
-                        MainViewModel.setLockTimeout(timeout = 0)
-                        MainViewModel.popBackStack()
-                        MainViewModel.showSnackbar(message = context.getString(R.string.pin_changed_snack))
+                        CentralAppControl.setPin(pin = pin)
+                        CentralAppControl.setLockTimeout(timeout = 0)
+                        CentralAppControl.popBackStack()
+                        CentralAppControl.showSnackbar(message = context.getString(R.string.pin_changed_snack))
                     }
-                } else MainViewModel.showDialog(
+                } else CentralAppControl.showDialog(
                     title = context.getString(R.string.wrong_pin),
                     body = {
                         Text(
@@ -82,7 +82,7 @@ fun ChangePin() {
                     pin = ""
                     showed = false
                     confirm = true
-                } else MainViewModel.showDialog(
+                } else CentralAppControl.showDialog(
                     title = context.getString(R.string.pin_short),
                     body = {
                         Text(
@@ -109,7 +109,7 @@ fun ChangePin() {
                 if (confirm) {
                     confirm = false
                     pin = tempPin
-                } else MainViewModel.popBackStack()
+                } else CentralAppControl.popBackStack()
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),

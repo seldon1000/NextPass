@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
@@ -47,7 +47,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
 
     val coroutineScope = rememberCoroutineScope()
 
-    val currentScreen by MainViewModel.navController.collectAsState().value!!.currentBackStackEntryAsState()
+    val currentScreen by CentralAppControl.navController.collectAsState().value!!.currentBackStackEntryAsState()
 
     BottomAppBar(
         backgroundColor = Color.Black,
@@ -59,7 +59,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             selected = currentScreen?.destination?.route == Routes.Favorites.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Favorites.route)
-                    MainViewModel.navigate(route = Routes.Favorites.route)
+                    CentralAppControl.navigate(route = Routes.Favorites.route)
                 else coroutineScope.launch { lazyListState.scrollToItem(index = 0) }
             },
             icon = {
@@ -76,9 +76,9 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             selected = currentScreen?.destination?.route == Routes.Passwords.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Passwords.route)
-                    MainViewModel.navigate(route = Routes.Passwords.route)
+                    CentralAppControl.navigate(route = Routes.Passwords.route)
                 else {
-                    MainViewModel.setCurrentFolder(folder = 0)
+                    CentralAppControl.setCurrentFolder(folder = 0)
                     coroutineScope.launch { lazyListState.scrollToItem(index = 0) }
                 }
             },
@@ -97,7 +97,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             selected = currentScreen?.destination?.route == Routes.Search.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Search.route)
-                    MainViewModel.navigate(route = Routes.Search.route)
+                    CentralAppControl.navigate(route = Routes.Search.route)
             },
             icon = {
                 Icon(
@@ -113,7 +113,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             selected = currentScreen?.destination?.route == Routes.Settings.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Settings.route)
-                    MainViewModel.navigate(route = Routes.Settings.route)
+                    CentralAppControl.navigate(route = Routes.Settings.route)
                 else coroutineScope.launch { lazyListState.scrollToItem(0) }
             },
             icon = {

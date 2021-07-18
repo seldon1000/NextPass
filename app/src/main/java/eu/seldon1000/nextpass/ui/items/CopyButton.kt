@@ -21,13 +21,13 @@ import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.theme.colors
 
 @Composable
 fun CopyButton(label: String, clip: String) {
     IconButton(onClick = {
-        MainViewModel.setPrimaryClip(
+        CentralAppControl.setPrimaryClip(
             label = label,
             clip = clip
         )

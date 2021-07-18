@@ -28,7 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.theme.Orange500
@@ -39,10 +39,10 @@ import eu.seldon1000.nextpass.ui.theme.colors
 fun AccessPin(shouldRaiseBiometric: Boolean) {
     val context = LocalContext.current
 
-    val biometricDismissed by MainViewModel.biometricDismissed.collectAsState()
+    val biometricDismissed by CentralAppControl.biometricDismissed.collectAsState()
 
-    if (MainViewModel.biometricProtected.value && shouldRaiseBiometric && !biometricDismissed)
-        MainViewModel.showBiometricPrompt()
+    if (CentralAppControl.biometricProtected.value && shouldRaiseBiometric && !biometricDismissed)
+        CentralAppControl.showBiometricPrompt()
 
     var showed by remember { mutableStateOf(value = false) }
     var pin by remember { mutableStateOf(value = "") }
@@ -82,9 +82,9 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                 }
             }
             Row {
-                if (MainViewModel.biometricProtected.value) {
+                if (CentralAppControl.biometricProtected.value) {
                     FloatingActionButton(
-                        onClick = { MainViewModel.showBiometricPrompt() },
+                        onClick = { CentralAppControl.showBiometricPrompt() },
                         backgroundColor = Orange500,
                         modifier = Modifier.padding(bottom = 64.dp)
                     ) {
@@ -97,9 +97,9 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                     Box(modifier = Modifier.size(size = 16.dp))
                 }
                 FloatingActionButton(onClick = {
-                    if (MainViewModel.checkPin(pin = pin)) MainViewModel.unlock()
+                    if (CentralAppControl.checkPin(pin = pin)) CentralAppControl.unlock()
                     else {
-                        MainViewModel.showDialog(
+                        CentralAppControl.showDialog(
                             title = context.getString(R.string.wrong_pin),
                             body = {
                                 Text(

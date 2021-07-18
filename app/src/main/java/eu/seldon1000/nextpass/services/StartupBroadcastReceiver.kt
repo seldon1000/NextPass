@@ -24,7 +24,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.view.autofill.AutofillManager
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 
 class StartupBroadcastReceiver : BroadcastReceiver() {
     private val networkRequest = NetworkRequest.Builder()
@@ -50,7 +50,7 @@ class StartupBroadcastReceiver : BroadcastReceiver() {
                                 val autofillIntent =
                                     Intent(context, NextPassAutofillService::class.java)
 
-                                MainViewModel.setAutofillIntent(intent = autofillIntent)
+                                CentralAppControl.setAutofillIntent(intent = autofillIntent)
 
                                 context.startService(autofillIntent)
                             }

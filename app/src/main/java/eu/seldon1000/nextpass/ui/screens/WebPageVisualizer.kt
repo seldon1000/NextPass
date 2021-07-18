@@ -40,7 +40,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.colors
 
@@ -76,7 +76,7 @@ fun WebPageVisualizer(urlToRender: String) {
             if (rotation >= 360F * 10) {
                 rotation = 0F
 
-                MainViewModel.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
+                CentralAppControl.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
             } else rotation += 360F
         }) {
             Icon(
@@ -94,7 +94,7 @@ fun WebPageVisualizer(urlToRender: String) {
         ) {
             IconButton(onClick = {
                 if (webView.canGoBack()) webView.goBack()
-                else MainViewModel.popBackStack()
+                else CentralAppControl.popBackStack()
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),

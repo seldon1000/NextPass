@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.BuildConfig
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.ui.MainViewModel
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.GenericColumnItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
@@ -60,7 +60,7 @@ fun About() {
             cutoutShape = CircleShape,
             modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
         ) {
-            IconButton(onClick = { MainViewModel.popBackStack() }) {
+            IconButton(onClick = { CentralAppControl.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"
@@ -90,7 +90,7 @@ fun About() {
                         modifier = Modifier
                             .size(size = 144.dp)
                             .clip(shape = RoundedCornerShape(size = 16.dp))
-                            .clickable { MainViewModel.showSnackbar(message = greetings.random()) }
+                            .clickable { CentralAppControl.showSnackbar(message = greetings.random()) }
                     )
                     Text(
                         text = "${

@@ -26,7 +26,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.fragment.app.FragmentActivity
-import eu.seldon1000.nextpass.ui.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.CentralScreenControl
 import eu.seldon1000.nextpass.ui.theme.NextPassTheme
 import kotlinx.coroutines.*
@@ -42,10 +41,10 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        MainViewModel.setContext(context = this)
+        CentralAppControl.setContext(context = this)
 
         setContent {
-            rememberCoroutineScope().launch { MainViewModel.openApp() }
+            rememberCoroutineScope().launch { CentralAppControl.openApp() }
 
             NextPassTheme {
                 Surface {
@@ -59,7 +58,7 @@ class MainActivity : FragmentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == AUTOFILL_SETTINGS_CODE && resultCode == Activity.RESULT_OK)
-            MainViewModel.enableAutofill()
+            CentralAppControl.enableAutofill()
     }
 
     override fun onRestart() {
@@ -72,18 +71,18 @@ class MainActivity : FragmentActivity() {
         super.onStop()
 
         coroutineScope.launch {
-            if (MainViewModel.lockTimeout.value != (-1).toLong() &&
-                MainViewModel.lockTimeout.value != (-2).toLong()
+            if (CentralAppControl.lockTimeout.value != (-1).toLong() &&
+                CentralAppControl.lockTimeout.value != (-2).toLong()
             ) {
-                delay(MainViewModel.lockTimeout.value)
-                MainViewModel.lock()
+                delay(CentralAppControl.lockTimeout.value)
+                CentralAppControl.lock()
             }
         }
     }
 
     override fun onBackPressed() {
-        if (!MainViewModel.popBackStack()) {
-            coroutineScope.coroutineContext.cancelChildren()
+        if (!CentralAppControl.popBackStack()) {
+            coroutineScope.cancel()
 
             finish()
         }
