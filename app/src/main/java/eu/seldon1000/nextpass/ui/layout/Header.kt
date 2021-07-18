@@ -51,7 +51,7 @@ fun Header(expanded: Boolean, title: String, item: @Composable () -> Unit = {}) 
         Crossfade(targetState = title) { state ->
             Text(
                 text = state,
-                fontSize = 28.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
