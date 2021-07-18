@@ -8,7 +8,7 @@ NextPass was made possible thanks to the amazing work of many people. This is a 
 
 **Jetpack Compose** (https://developer.android.com/jetpack/compose)
 
-**Accompainist library** (https://github.com/google/accompanist)
+**Accompanist library** (https://github.com/google/accompanist)
 
 **Kotlin** (https://kotlinlang.org/)
 
