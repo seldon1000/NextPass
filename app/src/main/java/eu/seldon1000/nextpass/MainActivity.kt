@@ -17,9 +17,9 @@
 package eu.seldon1000.nextpass
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
@@ -30,10 +30,14 @@ import eu.seldon1000.nextpass.ui.layout.CentralScreenControl
 import eu.seldon1000.nextpass.ui.theme.NextPassTheme
 import kotlinx.coroutines.*
 
-const val AUTOFILL_SETTINGS_CODE = 7799
-
 class MainActivity : FragmentActivity() {
     private val coroutineScope = CoroutineScope(context = Dispatchers.Main)
+
+    var autofillSettingsResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK)
+                CentralAppControl.enableAutofill()
+        }
 
     @ExperimentalAnimationApi
     @ExperimentalFoundationApi
@@ -52,13 +56,6 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == AUTOFILL_SETTINGS_CODE && resultCode == Activity.RESULT_OK)
-            CentralAppControl.enableAutofill()
     }
 
     override fun onRestart() {

@@ -16,13 +16,14 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.biometric.BiometricManager
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -40,15 +41,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.AUTOFILL_SETTINGS_CODE
+import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainActivity
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.CentralAppControl
-import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.items.GenericColumnItem
 import eu.seldon1000.nextpass.ui.layout.DefaultBottomBar
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
+import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 import eu.seldon1000.nextpass.ui.theme.Orange500
 import eu.seldon1000.nextpass.ui.theme.colors
@@ -386,12 +387,11 @@ fun Settings() {
                                         },
                                         confirm = true
                                     ) {
-                                        (context as Activity).startActivityForResult(
+                                        (context as MainActivity).autofillSettingsResult.launch(
                                             Intent(
                                                 Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE,
                                                 Uri.parse("package:eu.seldon1000.nextpass")
-                                            ),
-                                            AUTOFILL_SETTINGS_CODE
+                                            )
                                         )
                                     }
                                 }

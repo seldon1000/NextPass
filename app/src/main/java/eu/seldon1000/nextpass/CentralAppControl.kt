@@ -26,7 +26,6 @@ import android.view.autofill.AutofillManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import eu.seldon1000.nextpass.api.NextcloudApiProvider
 import eu.seldon1000.nextpass.services.NextPassAutofillService
@@ -41,7 +40,7 @@ import kotlinx.coroutines.launch
 object CentralAppControl {
     private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
 
-    private var context: FragmentActivity? = null
+    private var context: MainActivity? = null
     private var sharedPreferences: SharedPreferences? = null
 
     private var clipboardManager: ClipboardManager? = null
@@ -114,7 +113,7 @@ object CentralAppControl {
     private var promptInfo: BiometricPrompt.PromptInfo? = null
     private var biometricPrompt: BiometricPrompt? = null
 
-    fun setContext(context: FragmentActivity) {
+    fun setContext(context: MainActivity) {
         CentralAppControl.context = context
 
         sharedPreferences = CentralAppControl.context!!.getSharedPreferences("nextpass", 0)
@@ -146,7 +145,6 @@ object CentralAppControl {
             setFolderMode(mode = true)
             foldersState.value = true
         } else setFolderMode(mode = false)
-
 
         if (!sharedPreferences!!.contains("tags")) enableTags(refresh = false)
         else tagsState.value = sharedPreferences!!.getBoolean("tags", true)
