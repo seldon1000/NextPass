@@ -192,7 +192,7 @@ object NextcloudApiProvider : ViewModel() {
                     MainViewModel.navigate(route = Routes.WebView.getRoute(login))
 
                     var i = 0
-                    var loginResponse = JsonObject(mapOf())
+                    var loginResponse = mapOf<String, String>()
 
                     while (loginResponse.isEmpty() && i <= 120) {
                         try {
@@ -221,9 +221,9 @@ object NextcloudApiProvider : ViewModel() {
                             )
                         })
                     else if (i <= 120) {
-                        server = loginResponse["server"]!!.jsonPrimitive.content
-                        loginName = loginResponse["loginName"]!!.jsonPrimitive.content
-                        appPassword = loginResponse["appPassword"]!!.jsonPrimitive.content
+                        server = loginResponse["server"]!!
+                        loginName = loginResponse["loginName"]!!
+                        appPassword = loginResponse["appPassword"]!!
 
                         sharedPreferences!!.edit().putString("server", server).apply()
                         sharedPreferences!!.edit().putString("loginName", loginName).apply()
