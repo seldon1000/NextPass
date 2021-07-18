@@ -276,10 +276,8 @@ object NextcloudApiProvider : ViewModel() {
                         }
                     }/list"
                 ) {
-                    if (T::class == Password::class) parameter(
-                        key = "details",
-                        value = "model+tags"
-                    )
+                    if (T::class == Password::class)
+                        parameter(key = "details", value = "model+tags")
                 })
         } catch (e: Exception) {
             showError()

@@ -296,12 +296,9 @@ object MainViewModel : ViewModel() {
     fun unlock() {
         unlockedState.value = true
 
-        if (navControllerState.value?.previousBackStackEntry?.destination?.route != Routes.Welcome.route) {
-            navControllerState.value?.popBackStack(
-                route = navControllerState.value?.currentDestination?.route!!,
-                inclusive = true
-            )
-        } else openApp()
+        if (navControllerState.value?.previousBackStackEntry?.destination?.route != Routes.Welcome.route)
+            navControllerState.value?.popBackStack()
+        else openApp()
 
         pendingUnlockAction?.let { it() }
         pendingUnlockAction = null
