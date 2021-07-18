@@ -31,7 +31,7 @@ import eu.seldon1000.nextpass.ui.theme.NextPassTheme
 import kotlinx.coroutines.*
 
 class MainActivity : FragmentActivity() {
-    private val coroutineScope = CoroutineScope(context = Dispatchers.Main)
+    private val coroutineScope = MainScope()
 
     var autofillSettingsResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

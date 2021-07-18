@@ -28,10 +28,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Routes
 import io.ktor.client.*
@@ -42,11 +40,8 @@ import io.ktor.client.features.auth.providers.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -55,7 +50,9 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.serializer
 
 @SuppressLint("StaticFieldLeak")
-object NextcloudApiProvider : ViewModel() {
+object NextcloudApiProvider {
+    private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
+
     private var resources: Resources? = null
     private var sharedPreferences: SharedPreferences? = null
 
@@ -132,20 +129,24 @@ object NextcloudApiProvider : ViewModel() {
     fun attemptLogin() {
         val url = mutableStateOf(value = "")
 
-        CentralAppControl.showDialog(title = resources!!.getString(R.string.insert_server_url), body = {
-            TextFieldItem(
-                text = url.value,
-                onTextChanged = { url.value = it },
-                label = resources!!.getString(R.string.url),
-                required = true
-            )
-        }, confirm = true) {
+        CentralAppControl.showDialog(
+            title = resources!!.getString(R.string.insert_server_url),
+            body = {
+                TextFieldItem(
+                    text = url.value,
+                    onTextChanged = { url.value = it },
+                    label = resources!!.getString(R.string.url),
+                    required = true
+                )
+            },
+            confirm = true
+        ) {
             if (!url.value.startsWith(prefix = "https://") &&
                 !url.value.startsWith(prefix = "http://")
             ) url.value = "https://${url.value}"
             url.value = "${url.value}/index.php/login/v2"
 
-            viewModelScope.launch {
+            coroutineScope.launch {
                 try {
                     val response = client.post<JsonObject>(urlString = url.value)
 
@@ -234,7 +235,7 @@ object NextcloudApiProvider : ViewModel() {
             confirm = true
         ) {
             try {
-                viewModelScope.launch {
+                coroutineScope.launch {
                     client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
                         header("OCS-APIREQUEST", true)
                     }
@@ -296,7 +297,7 @@ object NextcloudApiProvider : ViewModel() {
 
         client.coroutineContext.cancelChildren()
 
-        viewModelScope.launch {
+        coroutineScope.launch {
             val passwords = listRequest<Password>()
 
             passwords.sortBy { it.label.lowercase() }
@@ -308,7 +309,7 @@ object NextcloudApiProvider : ViewModel() {
         }
 
         if (refreshFolders) {
-            viewModelScope.launch {
+            coroutineScope.launch {
                 val folders = listRequest<Folder>()
 
                 folders.sortBy { it.label.lowercase() }
@@ -319,7 +320,7 @@ object NextcloudApiProvider : ViewModel() {
         }
 
         if (refreshTags)
-            viewModelScope.launch {
+            coroutineScope.launch {
                 val tags = listRequest<Tag>()
 
                 tags.sortBy { it.label.lowercase() }
@@ -346,7 +347,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun createPasswordRequest(params: Map<String, String>, tags: List<Tag>) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 val newPassword = showRequest<Password>(
                     id = client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
@@ -374,7 +375,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun createFolderRequest(params: Map<String, String>) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 val newFolder = showRequest<Folder>(
                     id = client.post<JsonObject>(urlString = "$server$endpoint/folder/create") {
@@ -403,7 +404,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun createTagRequest(params: Map<String, String>) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 val newTag = showRequest<Tag>(
                     id = client.post<JsonObject>(urlString = "$server$endpoint/tag/create") {
@@ -426,7 +427,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun deletePasswordRequest(id: String) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 client.delete<Any>(urlString = "$server$endpoint/password/delete") {
                     parameter(key = "id", value = id)
@@ -440,7 +441,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun deleteFolderRequest(id: String) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 client.delete<Any>(urlString = "$server$endpoint/folder/delete") {
                     parameter(key = "id", value = id)
@@ -454,7 +455,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun deleteTagRequest(id: String) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 client.delete<Any>(urlString = "$server$endpoint/tag/delete") {
                     parameter(key = "id", value = id)
@@ -468,7 +469,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun updatePasswordRequest(params: Map<String, String>, tags: List<Tag>) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 client.patch<Any>(urlString = "$server$endpoint/password/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
@@ -493,7 +494,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun updateFolderRequest(params: Map<String, String>) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 client.patch<Any>(urlString = "$server$endpoint/folder/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
@@ -513,7 +514,7 @@ object NextcloudApiProvider : ViewModel() {
     }
 
     fun updateTagRequest(params: Map<String, String>) {
-        viewModelScope.launch {
+        coroutineScope.launch {
             try {
                 client.patch<Any>(urlString = "$server$endpoint/tag/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
@@ -547,7 +548,7 @@ object NextcloudApiProvider : ViewModel() {
 
     fun faviconRequest(data: Any) {
         when (data) {
-            is Password -> viewModelScope.launch(context = Dispatchers.IO) {
+            is Password -> coroutineScope.launch(context = Dispatchers.IO) {
                 try {
                     data.setFavicon(
                         BitmapFactory.decodeStream(
@@ -561,7 +562,7 @@ object NextcloudApiProvider : ViewModel() {
                 } catch (e: Exception) {
                 }
             }
-            is String -> viewModelScope.launch {
+            is String -> coroutineScope.launch {
                 if (data.isNotEmpty()) {
                     try {
                         currentRequestedFaviconState.value = BitmapFactory.decodeStream(

@@ -401,9 +401,7 @@ fun Settings() {
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
-                ) {
-
-                }
+                ) {}
             }
             item {
                 GenericColumnItem(
