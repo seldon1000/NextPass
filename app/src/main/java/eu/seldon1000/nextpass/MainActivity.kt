@@ -81,13 +81,11 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        coroutineScope.coroutineContext.cancelChildren()
-    }
-
     override fun onBackPressed() {
-        if (!MainViewModel.popBackStack()) finish()
+        if (!MainViewModel.popBackStack()) {
+            coroutineScope.coroutineContext.cancelChildren()
+
+            finish()
+        }
     }
 }
