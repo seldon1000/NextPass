@@ -154,7 +154,7 @@ object MainViewModel : ViewModel() {
             .build()
     }
 
-    fun restoreUserPreferences() {
+    fun resetUserPreferences() {
         pendingUnlockAction = {
             stopAutofillService(show = false)
             disableAutostart()

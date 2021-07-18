@@ -158,7 +158,7 @@ object NextcloudApiProvider : ViewModel() {
             }
 
             MainViewModel.setRefreshing(refreshing = false)
-            MainViewModel.restoreUserPreferences()
+            MainViewModel.resetUserPreferences()
             MainViewModel.navigate(route = Routes.Welcome.route)
             MainViewModel.showSnackbar(message = resources!!.getString(R.string.disconnected_snack))
         }
