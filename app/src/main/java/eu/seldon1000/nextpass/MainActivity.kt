@@ -34,7 +34,7 @@ import kotlinx.coroutines.*
 const val AUTOFILL_SETTINGS_CODE = 7799
 
 class MainActivity : FragmentActivity() {
-    private val coroutineScope = MainScope()
+    private val coroutineScope = CoroutineScope(context = Dispatchers.Main)
 
     @ExperimentalAnimationApi
     @ExperimentalFoundationApi

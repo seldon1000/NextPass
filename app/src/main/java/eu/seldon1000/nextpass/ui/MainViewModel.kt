@@ -164,7 +164,7 @@ object MainViewModel : ViewModel() {
             enableTags()
             disablePin(lock = false)
 
-            showSnackbar(message = context!!.getString(R.string.preferences_restored_snack))
+            showSnackbar(message = context!!.getString(R.string.preferences_reset_snack))
         }
 
         if (pinProtectedState.value) lock(shouldRaiseBiometric = true)

@@ -484,14 +484,14 @@ fun Settings() {
             }
             item {
                 GenericColumnItem(
-                    title = context.getString(R.string.restore_preferences),
-                    body = context.getString(R.string.restore_preferences_tip),
+                    title = context.getString(R.string.reset_preferences),
+                    body = context.getString(R.string.reset_preferences_tip),
                     titleColor = Color.Red,
                     item = {}
                 ) {
                     MainViewModel.showDialog(
                         title = context.getString(R.string.warning),
-                        body = { Text(text = context.getString(R.string.restore_preferences_body)) },
+                        body = { Text(text = context.getString(R.string.reset_preferences_body)) },
                         confirm = true
                     ) { MainViewModel.restoreUserPreferences() }
                 }
