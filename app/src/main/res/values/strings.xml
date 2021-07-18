@@ -122,6 +122,7 @@
     <string name="new_tag">New tag</string>
     <string name="new_tag_default">New tag %1$d</string>
     <string name="danger_zone">Danger zone</string>
+    <string name="nextpass_autofill_service">NextPass Autofill Service</string>
     <string name="reset_preferences">Reset preferences</string>
     <string name="reset_preferences_tip">Click here to reset your preferences to defaults. This will not log you out from NextPass. If you log out manually, preferences will be reset automatically.</string>
     <string name="timeout_expired">Timeout expired</string>

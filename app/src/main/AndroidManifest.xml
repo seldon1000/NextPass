@@ -12,12 +12,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
         android:theme="@style/Theme.NextPass">
 
         <receiver
             android:name=".services.StartupBroadcastReceiver"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -42,7 +41,7 @@
         <service
             android:name=".services.NextPassAutofillService"
             android:exported="true"
-            android:label="NextPass Autofill Service"
+            android:label="@string/nextpass_autofill_service"
             android:permission="android.permission.BIND_AUTOFILL_SERVICE">
             <intent-filter>
                 <action android:name="android.service.autofill.AutofillService" />
