@@ -134,7 +134,7 @@
     <string name="delete_tag_body">This tag will be deleted. Are you sure you want to continue?</string>
     <string name="logout_body">Your Nextcloud account will be disconnected from the app. NextPass will require a new Nextcloud account to work and will reset all the settings. Are you sure you want to proceed?</string>
     <string name="delete_password_body">The password will be deleted. Are you sure you want to proceed?</string>
-    <string name="error_body">NextPass couldn\'t send the request to the Nextcloud server. Try again.</string>
+    <string name="error_body">NextPass could not send the request to the Nextcloud server. Try again.</string>
     <string name="connected_snack">Connected as %1$s</string>
     <string name="create_folder">Create folder?</string>
     <string name="create_folder_body">A new empty folder will be created and synced with your Nextcloud server. Are you sure you want to proceed?</string>

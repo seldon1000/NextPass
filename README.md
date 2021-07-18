@@ -21,7 +21,7 @@ NextPass officially supports Android up from 8.0. Please, if you experience issu
 
 # Known issues
 **Jetpack Compose**<br />
-Compose is still in beta, that means that you could experience some glitches and/or poor performance depending on your device. NextPass UI also lacks many animations, due to Compose's navigation and foundation libraries still not supporting them. I will update the toolkit ASAP to provide the best possible experience.
+Compose is still in beta, that means that you could experience some glitches and/or poor performance depending on your device. NextPass UI also lacks many animations, due to Compose navigation and foundation libraries still not supporting them. I will update the toolkit ASAP to provide the best possible experience.
 
 
 # Translations
