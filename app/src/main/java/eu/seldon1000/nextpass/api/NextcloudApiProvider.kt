@@ -146,7 +146,7 @@ object NextcloudApiProvider {
             ) url.value = "https://${url.value}"
             url.value = "${url.value}/index.php/login/v2"
 
-            coroutineScope.launch {
+            coroutineScope.launch(context = Dispatchers.Main) {
                 try {
                     val response = client.post<JsonObject>(urlString = url.value)
 
