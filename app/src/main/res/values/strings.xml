@@ -123,7 +123,7 @@
     <string name="new_tag_default">New tag %1$d</string>
     <string name="danger_zone">Danger zone</string>
     <string name="reset_preferences">Reset preferences</string>
-    <string name="reset_preferences_tip">Click here to Reset your preferences to defaults. This will not log you out from NextPass. If you log out manually, preferences will be reset automatically.</string>
+    <string name="reset_preferences_tip">Click here to reset your preferences to defaults. This will not log you out from NextPass. If you log out manually, preferences will be reset automatically.</string>
     <string name="timeout_expired">Timeout expired</string>
     <string name="timeout_expired_body">NextPass waits approximately 60 seconds for you to complete login. Time\'s up, try again.</string>
     <string name="tag_created_snack">Tag created</string>
