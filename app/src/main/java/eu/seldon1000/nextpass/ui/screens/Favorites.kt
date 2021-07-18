@@ -32,7 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.CountMessage
@@ -53,8 +53,8 @@ fun Favorites() {
 
     val lazyListState = rememberLazyListState()
 
-    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
-    val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
+    val storedFolders by NextcloudApi.storedFolders.collectAsState()
+    val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
 
     val tags by CentralAppControl.tags.collectAsState()
 

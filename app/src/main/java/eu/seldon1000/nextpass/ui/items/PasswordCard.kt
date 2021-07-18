@@ -45,7 +45,7 @@ import eu.seldon1000.nextpass.ui.layout.Routes
 fun PasswordCard(index: Int, password: Password) {
     val context = LocalContext.current
 
-    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+    val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
     val currentScreen by CentralAppControl.navController.collectAsState().value!!.currentBackStackEntryAsState()
     val folderMode by CentralAppControl.folderMode.collectAsState()
@@ -125,7 +125,7 @@ fun PasswordCard(index: Int, password: Password) {
                     "password" to password.password,
                     "url" to password.url,
                     "notes" to password.notes,
-                    "customFields" to NextcloudApiProvider.json.encodeToString(
+                    "customFields" to NextcloudApi.json.encodeToString(
                         serializer = SnapshotListSerializer(
                             dataSerializer = CustomField.serializer()
                         ), value = password.customFieldsList
@@ -135,7 +135,7 @@ fun PasswordCard(index: Int, password: Password) {
                 )
                 if (it) params["favorite"] = "true"
 
-                NextcloudApiProvider.updatePasswordRequest(params = params, tags = password.tags)
+                NextcloudApi.updatePasswordRequest(params = params, tags = password.tags)
             }
         }
         DropdownMenu(
@@ -220,7 +220,7 @@ fun PasswordCard(index: Int, password: Password) {
                     },
                     confirm = true
                 ) {
-                    NextcloudApiProvider.deletePasswordRequest(id = password.id)
+                    NextcloudApi.deletePasswordRequest(id = password.id)
                     CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
                 }
 

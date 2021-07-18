@@ -59,7 +59,7 @@ data class Password(
 
     @Contextual
     var customFieldsList = try {
-        NextcloudApiProvider.json.decodeFromString(
+        NextcloudApi.json.decodeFromString(
             deserializer = SnapshotListSerializer(CustomField.serializer()),
             string = customFields
         )
@@ -79,7 +79,7 @@ data class Password(
 
     fun resetCustomFields() {
         customFieldsList = try {
-            NextcloudApiProvider.json.decodeFromString(
+            NextcloudApi.json.decodeFromString(
                 deserializer = SnapshotListSerializer(CustomField.serializer()),
                 string = customFields
             )

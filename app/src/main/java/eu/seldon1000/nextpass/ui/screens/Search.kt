@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.CountMessage
@@ -53,8 +53,8 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 fun Search() {
     val context = LocalContext.current
 
-    val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
-    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+    val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
+    val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
     val tags by CentralAppControl.tags.collectAsState()
 

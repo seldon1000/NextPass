@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.MainActivity
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.ui.items.GenericColumnItem
 import eu.seldon1000.nextpass.ui.layout.DefaultBottomBar
 import eu.seldon1000.nextpass.ui.layout.Header
@@ -126,11 +126,11 @@ fun Settings() {
                 )
                 GenericColumnItem(
                     title = context.getString(R.string.current_account),
-                    body = NextcloudApiProvider.getCurrentAccount()
+                    body = NextcloudApi.getCurrentAccount()
                 ) {
                     CentralAppControl.setPrimaryClip(
                         label = context.getString(R.string.current_account),
-                        clip = NextcloudApiProvider.getCurrentAccount()
+                        clip = NextcloudApi.getCurrentAccount()
                     )
                 }
                 Row(
@@ -138,13 +138,13 @@ fun Settings() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextButton(
-                        onClick = { NextcloudApiProvider.attemptLogout() },
+                        onClick = { NextcloudApi.attemptLogout() },
                         modifier = Modifier.padding(end = 16.dp)
                     ) {
                         Text(text = context.getString(R.string.logout))
                     }
                     TextButton(
-                        onClick = { NextcloudApiProvider.attemptLogin() },
+                        onClick = { NextcloudApi.attemptLogin() },
                         modifier = Modifier.padding(end = 16.dp)
                     ) {
                         Text(text = context.getString(R.string.switch_account))
@@ -168,7 +168,7 @@ fun Settings() {
                     coroutineScope.launch {
                         CentralAppControl.setPrimaryClip(
                             label = context.getString(R.string.generated_password),
-                            clip = NextcloudApiProvider.generatePassword()
+                            clip = NextcloudApi.generatePassword()
                         )
                     }
                 }

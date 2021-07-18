@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Folder
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.CopyButton
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
@@ -55,7 +55,7 @@ fun FolderDetails(folder: Folder) {
 
     val scrollState = rememberScrollState()
 
-    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+    val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
     val currentFolder by CentralAppControl.selectedFolder.collectAsState()
 
@@ -88,7 +88,7 @@ fun FolderDetails(folder: Folder) {
                         )
                         if (folder.favorite) params["favorite"] = "true"
 
-                        NextcloudApiProvider.updateFolderRequest(params = params)
+                        NextcloudApi.updateFolderRequest(params = params)
                         CentralAppControl.showSnackbar(message = context.getString(R.string.folder_updated_snack))
                     }
                 } else CentralAppControl.showDialog(
@@ -204,7 +204,7 @@ fun FolderDetails(folder: Folder) {
                                 )
                                 if (it) params["favorite"] = "true"
 
-                                NextcloudApiProvider.updateFolderRequest(params = params)
+                                NextcloudApi.updateFolderRequest(params = params)
                             }
                         }
                     }
@@ -238,7 +238,7 @@ fun FolderDetails(folder: Folder) {
                             },
                             confirm = true
                         ) {
-                            NextcloudApiProvider.deleteFolderRequest(id = folder.id)
+                            NextcloudApi.deleteFolderRequest(id = folder.id)
                             CentralAppControl.popBackStack()
                             CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
                         }

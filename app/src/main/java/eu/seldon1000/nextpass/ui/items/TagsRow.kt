@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
@@ -60,7 +60,7 @@ fun TagsRow(
 ) {
     val context = LocalContext.current
 
-    val storedTags by NextcloudApiProvider.storedTags.collectAsState()
+    val storedTags by NextcloudApi.storedTags.collectAsState()
 
     var newTagLabel by remember { mutableStateOf(value = "") }
     var newTagColor by remember { mutableStateOf(value = pickerColors[0]) }
@@ -157,7 +157,7 @@ fun TagsRow(
                                     }"
                                 )
 
-                                NextcloudApiProvider.updateTagRequest(params = params)
+                                NextcloudApi.updateTagRequest(params = params)
                                 CentralAppControl.showSnackbar(message = context.getString(R.string.tag_updated_snack))
 
                                 tagClickAction(null)
@@ -186,7 +186,7 @@ fun TagsRow(
                             ) {
                                 CentralAppControl.setRefreshing(refreshing = true)
 
-                                NextcloudApiProvider.deleteTagRequest(id = tag.id)
+                                NextcloudApi.deleteTagRequest(id = tag.id)
                                 CentralAppControl.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
 
                                 tagClickAction(null)
@@ -243,7 +243,7 @@ fun TagsRow(
                         )
 
                         CentralAppControl.setRefreshing(refreshing = true)
-                        NextcloudApiProvider.createTagRequest(params = params)
+                        NextcloudApi.createTagRequest(params = params)
                         CentralAppControl.showSnackbar(message = context.getString(R.string.tag_created_snack))
 
                         newTagLabel = ""

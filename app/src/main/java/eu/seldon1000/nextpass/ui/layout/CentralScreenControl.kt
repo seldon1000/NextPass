@@ -30,7 +30,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.screens.*
 
@@ -47,8 +47,8 @@ fun CentralScreenControl() {
     val scaffoldState = rememberScaffoldState()
     CentralAppControl.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
 
-    val storedPasswords by NextcloudApiProvider.storedPasswords.collectAsState()
-    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+    val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
+    val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
     val refreshing by CentralAppControl.refreshing.collectAsState()
     val refreshState = rememberSwipeRefreshState(isRefreshing = refreshing)
@@ -59,7 +59,7 @@ fun CentralScreenControl() {
         snackbarHost = { MySnackbar(snackbarHostState = scaffoldState.snackbarHostState) }) {
         SwipeRefresh(
             state = refreshState,
-            onRefresh = { NextcloudApiProvider.refreshServerList() },
+            onRefresh = { NextcloudApi.refreshServerList() },
             swipeEnabled = currentScreen?.destination?.route?.contains("access_pin") == false &&
                     currentScreen?.destination?.route?.contains("webview") == false &&
                     currentScreen?.destination?.route != "welcome" &&

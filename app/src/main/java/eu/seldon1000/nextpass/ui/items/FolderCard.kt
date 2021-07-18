@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Folder
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
@@ -43,7 +43,7 @@ import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
     val context = LocalContext.current
 
-    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+    val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
     val currentFolder by CentralAppControl.currentFolder.collectAsState()
 
@@ -90,7 +90,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 )
                 if (it) params["favorite"] = "true"
 
-                NextcloudApiProvider.updateFolderRequest(params = params)
+                NextcloudApi.updateFolderRequest(params = params)
             }
         }
         if (icon == null) {
@@ -163,7 +163,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                         },
                         confirm = true
                     ) {
-                        NextcloudApiProvider.deleteFolderRequest(id = folder.id)
+                        NextcloudApi.deleteFolderRequest(id = folder.id)
                         CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
                     }
 

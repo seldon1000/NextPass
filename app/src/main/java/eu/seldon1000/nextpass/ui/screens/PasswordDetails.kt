@@ -58,7 +58,7 @@ import kotlinx.serialization.encodeToString
 fun PasswordDetails(passwordData: Password) {
     val context = LocalContext.current
 
-    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+    val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
     val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
 
@@ -123,13 +123,13 @@ fun PasswordDetails(passwordData: Password) {
                             "password" to password,
                             "url" to url,
                             "notes" to notes,
-                            "customFields" to NextcloudApiProvider.json.encodeToString(value = concreteCustomFields),
+                            "customFields" to NextcloudApi.json.encodeToString(value = concreteCustomFields),
                             "folder" to storedFolders[selectedFolder].id,
                             "hash" to passwordData.hash
                         )
                         if (passwordData.favorite) params["favorite"] = "true"
 
-                        NextcloudApiProvider.updatePasswordRequest(params = params, tags = tags)
+                        NextcloudApi.updatePasswordRequest(params = params, tags = tags)
                         CentralAppControl.showSnackbar(message = context.getString(R.string.password_updated_snack))
                     }
                 } else CentralAppControl.showDialog(
@@ -274,7 +274,7 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                                 if (passwordData.favorite) params["favorite"] = "true"
 
-                                NextcloudApiProvider.updatePasswordRequest(
+                                NextcloudApi.updatePasswordRequest(
                                     params = params,
                                     tags = tags
                                 )
@@ -308,7 +308,7 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                                 if (it) params["favorite"] = "true"
 
-                                NextcloudApiProvider.updatePasswordRequest(
+                                NextcloudApi.updatePasswordRequest(
                                     params = params,
                                     tags = passwordData.tags
                                 )
@@ -379,7 +379,7 @@ fun PasswordDetails(passwordData: Password) {
 
                             IconButton(onClick = {
                                 coroutineScope.launch {
-                                    password = NextcloudApiProvider.generatePassword()
+                                    password = NextcloudApi.generatePassword()
                                 }
 
                                 if (rotation >= 360F * 10) {
@@ -523,7 +523,7 @@ fun PasswordDetails(passwordData: Password) {
                                 },
                                 confirm = true
                             ) {
-                                NextcloudApiProvider.deletePasswordRequest(id = passwordData.id)
+                                NextcloudApi.deletePasswordRequest(id = passwordData.id)
                                 CentralAppControl.popBackStack()
                             }
                         }

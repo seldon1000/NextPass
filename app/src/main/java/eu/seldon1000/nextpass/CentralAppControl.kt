@@ -27,7 +27,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.services.NextPassAutofillService
 import eu.seldon1000.nextpass.ui.layout.Routes
 import kotlinx.coroutines.CoroutineScope
@@ -118,7 +118,7 @@ object CentralAppControl {
 
         sharedPreferences = CentralAppControl.context!!.getSharedPreferences("nextpass", 0)
 
-        NextcloudApiProvider.initializeApi(
+        NextcloudApi.initializeApi(
             res = CentralAppControl.context!!.resources,
             pref = sharedPreferences!!
         )
@@ -237,7 +237,7 @@ object CentralAppControl {
 
     private fun startAutofillService(): Boolean {
         return if (autofillManager!!.hasEnabledAutofillServices() &&
-            NextcloudApiProvider.isLogged() && setAutofillIntent(
+            NextcloudApi.isLogged() && setAutofillIntent(
                 intent = Intent(context, NextPassAutofillService::class.java)
             )
         ) {
@@ -308,12 +308,12 @@ object CentralAppControl {
 
     fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlocked) {
-            if (NextcloudApiProvider.isLogged()) {
+            if (NextcloudApi.isLogged()) {
                 startAutofillService()
 
                 if (!shouldRememberScreen) navigate(route = Routes.Passwords.route)
 
-                NextcloudApiProvider.refreshServerList()
+                NextcloudApi.refreshServerList()
             }
         } else navigate(route = Routes.AccessPin.getRoute(arg = true))
     }
@@ -460,7 +460,7 @@ object CentralAppControl {
                 navControllerState.value?.popBackStack()
 
                 if (navControllerState.value?.currentDestination?.route!! != Routes.NewPassword.route)
-                    NextcloudApiProvider.faviconRequest(data = "")
+                    NextcloudApi.faviconRequest(data = "")
 
                 setKeyboardMode()
 
@@ -496,8 +496,8 @@ object CentralAppControl {
             selectedFolderState.value = folder
         } else {
             currentFolderState.value =
-                NextcloudApiProvider.storedFolders.value.indexOfFirst {
-                    it.id == NextcloudApiProvider.storedFolders.value[currentFolderState.value].parent
+                NextcloudApi.storedFolders.value.indexOfFirst {
+                    it.id == NextcloudApi.storedFolders.value[currentFolderState.value].parent
                 }
             selectedFolderState.value = currentFolderState.value
         }
@@ -508,7 +508,7 @@ object CentralAppControl {
     }
 
     fun enableTags(refresh: Boolean = true) {
-        if (refresh) NextcloudApiProvider.refreshServerList(refreshTags = true)
+        if (refresh) NextcloudApi.refreshServerList(refreshTags = true)
 
         sharedPreferences!!.edit().putBoolean("tags", true).apply()
         tagsState.value = true

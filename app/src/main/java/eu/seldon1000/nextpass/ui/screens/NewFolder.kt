@@ -32,7 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
 import eu.seldon1000.nextpass.ui.items.FavoriteButton
@@ -49,7 +49,7 @@ fun NewFolder() {
 
     val scrollState = rememberScrollState()
 
-    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+    val storedFolders by NextcloudApi.storedFolders.collectAsState()
     val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
 
     var favorite by remember { mutableStateOf(value = false) }
@@ -76,7 +76,7 @@ fun NewFolder() {
                     if (favorite) params["favorite"] = "true"
 
                     CentralAppControl.setRefreshing(refreshing = true)
-                    NextcloudApiProvider.createFolderRequest(params = params)
+                    NextcloudApi.createFolderRequest(params = params)
                     CentralAppControl.popBackStack()
                     CentralAppControl.showSnackbar(message = context.getString(R.string.folder_created_snack))
                 }

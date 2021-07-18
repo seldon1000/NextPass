@@ -29,8 +29,8 @@ import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
-import eu.seldon1000.nextpass.api.NextcloudApiProvider.toRoundedCorners
+import eu.seldon1000.nextpass.api.NextcloudApi
+import eu.seldon1000.nextpass.api.NextcloudApi.toRoundedCorners
 import eu.seldon1000.nextpass.api.Password
 import kotlinx.serialization.decodeFromString
 import java.math.BigInteger
@@ -53,7 +53,7 @@ class NextPassAutofillService : AutofillService() {
     override fun onCreate() {
         super.onCreate()
 
-        NextcloudApiProvider.initializeApi(
+        NextcloudApi.initializeApi(
             res = resources,
             pref = getSharedPreferences("nextpass", 0)
         )
@@ -62,10 +62,10 @@ class NextPassAutofillService : AutofillService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return if (NextcloudApiProvider.storedPasswords.value.isEmpty() &&
-            NextcloudApiProvider.isLogged()
+        return if (NextcloudApi.storedPasswords.value.isEmpty() &&
+            NextcloudApi.isLogged()
         ) {
-            NextcloudApiProvider.refreshServerList(refreshFolders = false, refreshTags = false)
+            NextcloudApi.refreshServerList(refreshFolders = false, refreshTags = false)
 
             START_STICKY
         } else {
@@ -78,9 +78,9 @@ class NextPassAutofillService : AutofillService() {
     override fun onConnected() {
         super.onConnected()
 
-        if (NextcloudApiProvider.storedPasswords.value.isEmpty() &&
-            NextcloudApiProvider.isLogged()
-        ) NextcloudApiProvider.refreshServerList(refreshFolders = false, refreshTags = false)
+        if (NextcloudApi.storedPasswords.value.isEmpty() &&
+            NextcloudApi.isLogged()
+        ) NextcloudApi.refreshServerList(refreshFolders = false, refreshTags = false)
     }
 
     override fun onFillRequest(
@@ -168,7 +168,7 @@ class NextPassAutofillService : AutofillService() {
             )
 
             if (viewWebDomain.isEmpty()) {
-                params["customFields"] = NextcloudApiProvider.json.decodeFromString(
+                params["customFields"] = NextcloudApi.json.decodeFromString(
                     string = listOf(
                         mapOf(
                             "label" to "Android app",
@@ -179,7 +179,7 @@ class NextPassAutofillService : AutofillService() {
                 )
             }
 
-            NextcloudApiProvider.createPasswordRequest(params = params, tags = emptyList())
+            NextcloudApi.createPasswordRequest(params = params, tags = emptyList())
 
             callback.onSuccess()
         }
@@ -200,7 +200,7 @@ class NextPassAutofillService : AutofillService() {
 
         if (!mode) {
             if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
-                NextcloudApiProvider.storedPasswords.value.forEach { password ->
+                NextcloudApi.storedPasswords.value.forEach { password ->
                     if (checkSuggestions(password = password)) {
                         val credentialsPresentation =
                             RemoteViews(packageName, R.layout.autofill_list_item)

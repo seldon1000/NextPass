@@ -39,7 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApiProvider
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.*
@@ -60,7 +60,7 @@ fun NewPassword() {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
-    val storedFolders by NextcloudApiProvider.storedFolders.collectAsState()
+    val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
     val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
 
@@ -74,7 +74,7 @@ fun NewPassword() {
     var notes by remember { mutableStateOf(value = "") }
     val tags by remember { mutableStateOf(value = mutableStateListOf<Tag>()) }
     val customFields by remember { mutableStateOf(value = mutableStateListOf<SnapshotStateMap<String, String>>()) }
-    val favicon by NextcloudApiProvider.currentRequestedFavicon.collectAsState()
+    val favicon by NextcloudApi.currentRequestedFavicon.collectAsState()
 
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = {
@@ -125,12 +125,12 @@ fun NewPassword() {
                         "notes" to notes,
                         "hash" to hash,
                         "folder" to storedFolders[selectedFolder].id,
-                        "customFields" to NextcloudApiProvider.json.encodeToString(value = concreteCustomFields)
+                        "customFields" to NextcloudApi.json.encodeToString(value = concreteCustomFields)
                     )
                     if (favorite) params["favorite"] = "true"
 
                     CentralAppControl.setRefreshing(refreshing = true)
-                    NextcloudApiProvider.createPasswordRequest(params = params, tags = tags)
+                    NextcloudApi.createPasswordRequest(params = params, tags = tags)
                     CentralAppControl.popBackStack()
                     CentralAppControl.showSnackbar(message = context.getString(R.string.password_created_snack))
                 }
@@ -208,7 +208,7 @@ fun NewPassword() {
                     }
                     TextFieldItem(text = url, onTextChanged = {
                         if (it.length >= url.length || it.isEmpty())
-                            NextcloudApiProvider.faviconRequest(data = it)
+                            NextcloudApi.faviconRequest(data = it)
 
                         url = it
                     }, label = context.getString(R.string.url))
@@ -243,7 +243,7 @@ fun NewPassword() {
 
                         IconButton(onClick = {
                             coroutineScope.launch {
-                                password = NextcloudApiProvider.generatePassword()
+                                password = NextcloudApi.generatePassword()
                             }
 
                             if (rotation >= 360F * 10) {

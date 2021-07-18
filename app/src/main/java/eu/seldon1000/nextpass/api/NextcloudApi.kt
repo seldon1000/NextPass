@@ -24,9 +24,7 @@ import android.net.Uri
 import android.webkit.CookieManager
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
@@ -50,7 +48,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.serializer
 
 @SuppressLint("StaticFieldLeak")
-object NextcloudApiProvider {
+object NextcloudApi {
     private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
 
     private var resources: Resources? = null
@@ -82,13 +80,13 @@ object NextcloudApiProvider {
                 "\"updated\":0}"
     )
 
-    private val storedPasswordsState = MutableStateFlow(value = mutableStateListOf<Password>())
+    private val storedPasswordsState = MutableStateFlow(value = mutableListOf<Password>())
     val storedPasswords = storedPasswordsState
 
-    private val storedFoldersState = MutableStateFlow(value = mutableStateListOf(baseFolder))
+    private val storedFoldersState = MutableStateFlow(value = mutableListOf(baseFolder))
     val storedFolders = storedFoldersState
 
-    private val storedTagsState = MutableStateFlow(value = mutableStateListOf<Tag>())
+    private val storedTagsState = MutableStateFlow(value = mutableListOf<Tag>())
     val storedTags = storedTagsState
 
     private val currentRequestedFaviconState = MutableStateFlow<Bitmap?>(value = null)
@@ -269,26 +267,24 @@ object NextcloudApiProvider {
         }
     }
 
-    private suspend inline fun <reified T> listRequest(): SnapshotStateList<T> {
+    private suspend inline fun <reified T> listRequest(): MutableList<T> {
         return try {
-            json.decodeFromString(
-                deserializer = SnapshotListSerializer(dataSerializer = serializer()),
-                string = client.get(
-                    urlString = "$server$endpoint/${
-                        when (T::class) {
-                            Password::class -> "password"
-                            Folder::class -> "folder"
-                            else -> "tag"
-                        }
-                    }/list"
-                ) {
-                    if (T::class == Password::class)
-                        parameter(key = "details", value = "model+tags")
-                })
+            json.decodeFromString(string = client.get(
+                urlString = "$server$endpoint/${
+                    when (T::class) {
+                        Password::class -> "password"
+                        Folder::class -> "folder"
+                        else -> "tag"
+                    }
+                }/list"
+            ) {
+                if (T::class == Password::class)
+                    parameter(key = "details", value = "model+tags")
+            })
         } catch (e: Exception) {
             showError()
 
-            mutableStateListOf()
+            mutableListOf()
         }
     }
 
