@@ -24,7 +24,9 @@ import android.net.Uri
 import android.webkit.CookieManager
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
@@ -80,13 +82,13 @@ object NextcloudApi {
                 "\"updated\":0}"
     )
 
-    private val storedPasswordsState = MutableStateFlow(value = mutableListOf<Password>())
+    private val storedPasswordsState = MutableStateFlow(value = mutableStateListOf<Password>())
     val storedPasswords = storedPasswordsState
 
-    private val storedFoldersState = MutableStateFlow(value = mutableListOf(baseFolder))
+    private val storedFoldersState = MutableStateFlow(value = mutableStateListOf(baseFolder))
     val storedFolders = storedFoldersState
 
-    private val storedTagsState = MutableStateFlow(value = mutableListOf<Tag>())
+    private val storedTagsState = MutableStateFlow(value = mutableStateListOf<Tag>())
     val storedTags = storedTagsState
 
     private val currentRequestedFaviconState = MutableStateFlow<Bitmap?>(value = null)
@@ -267,7 +269,7 @@ object NextcloudApi {
         }
     }
 
-    private suspend inline fun <reified T> listRequest(): MutableList<T> {
+    private suspend inline fun <reified T> listRequest(): SnapshotStateList<T> {
         return try {
             json.decodeFromString(string = client.get(
                 urlString = "$server$endpoint/${
@@ -284,7 +286,7 @@ object NextcloudApi {
         } catch (e: Exception) {
             showError()
 
-            mutableListOf()
+            mutableStateListOf()
         }
     }
 
