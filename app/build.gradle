@@ -12,8 +12,8 @@ android {
         applicationId "eu.seldon1000.nextpass"
         minSdk 26
         targetSdk 30
-        versionCode 20100
-        versionName "2.1.0"
+        versionCode 20101
+        versionName "2.1.1"
         buildConfigField "long", "VERSION_DATE", System.currentTimeMillis() + "L"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
