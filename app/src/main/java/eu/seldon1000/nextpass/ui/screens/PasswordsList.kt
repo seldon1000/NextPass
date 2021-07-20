@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -108,10 +109,12 @@ fun PasswordList() {
                                 }
                             }
                             Crossfade(targetState = folderMode) { state ->
-                                Card(shape = CircleShape, elevation = if (state) 8.dp else 0.dp) {
+                                Card(
+                                    shape = RoundedCornerShape(size = 8.dp),
+                                    elevation = if (state) 8.dp else 0.dp
+                                ) {
                                     IconButton(onClick = {
-                                        if (folderMode)
-                                            CentralAppControl.setCurrentFolder(folder = 0)
+                                        if (folderMode) CentralAppControl.setCurrentFolder(folder = 0)
                                         CentralAppControl.setFolderMode()
                                     }) {
                                         Icon(

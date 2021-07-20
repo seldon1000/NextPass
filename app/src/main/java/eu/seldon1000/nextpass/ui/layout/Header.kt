@@ -32,11 +32,10 @@ fun Header(expanded: Boolean, title: String, item: @Composable () -> Unit = {}) 
     if (expanded) {
         Column(
             verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.padding(top = 144.dp)
+            modifier = Modifier.padding(top = 140.dp)
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
