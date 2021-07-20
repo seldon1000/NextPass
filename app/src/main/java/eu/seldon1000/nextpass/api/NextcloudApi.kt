@@ -271,18 +271,19 @@ object NextcloudApi {
 
     private suspend inline fun <reified T> listRequest(): SnapshotStateList<T> {
         return try {
-            json.decodeFromString(string = client.get(
-                urlString = "$server$endpoint/${
-                    when (T::class) {
-                        Password::class -> "password"
-                        Folder::class -> "folder"
-                        else -> "tag"
-                    }
-                }/list"
-            ) {
-                if (T::class == Password::class)
-                    parameter(key = "details", value = "model+tags")
-            })
+            json.decodeFromString(deserializer = SnapshotListSerializer(dataSerializer = serializer()),
+                string = client.get(
+                    urlString = "$server$endpoint/${
+                        when (T::class) {
+                            Password::class -> "password"
+                            Folder::class -> "folder"
+                            else -> "tag"
+                        }
+                    }/list"
+                ) {
+                    if (T::class == Password::class)
+                        parameter(key = "details", value = "model+tags")
+                })
         } catch (e: Exception) {
             showError()
 
