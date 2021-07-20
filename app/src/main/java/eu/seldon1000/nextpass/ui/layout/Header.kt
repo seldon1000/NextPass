@@ -41,7 +41,7 @@ fun Header(expanded: Boolean, title: String, item: @Composable () -> Unit = {}) 
             ) {
                 Text(
                     text = title,
-                    fontSize = 40.sp,
+                    fontSize = 32.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 item()
