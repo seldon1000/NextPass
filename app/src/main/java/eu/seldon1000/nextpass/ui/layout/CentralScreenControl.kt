@@ -34,18 +34,18 @@ import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.screens.*
 
-@ExperimentalFoundationApi
 @ExperimentalAnimationApi
+@ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
 fun CentralScreenControl() {
     val navController = rememberNavController()
+    val scaffoldState = rememberScaffoldState()
+
     CentralAppControl.setNavController(navController = navController)
+    CentralAppControl.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
 
     val currentScreen by navController.currentBackStackEntryAsState()
-
-    val scaffoldState = rememberScaffoldState()
-    CentralAppControl.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
 
     val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
     val storedFolders by NextcloudApi.storedFolders.collectAsState()
@@ -60,26 +60,18 @@ fun CentralScreenControl() {
         SwipeRefresh(
             state = refreshState,
             onRefresh = { NextcloudApi.refreshServerList() },
-            swipeEnabled = currentScreen?.destination?.route?.contains("access_pin") == false &&
-                    currentScreen?.destination?.route?.contains("webview") == false &&
-                    currentScreen?.destination?.route != "welcome" &&
-                    currentScreen?.destination?.route != "settings" &&
-                    currentScreen?.destination?.route != "about" &&
-                    currentScreen?.destination?.route != "pin"
+            swipeEnabled = currentScreen?.destination?.route?.contains(other = Routes.AccessPin.route) == false &&
+                    currentScreen?.destination?.route?.contains(other = Routes.WebView.route) == false &&
+                    currentScreen?.destination?.route != Routes.Welcome.route &&
+                    currentScreen?.destination?.route != Routes.Settings.route &&
+                    currentScreen?.destination?.route != Routes.About.route &&
+                    currentScreen?.destination?.route != Routes.Pin.route
         ) {
             NavHost(
                 navController = navController,
                 startDestination = Routes.Welcome.route
-            )
-            {
-                composable(
-                    route = Routes.AccessPin.route,
-                    listOf(navArgument(name = "shouldRaiseBiometric") { type = NavType.BoolType })
-                ) { AccessPin(shouldRaiseBiometric = it.arguments?.getBoolean("shouldRaiseBiometric")!!) }
-                composable(
-                    route = Routes.WebView.route,
-                    listOf(navArgument(name = "url") { type = NavType.StringType })
-                ) { WebPageVisualizer(urlToRender = it.arguments?.getString("url")!!) }
+            ) {
+                composable(route = "get_yourself_together_google") {} //TODO: remove when new navigation alpha is out (maybe, I don't know)
                 composable(route = Routes.Welcome.route) { WelcomeScreen() }
                 composable(route = Routes.Search.route) { Search() }
                 composable(route = Routes.Passwords.route) { PasswordList() }
@@ -90,12 +82,28 @@ fun CentralScreenControl() {
                 composable(route = Routes.About.route) { About() }
                 composable(route = Routes.Pin.route) { ChangePin() }
                 composable(
+                    route = Routes.AccessPin.route,
+                    arguments = listOf(element = navArgument(name = "shouldRaiseBiometric") {
+                        type = NavType.BoolType
+                    })
+                ) { AccessPin(shouldRaiseBiometric = it.arguments?.getBoolean("shouldRaiseBiometric")!!) }
+                composable(
+                    route = Routes.WebView.route,
+                    arguments = listOf(element = navArgument(name = "url") {
+                        type = NavType.StringType
+                    })
+                ) { WebPageVisualizer(urlToRender = it.arguments?.getString("url")!!) }
+                composable(
                     route = Routes.PasswordDetails.route,
-                    listOf(navArgument(name = "data") { type = NavType.IntType })
+                    arguments = listOf(element = navArgument(name = "data") {
+                        type = NavType.IntType
+                    })
                 ) { PasswordDetails(passwordData = storedPasswords[it.arguments?.getInt("data")!!]) }
                 composable(
                     route = Routes.FolderDetails.route,
-                    listOf(navArgument(name = "data") { type = NavType.IntType })
+                    arguments = listOf(element = navArgument(name = "data") {
+                        type = NavType.IntType
+                    })
                 ) { FolderDetails(folder = storedFolders[it.arguments?.getInt("data")!!]) }
             }
         }

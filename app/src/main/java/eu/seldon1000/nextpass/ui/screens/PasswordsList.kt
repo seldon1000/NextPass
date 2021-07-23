@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
@@ -36,10 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.api.Tag
-import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
 import eu.seldon1000.nextpass.ui.items.PasswordCard
