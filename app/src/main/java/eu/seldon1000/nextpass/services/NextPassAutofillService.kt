@@ -37,7 +37,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -214,14 +214,14 @@ class NextPassAutofillService : AutofillService() {
             )
 
             if (viewWebDomain.isEmpty()) {
-                params["customFields"] = NextcloudApi.json.decodeFromString(
-                    string = listOf(
+                params["customFields"] = NextcloudApi.json.encodeToString(
+                    value = listOf(
                         mapOf(
                             "label" to "Android app",
                             "type" to "text",
                             "value" to idPackage
                         )
-                    ).toString()
+                    )
                 )
             }
 
