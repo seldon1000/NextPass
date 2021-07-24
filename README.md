@@ -23,6 +23,10 @@ NextPass officially supports Android up from 8.0. Please, if you experience issu
 **Jetpack Compose**<br />
 Compose is still in beta, that means that you could experience some glitches and/or poor performance depending on your device. NextPass UI also lacks many animations, due to Compose navigation and foundation libraries still not supporting them. I will update the toolkit ASAP to provide the best possible experience.
 
+**Autofill service**<br />
+Autofill service provides suggestions when you're logging in websites and apps. It should work properly most of the times, however sometimes it can seem partially or completely broken. This is due to the fact that the service requires some details and info to recognize the input fields, and apps/websites should provide them. If they don't, then NextPass just can't do its magic.
+Also, even if NextPass manages to recognize the input fields, suggestions may not be found, despite they're on your service. This happens because NextPass has a certian logic to follow to pick the correct suggestions. For instance, as long as the password's label matches (at least partially) the packagename of the app you're logging into, then everything's alright. Passwords saved with NextPass' autofill service will be created with a custom field containing the full packagename of the app; this will guarantee that the new password is always found by autofill service (as long as it finds input fields too).
+
 
 # Translations
 Currently, NextPass only supports english, but translations are so very welcome. I plan to setup an actual translation platform (Crowdin, probably) in the future, but, until then, you can open an issue specifying your language and I will provide anything you need. Also, I'm not english native, so if you have suggestions for the current english translation, please report.
