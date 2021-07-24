@@ -98,8 +98,6 @@ class NextPassAutofillService : AutofillService() {
         callback: FillCallback
     ) {
         coroutineScope.launch {
-            val randomPassword = async { generatePassword() }
-
             idPackage = ""
             viewWebDomain = ""
 
@@ -126,6 +124,8 @@ class NextPassAutofillService : AutofillService() {
             }
 
             if (passwordId.isNotEmpty()) {
+                val randomPassword = async { generatePassword() }
+
                 passwordId.forEach {
                     val credentialsPresentation =
                         RemoteViews(packageName, R.layout.autofill_list_item)
