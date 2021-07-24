@@ -32,13 +32,17 @@
     </string-array>
     <string-array name="username_hints" translatable="false">
         <item>user</item>
-        <item>nick</item>
-        <item>name</item>
         <item>mail</item>
+        <item>name</item>
+        <item>nick</item>
         <item>phone</item>
         <item>number</item>
         <item>tax</item>
         <item>zip</item>
         <item>client</item>
+    </string-array>
+    <string-array name="password_hints" translatable="false">
+        <item>pass</item>
+        <item>code</item>
     </string-array>
 </resources>

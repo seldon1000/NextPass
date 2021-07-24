@@ -38,6 +38,7 @@ import java.security.MessageDigest
 
 class NextPassAutofillService : AutofillService() {
     private var usernameHints = arrayOf<String>()
+    private var passwordHints = arrayOf<String>()
 
     private var idPackage = ""
     private var viewWebDomain = ""
@@ -59,6 +60,7 @@ class NextPassAutofillService : AutofillService() {
         )
 
         usernameHints = resources.getStringArray(R.array.username_hints)
+        passwordHints = resources.getStringArray(R.array.password_hints)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -264,27 +266,26 @@ class NextPassAutofillService : AutofillService() {
 
     private fun checkUsernameHints(viewNode: ViewNode): Boolean {
         return usernameHints.any { hint ->
-            viewNode.autofillHints?.any { it.contains(other = hint, ignoreCase = true) } == true ||
-                    viewNode.hint?.contains(other = hint, ignoreCase = true) == true ||
-                    (viewNode.idEntry?.contains(
-                        other = hint,
-                        ignoreCase = true
-                    ) == true && viewNode.isFocusable)
+            viewNode.autofillHints?.any {
+                it.contains(other = hint, ignoreCase = true) ||
+                        hint.contains(other = it, ignoreCase = true)
+            } == true || viewNode.hint?.contains(other = hint, ignoreCase = true) == true ||
+                    hint.contains(other = viewNode.hint.toString(), ignoreCase = true)
         }
     }
 
     private fun checkPasswordHints(viewNode: ViewNode): Boolean {
-        return (viewNode.autofillHints?.any {
-            it.contains(other = "password", ignoreCase = true)
-        } == true || viewNode.hint?.contains(other = "password", ignoreCase = true) == true ||
-                (viewNode.idEntry?.contains(
-                    other = "password",
-                    ignoreCase = true
-                ) == true && viewNode.isFocusable)) &&
-                (viewNode.autofillType == 1 || viewNode.inputType == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
-                        viewNode.inputType == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
-                        viewNode.inputType == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
-                        viewNode.inputType == InputType.TYPE_NUMBER_VARIATION_PASSWORD)
+        return passwordHints.any { hint ->
+            viewNode.autofillHints?.any {
+                it.contains(other = hint, ignoreCase = true) ||
+                        hint.contains(other = it, ignoreCase = true)
+            } == true || viewNode.hint?.contains(other = hint, ignoreCase = true) == true ||
+                    hint.contains(other = viewNode.hint.toString(), ignoreCase = true)
+        } && (viewNode.inputType and InputType.TYPE_TEXT_VARIATION_PASSWORD == InputType.TYPE_TEXT_VARIATION_PASSWORD ||
+                viewNode.inputType and InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD == InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD ||
+                viewNode.inputType and InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD ||
+                viewNode.inputType and InputType.TYPE_NUMBER_VARIATION_PASSWORD == InputType.TYPE_NUMBER_VARIATION_PASSWORD ||
+                viewNode.inputType and InputType.TYPE_DATETIME_VARIATION_NORMAL == InputType.TYPE_DATETIME_VARIATION_NORMAL) // this is necessary for autofill to work on Amazon's apps
     }
 
     private fun checkSuggestions(password: Password): Boolean {
