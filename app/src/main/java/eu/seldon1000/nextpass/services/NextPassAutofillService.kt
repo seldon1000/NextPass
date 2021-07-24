@@ -186,13 +186,13 @@ class NextPassAutofillService : AutofillService() {
             ).toString(16)
             while (hash.length < 32) hash = "0$hash"
 
-            val appName = idPackage.substringAfter(".").substringBefore(".")
+            val appName = idPackage.substringAfter(delimiter = ".").substringBefore(delimiter = ".")
 
             val params = mutableMapOf<String, String>(
                 "password" to savePassword,
                 "label" to when {
-                    viewWebDomain.isNotEmpty() -> viewWebDomain.removePrefix("www.")
-                        .substringBefore(".")
+                    viewWebDomain.isNotEmpty() -> viewWebDomain.removePrefix(prefix = "www.")
+                        .substringBefore(delimiter = ".")
                         .replaceFirstChar { it.titlecase() }
                     idPackage.isNotEmpty() -> {
                         try {
