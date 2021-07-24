@@ -97,7 +97,6 @@ class NextPassAutofillService : AutofillService() {
         cancellationSignal: CancellationSignal,
         callback: FillCallback
     ) {
-
         coroutineScope.launch {
             val randomPassword = async { generatePassword() }
 
@@ -117,34 +116,6 @@ class NextPassAutofillService : AutofillService() {
 
             traverseStructure(structure = structure, mode = false)
 
-            passwordId.forEach {
-                val credentialsPresentation =
-                    RemoteViews(packageName, R.layout.autofill_list_item)
-                credentialsPresentation.setTextViewText(
-                    R.id.label,
-                    getString(R.string.random_password)
-                )
-                credentialsPresentation.setTextViewText(
-                    R.id.username,
-                    getString(R.string.autofill_random_password)
-                )
-                credentialsPresentation.setImageViewBitmap(
-                    R.id.favicon, BitmapFactory.decodeResource(
-                        resources,
-                        R.drawable.ic_app_icon
-                    ).toRoundedCorners()
-                )
-
-                fillResponse.addDataset(
-                    Dataset.Builder()
-                        .setValue(
-                            it,
-                            AutofillValue.forText(randomPassword.await()),
-                            credentialsPresentation
-                        ).build()
-                )
-            }
-
             if (usernameId.isNotEmpty() && passwordId.isNotEmpty()) {
                 fillResponse.setSaveInfo(
                     SaveInfo.Builder(
@@ -152,8 +123,41 @@ class NextPassAutofillService : AutofillService() {
                         arrayOf(usernameId.last(), passwordId.last())
                     ).build()
                 )
+            }
 
-                callback.onSuccess(fillResponse.build())
+            if (passwordId.isNotEmpty()) {
+                passwordId.forEach {
+                    val credentialsPresentation =
+                        RemoteViews(packageName, R.layout.autofill_list_item)
+                    credentialsPresentation.setTextViewText(
+                        R.id.label,
+                        getString(R.string.random_password)
+                    )
+                    credentialsPresentation.setTextViewText(
+                        R.id.username,
+                        getString(R.string.autofill_random_password)
+                    )
+                    credentialsPresentation.setImageViewBitmap(
+                        R.id.favicon, BitmapFactory.decodeResource(
+                            resources,
+                            R.drawable.ic_app_icon
+                        ).toRoundedCorners()
+                    )
+
+                    fillResponse.addDataset(
+                        Dataset.Builder()
+                            .setValue(
+                                it,
+                                AutofillValue.forText(randomPassword.await()),
+                                credentialsPresentation
+                            ).build()
+                    )
+                }
+
+                try {
+                    callback.onSuccess(fillResponse.build())
+                } catch (e: Exception) {
+                }
             }
         }
     }
