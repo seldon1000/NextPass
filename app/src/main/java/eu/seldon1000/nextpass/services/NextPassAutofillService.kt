@@ -30,13 +30,20 @@ import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApi
+import eu.seldon1000.nextpass.api.NextcloudApi.generatePassword
 import eu.seldon1000.nextpass.api.NextcloudApi.toRoundedCorners
 import eu.seldon1000.nextpass.api.Password
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import java.math.BigInteger
 import java.security.MessageDigest
 
 class NextPassAutofillService : AutofillService() {
+    private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
+
     private var usernameHints = arrayOf<String>()
     private var passwordHints = arrayOf<String>()
 
@@ -90,31 +97,64 @@ class NextPassAutofillService : AutofillService() {
         cancellationSignal: CancellationSignal,
         callback: FillCallback
     ) {
-        idPackage = ""
-        viewWebDomain = ""
 
-        saveUsername = ""
-        savePassword = ""
+        coroutineScope.launch {
+            val randomPassword = async { generatePassword() }
 
-        fillResponse = FillResponse.Builder()
-        usernameId = mutableListOf()
-        passwordId = mutableListOf()
-        ready = false
+            idPackage = ""
+            viewWebDomain = ""
 
-        val context = request.fillContexts
-        val structure = context.last().structure
+            saveUsername = ""
+            savePassword = ""
 
-        traverseStructure(structure = structure, mode = false)
+            fillResponse = FillResponse.Builder()
+            usernameId = mutableListOf()
+            passwordId = mutableListOf()
+            ready = false
 
-        if (usernameId.isNotEmpty() && passwordId.isNotEmpty()) {
-            fillResponse.setSaveInfo(
-                SaveInfo.Builder(
-                    SaveInfo.SAVE_DATA_TYPE_USERNAME or SaveInfo.SAVE_DATA_TYPE_PASSWORD,
-                    arrayOf(usernameId.last(), passwordId.last())
-                ).build()
-            )
+            val context = request.fillContexts
+            val structure = context.last().structure
 
-            callback.onSuccess(fillResponse.build())
+            traverseStructure(structure = structure, mode = false)
+
+            passwordId.forEach {
+                val credentialsPresentation =
+                    RemoteViews(packageName, R.layout.autofill_list_item)
+                credentialsPresentation.setTextViewText(
+                    R.id.label,
+                    getString(R.string.random_password)
+                )
+                credentialsPresentation.setTextViewText(
+                    R.id.username,
+                    getString(R.string.autofill_random_password)
+                )
+                credentialsPresentation.setImageViewBitmap(
+                    R.id.favicon, BitmapFactory.decodeResource(
+                        resources,
+                        R.drawable.ic_app_icon
+                    ).toRoundedCorners()
+                )
+
+                fillResponse.addDataset(
+                    Dataset.Builder()
+                        .setValue(
+                            it,
+                            AutofillValue.forText(randomPassword.await()),
+                            credentialsPresentation
+                        ).build()
+                )
+            }
+
+            if (usernameId.isNotEmpty() && passwordId.isNotEmpty()) {
+                fillResponse.setSaveInfo(
+                    SaveInfo.Builder(
+                        SaveInfo.SAVE_DATA_TYPE_USERNAME or SaveInfo.SAVE_DATA_TYPE_PASSWORD,
+                        arrayOf(usernameId.last(), passwordId.last())
+                    ).build()
+                )
+
+                callback.onSuccess(fillResponse.build())
+            }
         }
     }
 
@@ -244,7 +284,7 @@ class NextPassAutofillService : AutofillService() {
             ) {
                 usernameId.add(element = viewNode.autofillId!!)
 
-                if (passwordId.size == usernameId.size) ready = false
+                if (usernameId.size == passwordId.size) ready = false
             } else if (checkPasswordHints(viewNode = viewNode) &&
                 !passwordId.contains(element = viewNode.autofillId)
             ) {
