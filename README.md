@@ -16,8 +16,7 @@ NextPass is built using only the latest and greatest. It is 100% Kotlin and a si
 
 
 # Requirements
-NextPass officially supports Android up from 8.0. Please, if you experience issues, report them on GitHub providing a detailed description (you can do this just by opening 'About' screen in the app itself).
-
+NextPass officially supports Android up from 8.0. Please, if you experience issues, report them on GitHub providing a detailed description (you can do this just by opening 'About' screen in the app itself). NextPass can only work with an internet connection.
 
 # Known issues
 **Jetpack Compose**<br />
