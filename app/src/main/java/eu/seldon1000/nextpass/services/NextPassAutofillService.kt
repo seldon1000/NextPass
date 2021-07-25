@@ -144,14 +144,17 @@ class NextPassAutofillService : AutofillService() {
                         ).toRoundedCorners()
                     )
 
-                    fillResponse.addDataset(
-                        Dataset.Builder()
-                            .setValue(
-                                it,
-                                AutofillValue.forText(randomPassword.await()),
-                                credentialsPresentation
-                            ).build()
-                    )
+                    try {
+                        fillResponse.addDataset(
+                            Dataset.Builder()
+                                .setValue(
+                                    it,
+                                    AutofillValue.forText(randomPassword.await()),
+                                    credentialsPresentation
+                                ).build()
+                        )
+                    } catch (e: Exception) {
+                    }
                 }
 
                 try {
