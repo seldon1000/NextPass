@@ -23,6 +23,7 @@
     <string name="random_password">Random password</string>
     <string name="authenticate">Authenticate</string>
     <string name="immediately">Immediately</string>
+    <string name="go_to_folder">Go to folder</string>
     <string name="never">Never</string>
     <string name="service_terminated_snack">Autofill service terminated</string>
     <string name="service_not_enabled_snack">You must enable autofill service first</string>

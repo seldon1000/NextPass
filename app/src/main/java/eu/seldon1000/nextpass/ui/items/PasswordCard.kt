@@ -100,7 +100,7 @@ fun PasswordCard(index: Int, password: Password) {
                 )
                 Text(
                     text = password.username,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     color = Color.Gray
@@ -145,12 +145,12 @@ fun PasswordCard(index: Int, password: Password) {
             modifier = Modifier.width(width = 200.dp)
         ) {
             DropdownMenuItem(onClick = {
+                expanded = false
+
                 CentralAppControl.setPrimaryClip(
                     label = context.getString(R.string.username),
                     clip = password.username
                 )
-
-                expanded = false
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_person_24),
@@ -162,12 +162,12 @@ fun PasswordCard(index: Int, password: Password) {
                 )
             }
             DropdownMenuItem(onClick = {
+                expanded = false
+
                 CentralAppControl.setPrimaryClip(
                     label = context.getString(R.string.password),
                     clip = password.password
                 )
-
-                expanded = false
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_password_24),
@@ -179,9 +179,9 @@ fun PasswordCard(index: Int, password: Password) {
                 )
             }
             DropdownMenuItem(onClick = {
-                CentralAppControl.navigate(route = Routes.PasswordDetails.getRoute(arg = index))
-
                 expanded = false
+
+                CentralAppControl.navigate(route = Routes.PasswordDetails.getRoute(arg = index))
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_info_24),
@@ -192,24 +192,29 @@ fun PasswordCard(index: Int, password: Password) {
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
-            if (password.folder != storedFolders[currentFolder].id || currentScreen?.destination?.route != "passwords")
+            if (password.folder != storedFolders[currentFolder].id ||
+                currentScreen?.destination?.route == Routes.Search.route ||
+                currentScreen?.destination?.route == Routes.Favorites.route
+            )
                 DropdownMenuItem(onClick = {
+                    expanded = false
+
                     CentralAppControl.setFolderMode(mode = true)
                     CentralAppControl.setCurrentFolder(folder = storedFolders.indexOfFirst { password.folder == it.id })
                     CentralAppControl.navigate(route = Routes.Passwords.route)
-
-                    expanded = false
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_round_drive_file_move_24),
                         contentDescription = "go_to_folder"
                     )
                     Text(
-                        text = "Go to folder",
+                        text = context.getString(R.string.go_to_folder),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
                 }
             DropdownMenuItem(onClick = {
+                expanded = false
+
                 CentralAppControl.showDialog(
                     title = context.getString(R.string.delete_password),
                     body = {
@@ -223,8 +228,6 @@ fun PasswordCard(index: Int, password: Password) {
                     NextcloudApi.deletePasswordRequest(id = password.id)
                     CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
                 }
-
-                expanded = false
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_delete_forever_24),
