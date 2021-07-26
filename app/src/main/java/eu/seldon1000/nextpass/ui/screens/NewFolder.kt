@@ -75,8 +75,9 @@ fun NewFolder() {
                     )
                     if (favorite) params["favorite"] = "true"
 
-                    CentralAppControl.refreshLists {
+                    CentralAppControl.executeRequest {
                         NextcloudApi.createFolderRequest(params = params)
+                        CentralAppControl.setCurrentFolder(folder = selectedFolder)
                         CentralAppControl.popBackStack()
                         CentralAppControl.showSnackbar(message = context.getString(R.string.folder_created_snack))
                     }

@@ -134,7 +134,7 @@ fun PasswordCard(index: Int, password: Password) {
                 )
                 if (it) params["favorite"] = "true"
 
-                CentralAppControl.refreshLists {
+                CentralAppControl.executeRequest {
                     NextcloudApi.updatePasswordRequest(params = params, tags = password.tags)
                 }
             }
@@ -228,7 +228,7 @@ fun PasswordCard(index: Int, password: Password) {
                     },
                     confirm = true
                 ) {
-                    CentralAppControl.refreshLists {
+                    CentralAppControl.executeRequest {
                         NextcloudApi.deletePasswordRequest(id = password.id)
                         CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
                     }

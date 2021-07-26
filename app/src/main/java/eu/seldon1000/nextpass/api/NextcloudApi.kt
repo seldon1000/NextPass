@@ -151,15 +151,6 @@ object NextcloudApi {
     suspend fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
         client.coroutineContext.cancelChildren()
 
-        val job = coroutineScope.launch {
-            val passwords = listRequest<Password>()
-
-            passwords.sortBy { it.label.lowercase() }
-            passwords.forEach { password -> faviconRequest(data = password) }
-
-            storedPasswordsState.value = passwords
-        }
-
         if (refreshFolders) {
             coroutineScope.launch {
                 val folders = listRequest<Folder>()
@@ -180,7 +171,14 @@ object NextcloudApi {
                 storedTagsState.value = tags
             }
 
-        job.join()
+        coroutineScope.launch {
+            val passwords = listRequest<Password>()
+
+            passwords.sortBy { it.label.lowercase() }
+            passwords.forEach { password -> faviconRequest(data = password) }
+
+            storedPasswordsState.value = passwords
+        }.join()
     }
 
     private suspend inline fun <reified T> showRequest(id: String): T {
@@ -217,9 +215,7 @@ object NextcloudApi {
             data.sortBy { it.label.lowercase() }
 
             storedPasswordsState.value = data
-
-            //CentralAppControl.setSelectedFolder(folder = CentralAppControl.currentFolder.value)
-        }
+        }.join()
     }
 
     suspend fun createFolderRequest(params: Map<String, String>) {
@@ -238,11 +234,7 @@ object NextcloudApi {
             data.add(index = 0, element = baseFolder)
 
             storedFoldersState.value = data
-
-            /*CentralAppControl.setCurrentFolder(folder = storedFoldersState.value.indexOfFirst {
-                it.id == params["parent"]
-            })*/
-        }
+        }.join()
     }
 
     suspend fun createTagRequest(params: Map<String, String>) {
@@ -259,7 +251,7 @@ object NextcloudApi {
             data.sortBy { it.label.lowercase() }
 
             storedTagsState.value = data
-        }
+        }.join()
     }
 
     suspend fun deletePasswordRequest(id: String) {
@@ -269,7 +261,7 @@ object NextcloudApi {
             }
 
             storedPasswordsState.value.removeIf { it.id == id }
-        }
+        }.join()
     }
 
     suspend fun deleteFolderRequest(id: String) {
@@ -279,7 +271,7 @@ object NextcloudApi {
             }
 
             refreshServerList()
-        }
+        }.join()
     }
 
     suspend fun deleteTagRequest(id: String) {
@@ -289,7 +281,7 @@ object NextcloudApi {
             }
 
             refreshServerList()
-        }
+        }.join()
     }
 
     suspend fun updatePasswordRequest(params: Map<String, String>, tags: List<Tag>) {
@@ -308,7 +300,7 @@ object NextcloudApi {
             else updatedPassword.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
 
             storedPasswordsState.value[index] = updatedPassword
-        }
+        }.join()
     }
 
     suspend fun updateFolderRequest(params: Map<String, String>) {
@@ -322,7 +314,7 @@ object NextcloudApi {
             storedFoldersState.value[storedFoldersState.value.indexOfFirst {
                 it.id == params["id"]!!
             }] = updatedFolder
-        }
+        }.join()
     }
 
     suspend fun updateTagRequest(params: Map<String, String>) {
@@ -338,7 +330,7 @@ object NextcloudApi {
             }] = updatedTag
 
             refreshServerList(refreshFolders = false, refreshTags = false)
-        }
+        }.join()
     }
 
     suspend fun generatePassword(): String {

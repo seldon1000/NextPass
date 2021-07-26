@@ -89,7 +89,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 )
                 if (it) params["favorite"] = "true"
 
-                CentralAppControl.refreshLists { NextcloudApi.updateFolderRequest(params = params) }
+                CentralAppControl.executeRequest { NextcloudApi.updateFolderRequest(params = params) }
             }
         }
         if (icon == null) {
@@ -163,7 +163,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                         },
                         confirm = true
                     ) {
-                        CentralAppControl.refreshLists {
+                        CentralAppControl.executeRequest {
                             NextcloudApi.deleteFolderRequest(id = folder.id)
                             CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
                         }

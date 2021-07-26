@@ -86,7 +86,7 @@ fun FolderDetails(folder: Folder) {
                         )
                         if (folder.favorite) params["favorite"] = "true"
 
-                        CentralAppControl.refreshLists {
+                        CentralAppControl.executeRequest {
                             NextcloudApi.updateFolderRequest(params = params)
                             CentralAppControl.showSnackbar(message = context.getString(R.string.folder_updated_snack))
                         }
@@ -202,7 +202,7 @@ fun FolderDetails(folder: Folder) {
                                 )
                                 if (it) params["favorite"] = "true"
 
-                                CentralAppControl.refreshLists {
+                                CentralAppControl.executeRequest {
                                     NextcloudApi.updateFolderRequest(params = params)
                                 }
                             }
@@ -238,7 +238,7 @@ fun FolderDetails(folder: Folder) {
                             },
                             confirm = true
                         ) {
-                            CentralAppControl.refreshLists {
+                            CentralAppControl.executeRequest {
                                 NextcloudApi.deleteFolderRequest(id = folder.id)
                                 CentralAppControl.popBackStack()
                                 CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))

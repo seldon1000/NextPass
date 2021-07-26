@@ -45,8 +45,6 @@ fun CentralScreenControl() {
     CentralAppControl.setNavController(controller = navController)
     CentralAppControl.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
 
-    val currentScreen by navController.currentBackStackEntryAsState()
-
     val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
     val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
@@ -59,15 +57,8 @@ fun CentralScreenControl() {
         snackbarHost = { MySnackbar(snackbarHostState = scaffoldState.snackbarHostState) }) {
         SwipeRefresh(
             state = refreshState,
-            onRefresh = {
-                CentralAppControl.refreshLists { NextcloudApi.refreshServerList() }
-            },
-            swipeEnabled = currentScreen?.destination?.route?.contains(other = Routes.AccessPin.route) == false &&
-                    currentScreen?.destination?.route?.contains(other = Routes.WebView.route) == false &&
-                    currentScreen?.destination?.route != Routes.Welcome.route &&
-                    currentScreen?.destination?.route != Routes.Settings.route &&
-                    currentScreen?.destination?.route != Routes.About.route &&
-                    currentScreen?.destination?.route != Routes.Pin.route
+            onRefresh = { CentralAppControl.executeRequest { NextcloudApi.refreshServerList() } },
+            swipeEnabled = CentralAppControl.shouldShowRefresh()
         ) {
             NavHost(
                 navController = navController,

@@ -127,7 +127,7 @@ fun PasswordDetails(passwordData: Password) {
                         )
                         if (passwordData.favorite) params["favorite"] = "true"
 
-                        CentralAppControl.refreshLists {
+                        CentralAppControl.executeRequest {
                             NextcloudApi.updatePasswordRequest(params = params, tags = tags)
                             CentralAppControl.showSnackbar(message = context.getString(R.string.password_updated_snack))
                         }
@@ -272,7 +272,7 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                                 if (passwordData.favorite) params["favorite"] = "true"
 
-                                CentralAppControl.refreshLists {
+                                CentralAppControl.executeRequest {
                                     NextcloudApi.updatePasswordRequest(
                                         params = params,
                                         tags = tags
@@ -306,7 +306,7 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                                 if (it) params["favorite"] = "true"
 
-                                CentralAppControl.refreshLists {
+                                CentralAppControl.executeRequest {
                                     NextcloudApi.updatePasswordRequest(
                                         params = params,
                                         tags = passwordData.tags
@@ -523,7 +523,7 @@ fun PasswordDetails(passwordData: Password) {
                                 },
                                 confirm = true
                             ) {
-                                CentralAppControl.refreshLists {
+                                CentralAppControl.executeRequest {
                                     NextcloudApi.deletePasswordRequest(id = passwordData.id)
                                     CentralAppControl.popBackStack()
                                 }

@@ -313,7 +313,7 @@ object CentralAppControl {
 
                 if (!shouldRememberScreen) navigate(route = Routes.Passwords.route)
 
-                refreshLists { NextcloudApi.refreshServerList() }
+                executeRequest { NextcloudApi.refreshServerList() }
             }
         } else navigate(route = Routes.AccessPin.getRoute(arg = true))
     }
@@ -404,24 +404,26 @@ object CentralAppControl {
         lockTimeoutState.value = timeout
     }
 
-    fun refreshLists(request: suspend () -> Any) {
-        refreshingState.value = try {
-            navControllerState.value.currentDestination?.route!! != Routes.AccessPin.route &&
-                    navControllerState.value.currentDestination?.route!! != Routes.Welcome.route &&
-                    navControllerState.value.currentDestination?.route!! != Routes.About.route &&
-                    navControllerState.value.currentDestination?.route!! != Routes.Pin.route
-        } catch (e: Exception) {
-            false
-        }
+    fun shouldShowRefresh(): Boolean {
+        return navControllerState.value.currentDestination?.route?.contains(other = Routes.AccessPin.route) == false &&
+                navControllerState.value.currentDestination?.route?.contains(other = Routes.WebView.route) == false &&
+                navControllerState.value.currentDestination?.route!! != Routes.AccessPin.route &&
+                navControllerState.value.currentDestination?.route!! != Routes.Welcome.route &&
+                navControllerState.value.currentDestination?.route!! != Routes.About.route &&
+                navControllerState.value.currentDestination?.route!! != Routes.Pin.route
+    }
 
-        try {
-            coroutineScope.launch {
+    fun executeRequest(request: suspend () -> Any) {
+        refreshingState.value = shouldShowRefresh()
+
+        coroutineScope.launch {
+            try {
                 request()
 
                 refreshingState.value = false
+            } catch (e: Exception) {
+                showError()
             }
-        } catch (e: Exception) {
-            showError()
         }
     }
 
@@ -517,7 +519,7 @@ object CentralAppControl {
     }
 
     fun enableTags(refresh: Boolean = true) {
-        if (refresh) refreshLists { NextcloudApi.refreshServerList() }
+        if (refresh) executeRequest { NextcloudApi.refreshServerList() }
 
         sharedPreferences.edit().putBoolean("tags", true).apply()
         tagsState.value = true

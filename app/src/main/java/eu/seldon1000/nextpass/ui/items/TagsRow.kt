@@ -155,7 +155,7 @@ fun TagsRow(
                                     }"
                                 )
 
-                                CentralAppControl.refreshLists {
+                                CentralAppControl.executeRequest {
                                     NextcloudApi.updateTagRequest(params = params)
 
                                     CentralAppControl.showSnackbar(message = context.getString(R.string.tag_updated_snack))
@@ -185,7 +185,7 @@ fun TagsRow(
                                 },
                                 confirm = true
                             ) {
-                                CentralAppControl.refreshLists {
+                                CentralAppControl.executeRequest {
                                     NextcloudApi.deleteTagRequest(id = tag.id)
                                     CentralAppControl.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
                                 }
@@ -247,7 +247,7 @@ fun TagsRow(
                             }"
                         )
 
-                        CentralAppControl.refreshLists {
+                        CentralAppControl.executeRequest {
                             NextcloudApi.createTagRequest(params = params)
                             CentralAppControl.showSnackbar(message = context.getString(R.string.tag_created_snack))
                         }

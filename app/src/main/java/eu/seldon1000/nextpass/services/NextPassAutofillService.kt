@@ -236,7 +236,7 @@ class NextPassAutofillService : AutofillService() {
                 )
             }
 
-            CentralAppControl.refreshLists {
+            CentralAppControl.executeRequest {
                 NextcloudApi.createPasswordRequest(params = params, tags = emptyList())
 
                 callback.onSuccess()

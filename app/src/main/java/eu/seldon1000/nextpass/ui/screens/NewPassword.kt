@@ -129,8 +129,9 @@ fun NewPassword() {
                     )
                     if (favorite) params["favorite"] = "true"
 
-                    CentralAppControl.refreshLists {
+                    CentralAppControl.executeRequest {
                         NextcloudApi.createPasswordRequest(params = params, tags = tags)
+                        CentralAppControl.setSelectedFolder(folder = CentralAppControl.currentFolder.value)
                         CentralAppControl.popBackStack()
                         CentralAppControl.showSnackbar(message = context.getString(R.string.password_created_snack))
                     }
