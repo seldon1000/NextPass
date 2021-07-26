@@ -47,12 +47,7 @@ class StartupBroadcastReceiver : BroadcastReceiver() {
                             override fun onAvailable(network: Network) {
                                 super.onAvailable(network)
 
-                                val autofillIntent =
-                                    Intent(context, NextPassAutofillService::class.java)
-
-                                CentralAppControl.setAutofillIntent(intent = autofillIntent)
-
-                                context.startService(autofillIntent)
+                                CentralAppControl.startAutofillService()
                             }
                         }
                     )

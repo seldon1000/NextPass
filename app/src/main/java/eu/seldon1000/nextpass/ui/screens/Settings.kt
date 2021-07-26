@@ -378,7 +378,7 @@ fun Settings() {
                         Switch(
                             checked = autofill,
                             onCheckedChange = {
-                                if (autofill) //CentralAppControl.disableAutofill()
+                                if (autofill) CentralAppControl.disableAutofill()
                                 else {
                                     CentralAppControl.showDialog(
                                         title = context.getString(R.string.autofill_title),

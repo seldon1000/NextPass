@@ -19,6 +19,7 @@ package eu.seldon1000.nextpass
 import android.annotation.SuppressLint
 import android.content.*
 import android.net.Uri
+import android.view.Window
 import android.view.WindowManager
 import android.view.autofill.AutofillManager
 import android.webkit.CookieManager
@@ -50,16 +51,20 @@ import kotlinx.serialization.json.jsonPrimitive
 object CentralAppControl {
     private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
 
-    private var context: MainActivity? = null
-    private var sharedPreferences: SharedPreferences? = null
+    private lateinit var context: Context
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var window: Window
+    private lateinit var autofillManager: AutofillManager
 
-    private var autofillIntent: Intent? = null
-
-    private var navControllerState = MutableStateFlow<NavController?>(value = null)
-    val navController = navControllerState
-    private var snackbarHostState: SnackbarHostState? = null
-
+    private lateinit var snackbarHostState: SnackbarHostState
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var autofillIntent: Intent
+    private var unlocked = true
     private var pendingUnlockAction: (() -> Unit)? = null
+
+    private lateinit var navControllerState: MutableStateFlow<NavController>
+    lateinit var navController: MutableStateFlow<NavController>
 
     private val screenProtectionState = MutableStateFlow(value = false)
     val screenProtection = screenProtectionState
@@ -69,8 +74,6 @@ object CentralAppControl {
 
     private val autostartState = MutableStateFlow(value = false)
     val autostart = autostartState
-
-    private var unlocked = true
 
     private val pinProtectedState = MutableStateFlow(value = false)
     val pinProtected = pinProtectedState
@@ -117,55 +120,73 @@ object CentralAppControl {
     private val dialogConfirmState = MutableStateFlow(value = false)
     val dialogConfirm = dialogConfirmState
 
-    private var promptInfo: BiometricPrompt.PromptInfo? = null
-    private var biometricPrompt: BiometricPrompt? = null
+    fun setContext(con: Context) {
+        context = con
+        sharedPreferences = context.getSharedPreferences("nextpass", 0)
+        window = (context as MainActivity).window
+        autofillManager = context.getSystemService(AutofillManager::class.java)
 
-    fun setContext(context: MainActivity) {
-        CentralAppControl.context = context
-
-        sharedPreferences = CentralAppControl.context!!.getSharedPreferences("nextpass", 0)
-
-        if (sharedPreferences!!.contains("server"))
+        if (sharedPreferences.contains("server"))
             NextcloudApi.login(
-                server = sharedPreferences!!.getString("server", "")!!,
-                loginName = sharedPreferences!!.getString("loginName", "")!!,
-                appPassword = sharedPreferences!!.getString("appPassword", "")!!
+                server = sharedPreferences.getString("server", "")!!,
+                loginName = sharedPreferences.getString("loginName", "")!!,
+                appPassword = sharedPreferences.getString("appPassword", "")!!
             )
 
-        screenProtectionState.value = sharedPreferences!!.contains("screen")
+        screenProtectionState.value = sharedPreferences.contains("screen")
         if (screenProtectionState.value) enableScreenProtection()
 
-        //if (autofillManager!!.hasEnabledAutofillServices())
-        autostartState.value = sharedPreferences!!.contains("autostart")
-        //else sharedPreferences!!.edit().remove("autostart").apply()
+        if (autofillManager.hasEnabledAutofillServices()) {
+            autostartState.value = sharedPreferences.contains("autostart")
 
-        if (sharedPreferences!!.contains("PIN")) {
+            if (autostartState.value) autofillIntent =
+                Intent(context, NextPassAutofillService::class.java)
+        } else sharedPreferences.edit().remove("autostart").apply()
+
+        if (sharedPreferences.contains("PIN")) {
             pinProtectedState.value = true
-            lockTimeoutState.value = sharedPreferences!!.getLong("timeout", 0)
+            lockTimeoutState.value = sharedPreferences.getLong("timeout", 0)
             if (lockTimeoutState.value != (-1).toLong()) unlocked = false
-            biometricProtectedState.value = sharedPreferences!!.contains("biometric")
+            biometricProtectedState.value = sharedPreferences.contains("biometric")
         }
 
-        if (sharedPreferences!!.contains("folders")) {
+        if (sharedPreferences.contains("folders")) {
             setFolderMode(mode = true)
             foldersState.value = true
         } else setFolderMode(mode = false)
 
-        if (!sharedPreferences!!.contains("tags")) enableTags(refresh = false)
-        else tagsState.value = sharedPreferences!!.getBoolean("tags", true)
+        if (!sharedPreferences.contains("tags")) enableTags(refresh = false)
+        else tagsState.value = sharedPreferences.getBoolean("tags", true)
 
         promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(CentralAppControl.context!!.getString(R.string.access_nextpass))
-            .setSubtitle(CentralAppControl.context!!.getString(R.string.access_nextpass_body))
-            .setNegativeButtonText(CentralAppControl.context!!.getString(R.string.cancel))
+            .setTitle(context.getString(R.string.access_nextpass))
+            .setSubtitle(context.getString(R.string.access_nextpass_body))
+            .setNegativeButtonText(context.getString(R.string.cancel))
             .build()
+    }
+
+    fun setPrimaryClip(manager: ClipboardManager, label: String, clip: String) {
+        coroutineScope.launch {
+            manager.setPrimaryClip(ClipData.newPlainText(label, clip))
+        }
+
+        showSnackbar(message = context.getString(R.string.copy_snack_message, label))
+    }
+
+    fun setNavController(controller: NavController) {
+        navControllerState = MutableStateFlow(value = controller)
+        navController = navControllerState
+    }
+
+    fun setSnackbarHostState(snackbar: SnackbarHostState) {
+        snackbarHostState = snackbar
     }
 
     fun resetUserPreferences(context: Context) {
         pendingUnlockAction = {
             stopAutofillService(show = false)
             disableAutostart()
-            disableAutofill(context.getSystemService(AutofillManager::class.java))
+            disableAutofill()
             disableScreenProtection(lock = false)
             disableFolders()
             enableTags()
@@ -181,44 +202,21 @@ object CentralAppControl {
         }
     }
 
-    fun setPrimaryClip(manager: ClipboardManager, label: String, clip: String) {
-        coroutineScope.launch {
-            manager.setPrimaryClip(ClipData.newPlainText(label, clip))
-        }
-
-        showSnackbar(message = context!!.getString(R.string.copy_snack_message, label))
-    }
-
-    fun setAutofillIntent(intent: Intent): Boolean {
-        return if (autofillIntent == null) {
-            autofillIntent = intent
-            true
-        } else false
-    }
-
-    fun setNavController(navController: NavController) {
-        navControllerState.value = navController
-    }
-
-    fun setSnackbarHostState(snackbar: SnackbarHostState) {
-        snackbarHostState = snackbar
-    }
-
     fun showSnackbar(message: String) {
         coroutineScope.launch {
-            if (navControllerState.value?.currentDestination?.route!! != Routes.AccessPin.route &&
-                navControllerState.value?.currentDestination?.route!! != Routes.Pin.route
+            if (navControllerState.value.currentDestination?.route!! != Routes.AccessPin.route &&
+                navControllerState.value.currentDestination?.route!! != Routes.Pin.route
             ) {
-                snackbarHostState?.currentSnackbarData?.dismiss()
-                snackbarHostState?.showSnackbar(message = message)
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar(message = message)
             }
         }
     }
 
     fun enableScreenProtection() {
-        sharedPreferences!!.edit().putBoolean("screen", true).apply()
+        sharedPreferences.edit().putBoolean("screen", true).apply()
 
-        context!!.window.setFlags(
+        window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
         )
@@ -228,8 +226,8 @@ object CentralAppControl {
 
     fun disableScreenProtection(lock: Boolean = true) {
         pendingUnlockAction = {
-            context!!.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            sharedPreferences!!.edit().remove("screen").apply()
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            sharedPreferences.edit().remove("screen").apply()
             screenProtectionState.value = false
         }
 
@@ -240,35 +238,32 @@ object CentralAppControl {
         }
     }
 
-    private fun startAutofillService(autofillManager: AutofillManager): Boolean {
-        return if (autofillManager.hasEnabledAutofillServices() &&
-            NextcloudApi.isLogged() && setAutofillIntent(
-                intent = Intent(context, NextPassAutofillService::class.java)
-            )
-        ) {
+    fun startAutofillService() {
+        if (autofillManager.hasEnabledAutofillServices() && NextcloudApi.isLogged()) {
+            if (!this::autofillIntent.isInitialized)
+                autofillIntent = Intent(context, NextPassAutofillService::class.java)
+
             autofillState.value = true
 
-            context!!.startService(autofillIntent)
-
-            true
-        } else false
+            context.startService(autofillIntent)
+        }
     }
 
     fun stopAutofillService(show: Boolean = true) {
         if (autofillState.value) {
-            context!!.stopService(autofillIntent)
+            context.stopService(autofillIntent)
 
-            if (show) showSnackbar(message = context!!.getString(R.string.service_terminated_snack))
-        } else if (show) showSnackbar(message = context!!.getString(R.string.service_not_enabled_snack))
+            if (show) showSnackbar(message = context.getString(R.string.service_terminated_snack))
+        } else if (show) showSnackbar(message = context.getString(R.string.service_not_enabled_snack))
     }
 
-    fun enableAutofill(autofillManager: AutofillManager) {
+    fun enableAutofill() {
         autofillState.value = true
 
-        startAutofillService(autofillManager = autofillManager)
+        startAutofillService()
     }
 
-    fun disableAutofill(autofillManager: AutofillManager) {
+    fun disableAutofill() {
         stopAutofillService()
 
         autofillManager.disableAutofillServices()
@@ -279,12 +274,12 @@ object CentralAppControl {
     }
 
     fun enableAutostart() {
-        sharedPreferences!!.edit().putBoolean("autostart", true).apply()
+        sharedPreferences.edit().putBoolean("autostart", true).apply()
         autostartState.value = true
     }
 
     fun disableAutostart() {
-        sharedPreferences!!.edit().remove("autostart").apply()
+        sharedPreferences.edit().remove("autostart").apply()
         autostartState.value = false
     }
 
@@ -303,18 +298,18 @@ object CentralAppControl {
     fun unlock() {
         unlocked = true
 
-        if (navControllerState.value?.previousBackStackEntry?.destination?.route != Routes.Welcome.route)
-            navControllerState.value?.popBackStack()
-        //else openApp()
+        if (navControllerState.value.previousBackStackEntry?.destination?.route != Routes.Welcome.route)
+            navControllerState.value.popBackStack()
+        else openApp()
 
         pendingUnlockAction?.let { it() }
         pendingUnlockAction = null
     }
 
-    fun openApp(autofillManager: AutofillManager, shouldRememberScreen: Boolean = false) {
+    fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlocked) {
             if (NextcloudApi.isLogged()) {
-                startAutofillService(autofillManager = autofillManager)
+                startAutofillService()
 
                 if (!shouldRememberScreen) navigate(route = Routes.Passwords.route)
 
@@ -324,7 +319,7 @@ object CentralAppControl {
     }
 
     fun checkPin(pin: String): Boolean {
-        return if (sharedPreferences!!.getString("PIN", null) == pin) {
+        return if (sharedPreferences.getString("PIN", null) == pin) {
             unlocked = true
 
             true
@@ -342,7 +337,7 @@ object CentralAppControl {
     }
 
     fun setPin(pin: String) {
-        sharedPreferences!!.edit().putString("PIN", pin).apply()
+        sharedPreferences.edit().putString("PIN", pin).apply()
 
         if (!pinProtectedState.value) {
             pinProtectedState.value = true
@@ -353,9 +348,9 @@ object CentralAppControl {
 
     fun disablePin(lock: Boolean = true) {
         pendingUnlockAction = {
-            sharedPreferences!!.edit().remove("PIN").apply()
+            sharedPreferences.edit().remove("PIN").apply()
             pinProtectedState.value = false
-            sharedPreferences!!.edit().remove("timeout").apply()
+            sharedPreferences.edit().remove("timeout").apply()
             lockTimeoutState.value = (-1).toLong()
             disableBiometric()
         }
@@ -372,13 +367,13 @@ object CentralAppControl {
     }
 
     fun disableBiometric() {
-        sharedPreferences!!.edit().remove("biometric").apply()
+        sharedPreferences.edit().remove("biometric").apply()
         biometricProtectedState.value = false
     }
 
     fun showBiometricPrompt(toEnable: Boolean = false) {
         biometricPrompt = BiometricPrompt(
-            context!!,
+            (context as MainActivity),
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(
                     errorCode: Int,
@@ -391,7 +386,7 @@ object CentralAppControl {
                     result: BiometricPrompt.AuthenticationResult
                 ) {
                     if (toEnable) {
-                        sharedPreferences!!.edit().putBoolean("biometric", true).apply()
+                        sharedPreferences.edit().putBoolean("biometric", true).apply()
                         biometricProtectedState.value = true
                     } else unlock()
                 }
@@ -401,20 +396,20 @@ object CentralAppControl {
                 }
             }
         )
-        biometricPrompt!!.authenticate(promptInfo!!)
+        biometricPrompt.authenticate(promptInfo)
     }
 
     fun setLockTimeout(timeout: Long) {
-        sharedPreferences!!.edit().putLong("timeout", timeout).apply()
+        sharedPreferences.edit().putLong("timeout", timeout).apply()
         lockTimeoutState.value = timeout
     }
 
     fun refreshLists(request: suspend () -> Any) {
         refreshingState.value = try {
-            navControllerState.value?.currentDestination?.route!! != Routes.AccessPin.route &&
-                    navControllerState.value?.currentDestination?.route!! != Routes.Welcome.route &&
-                    navControllerState.value?.currentDestination?.route!! != Routes.About.route &&
-                    navControllerState.value?.currentDestination?.route!! != Routes.Pin.route
+            navControllerState.value.currentDestination?.route!! != Routes.AccessPin.route &&
+                    navControllerState.value.currentDestination?.route!! != Routes.Welcome.route &&
+                    navControllerState.value.currentDestination?.route!! != Routes.About.route &&
+                    navControllerState.value.currentDestination?.route!! != Routes.Pin.route
         } catch (e: Exception) {
             false
         }
@@ -431,26 +426,26 @@ object CentralAppControl {
     }
 
     private fun setKeyboardMode() {
-        if (navControllerState.value?.currentDestination?.route!! == Routes.Search.route ||
-            navControllerState.value?.currentDestination?.route!! == Routes.Pin.route
-        ) context!!.window.setSoftInputMode(16)
-        else context!!.window.setSoftInputMode(32)
+        if (navControllerState.value.currentDestination?.route!! == Routes.Search.route ||
+            navControllerState.value.currentDestination?.route!! == Routes.Pin.route
+        ) window.setSoftInputMode(16)
+        else window.setSoftInputMode(32)
     }
 
     fun navigate(route: String) {
-        if (navControllerState.value?.currentDestination?.route!!
+        if (navControllerState.value.currentDestination?.route!!
                 .substringBefore(delimiter = "/") != route.substringBefore(delimiter = "/")
         ) {
-            navControllerState.value?.navigate(route = route) {
+            navControllerState.value.navigate(route = route) {
                 launchSingleTop = true
                 restoreState = true
             }
 
-            if (navControllerState.value?.currentDestination?.route!! == Routes.AccessPin.route ||
-                navControllerState.value?.currentDestination?.route!! == Routes.Welcome.route ||
-                navControllerState.value?.currentDestination?.route!! == Routes.Settings.route ||
-                navControllerState.value?.currentDestination?.route!! == Routes.About.route ||
-                navControllerState.value?.currentDestination?.route!! == Routes.Pin.route
+            if (navControllerState.value.currentDestination?.route!! == Routes.AccessPin.route ||
+                navControllerState.value.currentDestination?.route!! == Routes.Welcome.route ||
+                navControllerState.value.currentDestination?.route!! == Routes.Settings.route ||
+                navControllerState.value.currentDestination?.route!! == Routes.About.route ||
+                navControllerState.value.currentDestination?.route!! == Routes.Pin.route
             ) refreshingState.value = false
         }
 
@@ -459,21 +454,21 @@ object CentralAppControl {
 
     fun popBackStack(): Boolean {
         try {
-            return if ((navControllerState.value?.previousBackStackEntry?.destination?.route!! == Routes.Welcome.route &&
-                        navControllerState.value?.currentDestination?.route!! == Routes.WebView.route) ||
-                navControllerState.value?.previousBackStackEntry?.destination?.route!! == Routes.AccessPin.route ||
-                navControllerState.value?.currentDestination?.route!! == Routes.Welcome.route ||
-                (navControllerState.value?.currentDestination?.route!! == Routes.AccessPin.route && pendingUnlockAction == null) ||
-                navControllerState.value?.currentDestination?.route!! == Routes.Passwords.route
+            return if ((navControllerState.value.previousBackStackEntry?.destination?.route!! == Routes.Welcome.route &&
+                        navControllerState.value.currentDestination?.route!! == Routes.WebView.route) ||
+                navControllerState.value.previousBackStackEntry?.destination?.route!! == Routes.AccessPin.route ||
+                navControllerState.value.currentDestination?.route!! == Routes.Welcome.route ||
+                (navControllerState.value.currentDestination?.route!! == Routes.AccessPin.route && pendingUnlockAction == null) ||
+                navControllerState.value.currentDestination?.route!! == Routes.Passwords.route
             )
                 if (currentFolderState.value != 0) {
                     setCurrentFolder()
                     true
                 } else false
             else {
-                navControllerState.value?.popBackStack()
+                navControllerState.value.popBackStack()
 
-                if (navControllerState.value?.currentDestination?.route!! != Routes.NewPassword.route)
+                if (navControllerState.value.currentDestination?.route!! != Routes.NewPassword.route)
                     NextcloudApi.faviconRequest(data = "")
 
                 setKeyboardMode()
@@ -491,14 +486,14 @@ object CentralAppControl {
     }
 
     fun enableFolders() {
-        sharedPreferences!!.edit().putBoolean("folders", false).apply()
+        sharedPreferences.edit().putBoolean("folders", false).apply()
         foldersState.value = true
 
         setFolderMode(mode = true)
     }
 
     fun disableFolders() {
-        sharedPreferences!!.edit().remove("folders").apply()
+        sharedPreferences.edit().remove("folders").apply()
         foldersState.value = false
 
         setFolderMode(mode = false)
@@ -524,12 +519,12 @@ object CentralAppControl {
     fun enableTags(refresh: Boolean = true) {
         if (refresh) refreshLists { NextcloudApi.refreshServerList() }
 
-        sharedPreferences!!.edit().putBoolean("tags", true).apply()
+        sharedPreferences.edit().putBoolean("tags", true).apply()
         tagsState.value = true
     }
 
     fun disableTags() {
-        sharedPreferences!!.edit().putBoolean("tags", false).apply()
+        sharedPreferences.edit().putBoolean("tags", false).apply()
         tagsState.value = false
     }
 
@@ -556,12 +551,12 @@ object CentralAppControl {
         val url = mutableStateOf(value = "")
 
         showDialog(
-            title = context!!.getString(R.string.insert_server_url),
+            title = context.getString(R.string.insert_server_url),
             body = {
                 TextFieldItem(
                     text = url.value,
                     onTextChanged = { url.value = it },
-                    label = context!!.getString(R.string.url),
+                    label = context.getString(R.string.url),
                     required = true
                 )
             },
@@ -598,16 +593,16 @@ object CentralAppControl {
                         i++
                     }
 
-                    if (sharedPreferences!!.contains("server")) popBackStack()
+                    if (sharedPreferences.contains("server")) popBackStack()
 
                     if (i > 120 &&
-                        navController.value!!.currentDestination!!.route ==
+                        navController.value.currentDestination!!.route ==
                         Routes.WebView.getRoute(arg = login)
                     ) showDialog(
-                        title = context!!.getString(R.string.timeout_expired),
+                        title = context.getString(R.string.timeout_expired),
                         body = {
                             Text(
-                                text = context!!.getString(R.string.timeout_expired_body),
+                                text = context.getString(R.string.timeout_expired_body),
                                 fontSize = 14.sp
                             )
                         })
@@ -618,26 +613,23 @@ object CentralAppControl {
                             appPassword = loginResponse["appPassword"]!!
                         )
 
-                        openApp(
-                            autofillManager = context!!.getSystemService(AutofillManager::class.java),
-                            shouldRememberScreen = sharedPreferences!!.contains("server")
-                        )
+                        openApp(shouldRememberScreen = sharedPreferences.contains("server"))
                         showSnackbar(
-                            message = context!!.getString(
+                            message = context.getString(
                                 R.string.connected_snack,
                                 loginResponse["loginName"]!!
                             )
                         )
 
-                        sharedPreferences!!.edit().putString(
+                        sharedPreferences.edit().putString(
                             "server",
                             loginResponse["server"]!!
                         ).apply()
-                        sharedPreferences!!.edit().putString(
+                        sharedPreferences.edit().putString(
                             "loginName",
                             loginResponse["loginName"]!!
                         ).apply()
-                        sharedPreferences!!.edit().putString(
+                        sharedPreferences.edit().putString(
                             "appPassword",
                             loginResponse["appPassword"]!!
                         ).apply()
@@ -656,10 +648,10 @@ object CentralAppControl {
 
     fun attemptLogout() {
         showDialog(
-            title = context!!.getString(R.string.logout),
+            title = context.getString(R.string.logout),
             body = {
                 Text(
-                    text = context!!.getString(R.string.logout_body),
+                    text = context.getString(R.string.logout_body),
                     fontSize = 14.sp
                 )
             },
@@ -671,21 +663,21 @@ object CentralAppControl {
                 showError()
             }
 
-            sharedPreferences!!.edit().remove("server").apply()
-            sharedPreferences!!.edit().remove("loginName").apply()
-            sharedPreferences!!.edit().remove("appPassword").apply()
+            sharedPreferences.edit().remove("server").apply()
+            sharedPreferences.edit().remove("loginName").apply()
+            sharedPreferences.edit().remove("appPassword").apply()
 
             refreshingState.value = false
-            resetUserPreferences(context = context!!)
+            resetUserPreferences(context = context)
             navigate(route = Routes.Welcome.route)
-            showSnackbar(message = context!!.getString(R.string.disconnected_snack))
+            showSnackbar(message = context.getString(R.string.disconnected_snack))
         }
     }
 
-    fun showError() {
+    private fun showError() {
         showDialog(
-            title = context!!.getString(R.string.error),
-            body = { Text(text = context!!.getString(R.string.error_body), fontSize = 14.sp) }
+            title = context.getString(R.string.error),
+            body = { Text(text = context.getString(R.string.error_body), fontSize = 14.sp) }
         )
 
         refreshingState.value = false

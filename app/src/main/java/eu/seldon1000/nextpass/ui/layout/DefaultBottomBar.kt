@@ -47,7 +47,7 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
 
     val coroutineScope = rememberCoroutineScope()
 
-    val currentScreen by CentralAppControl.navController.collectAsState().value!!.currentBackStackEntryAsState()
+    val currentScreen by CentralAppControl.navController.collectAsState().value.currentBackStackEntryAsState()
 
     BottomAppBar(
         backgroundColor = Color.Black,

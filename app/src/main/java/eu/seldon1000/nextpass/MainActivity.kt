@@ -18,7 +18,6 @@ package eu.seldon1000.nextpass
 
 import android.app.Activity
 import android.os.Bundle
-import android.view.autofill.AutofillManager
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -37,9 +36,7 @@ class MainActivity : FragmentActivity() {
     var autofillSettingsResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK)
-                CentralAppControl.enableAutofill(
-                    autofillManager = getSystemService(AutofillManager::class.java)
-                )
+                CentralAppControl.enableAutofill()
         }
 
     @ExperimentalAnimationApi
@@ -48,13 +45,11 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        CentralAppControl.setContext(context = this)
+        CentralAppControl.setContext(con = this)
 
         setContent {
             rememberCoroutineScope().launch {
-                CentralAppControl.openApp(
-                    autofillManager = getSystemService(AutofillManager::class.java)
-                )
+                CentralAppControl.openApp()
             }
 
             NextPassTheme {

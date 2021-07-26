@@ -42,7 +42,7 @@ fun CentralScreenControl() {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
 
-    CentralAppControl.setNavController(navController = navController)
+    CentralAppControl.setNavController(controller = navController)
     CentralAppControl.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
 
     val currentScreen by navController.currentBackStackEntryAsState()
