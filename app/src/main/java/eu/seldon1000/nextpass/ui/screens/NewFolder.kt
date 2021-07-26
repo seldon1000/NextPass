@@ -75,10 +75,11 @@ fun NewFolder() {
                     )
                     if (favorite) params["favorite"] = "true"
 
-                    CentralAppControl.setRefreshing(refreshing = true)
-                    NextcloudApi.createFolderRequest(params = params)
-                    CentralAppControl.popBackStack()
-                    CentralAppControl.showSnackbar(message = context.getString(R.string.folder_created_snack))
+                    CentralAppControl.refreshLists {
+                        NextcloudApi.createFolderRequest(params = params)
+                        CentralAppControl.popBackStack()
+                        CentralAppControl.showSnackbar(message = context.getString(R.string.folder_created_snack))
+                    }
                 }
 
             } else CentralAppControl.showDialog(

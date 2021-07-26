@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.items
 
+import android.content.ClipboardManager
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -116,8 +117,6 @@ fun PasswordCard(index: Int, password: Password) {
                 )
             Status(password = password)
             FavoriteButton(favorite = password.favorite) {
-                CentralAppControl.setRefreshing(refreshing = true)
-
                 val params = mutableMapOf(
                     "id" to password.id,
                     "label" to password.label,
@@ -135,7 +134,9 @@ fun PasswordCard(index: Int, password: Password) {
                 )
                 if (it) params["favorite"] = "true"
 
-                NextcloudApi.updatePasswordRequest(params = params, tags = password.tags)
+                CentralAppControl.refreshLists {
+                    NextcloudApi.updatePasswordRequest(params = params, tags = password.tags)
+                }
             }
         }
         DropdownMenu(
@@ -148,6 +149,7 @@ fun PasswordCard(index: Int, password: Password) {
                 expanded = false
 
                 CentralAppControl.setPrimaryClip(
+                    manager = context.getSystemService(ClipboardManager::class.java),
                     label = context.getString(R.string.username),
                     clip = password.username
                 )
@@ -165,6 +167,7 @@ fun PasswordCard(index: Int, password: Password) {
                 expanded = false
 
                 CentralAppControl.setPrimaryClip(
+                    manager = context.getSystemService(ClipboardManager::class.java),
                     label = context.getString(R.string.password),
                     clip = password.password
                 )
@@ -225,8 +228,10 @@ fun PasswordCard(index: Int, password: Password) {
                     },
                     confirm = true
                 ) {
-                    NextcloudApi.deletePasswordRequest(id = password.id)
-                    CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
+                    CentralAppControl.refreshLists {
+                        NextcloudApi.deletePasswordRequest(id = password.id)
+                        CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
+                    }
                 }
             }) {
                 Icon(

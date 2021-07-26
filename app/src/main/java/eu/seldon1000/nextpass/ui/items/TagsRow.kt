@@ -146,8 +146,6 @@ fun TagsRow(
                                 },
                                 confirm = true
                             ) {
-                                CentralAppControl.setRefreshing(refreshing = true)
-
                                 val params = mapOf(
                                     "id" to tag.id,
                                     "label" to label,
@@ -157,8 +155,11 @@ fun TagsRow(
                                     }"
                                 )
 
-                                NextcloudApi.updateTagRequest(params = params)
-                                CentralAppControl.showSnackbar(message = context.getString(R.string.tag_updated_snack))
+                                CentralAppControl.refreshLists {
+                                    NextcloudApi.updateTagRequest(params = params)
+
+                                    CentralAppControl.showSnackbar(message = context.getString(R.string.tag_updated_snack))
+                                }
 
                                 tagClickAction(null)
                                 selected = -1
@@ -184,10 +185,10 @@ fun TagsRow(
                                 },
                                 confirm = true
                             ) {
-                                CentralAppControl.setRefreshing(refreshing = true)
-
-                                NextcloudApi.deleteTagRequest(id = tag.id)
-                                CentralAppControl.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
+                                CentralAppControl.refreshLists {
+                                    NextcloudApi.deleteTagRequest(id = tag.id)
+                                    CentralAppControl.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
+                                }
 
                                 tagClickAction(null)
                                 selected = -1
@@ -219,18 +220,22 @@ fun TagsRow(
         ) {
             Card(
                 onClick = {
-                    CentralAppControl.showDialog(title = context.getString(R.string.new_tag), body = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            TextFieldItem(
-                                text = newTagLabel,
-                                onTextChanged = { newTagLabel = it },
-                                label = context.getString(R.string.label),
-                                required = true,
-                                capitalized = true
-                            )
-                            ColorPicker { newTagColor = it }
-                        }
-                    }, confirm = true) {
+                    CentralAppControl.showDialog(
+                        title = context.getString(R.string.new_tag),
+                        body = {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                TextFieldItem(
+                                    text = newTagLabel,
+                                    onTextChanged = { newTagLabel = it },
+                                    label = context.getString(R.string.label),
+                                    required = true,
+                                    capitalized = true
+                                )
+                                ColorPicker { newTagColor = it }
+                            }
+                        },
+                        confirm = true
+                    ) {
                         if (newTagLabel.isEmpty()) newTagLabel =
                             context.getString(R.string.new_tag_default, storedTags.size + 1)
 
@@ -242,9 +247,10 @@ fun TagsRow(
                             }"
                         )
 
-                        CentralAppControl.setRefreshing(refreshing = true)
-                        NextcloudApi.createTagRequest(params = params)
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.tag_created_snack))
+                        CentralAppControl.refreshLists {
+                            NextcloudApi.createTagRequest(params = params)
+                            CentralAppControl.showSnackbar(message = context.getString(R.string.tag_created_snack))
+                        }
 
                         newTagLabel = ""
                         newTagColor = Color.Blue

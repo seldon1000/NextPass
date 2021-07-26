@@ -79,8 +79,6 @@ fun FolderDetails(folder: Folder) {
                     ) {
                         edit = false
 
-                        CentralAppControl.setRefreshing(refreshing = true)
-
                         val params = mutableMapOf(
                             "id" to folder.id,
                             "label" to label,
@@ -88,8 +86,10 @@ fun FolderDetails(folder: Folder) {
                         )
                         if (folder.favorite) params["favorite"] = "true"
 
-                        NextcloudApi.updateFolderRequest(params = params)
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.folder_updated_snack))
+                        CentralAppControl.refreshLists {
+                            NextcloudApi.updateFolderRequest(params = params)
+                            CentralAppControl.showSnackbar(message = context.getString(R.string.folder_updated_snack))
+                        }
                     }
                 } else CentralAppControl.showDialog(
                     title = context.getString(R.string.missing_info),
@@ -195,8 +195,6 @@ fun FolderDetails(folder: Folder) {
                                 folder = storedFolders.indexOfFirst { it.id == folder.parent }
                             )
                             FavoriteButton(favorite = folder.favorite) {
-                                CentralAppControl.setRefreshing(refreshing = true)
-
                                 val params = mutableMapOf(
                                     "id" to folder.id,
                                     "label" to folder.label,
@@ -204,7 +202,9 @@ fun FolderDetails(folder: Folder) {
                                 )
                                 if (it) params["favorite"] = "true"
 
-                                NextcloudApi.updateFolderRequest(params = params)
+                                CentralAppControl.refreshLists {
+                                    NextcloudApi.updateFolderRequest(params = params)
+                                }
                             }
                         }
                     }
@@ -238,9 +238,11 @@ fun FolderDetails(folder: Folder) {
                             },
                             confirm = true
                         ) {
-                            NextcloudApi.deleteFolderRequest(id = folder.id)
-                            CentralAppControl.popBackStack()
-                            CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
+                            CentralAppControl.refreshLists {
+                                NextcloudApi.deleteFolderRequest(id = folder.id)
+                                CentralAppControl.popBackStack()
+                                CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
+                            }
                         }
                     }
                     ) { Text(text = context.getString(R.string.delete), color = Color.Red) }

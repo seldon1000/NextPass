@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
+import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -129,6 +130,7 @@ fun Settings() {
                     body = NextcloudApi.getCurrentAccount()
                 ) {
                     CentralAppControl.setPrimaryClip(
+                        manager = context.getSystemService(ClipboardManager::class.java),
                         label = context.getString(R.string.current_account),
                         clip = NextcloudApi.getCurrentAccount()
                     )
@@ -138,13 +140,13 @@ fun Settings() {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     TextButton(
-                        onClick = { NextcloudApi.attemptLogout() },
+                        onClick = { CentralAppControl.attemptLogout() },
                         modifier = Modifier.padding(end = 16.dp)
                     ) {
                         Text(text = context.getString(R.string.logout))
                     }
                     TextButton(
-                        onClick = { NextcloudApi.attemptLogin() },
+                        onClick = { CentralAppControl.attemptLogin() },
                         modifier = Modifier.padding(end = 16.dp)
                     ) {
                         Text(text = context.getString(R.string.switch_account))
@@ -167,6 +169,7 @@ fun Settings() {
                 ) {
                     coroutineScope.launch {
                         CentralAppControl.setPrimaryClip(
+                            manager = context.getSystemService(ClipboardManager::class.java),
                             label = context.getString(R.string.generated_password),
                             clip = NextcloudApi.generatePassword()
                         )
@@ -375,7 +378,7 @@ fun Settings() {
                         Switch(
                             checked = autofill,
                             onCheckedChange = {
-                                if (autofill) CentralAppControl.disableAutofill()
+                                if (autofill) //CentralAppControl.disableAutofill()
                                 else {
                                     CentralAppControl.showDialog(
                                         title = context.getString(R.string.autofill_title),
@@ -491,7 +494,7 @@ fun Settings() {
                         title = context.getString(R.string.warning),
                         body = { Text(text = context.getString(R.string.reset_preferences_body)) },
                         confirm = true
-                    ) { CentralAppControl.resetUserPreferences() }
+                    ) { CentralAppControl.resetUserPreferences(context = context) }
                 }
             }
         }

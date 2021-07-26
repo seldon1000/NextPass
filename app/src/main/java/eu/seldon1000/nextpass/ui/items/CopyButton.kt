@@ -16,9 +16,11 @@
 
 package eu.seldon1000.nextpass.ui.items
 
+import android.content.ClipboardManager
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.CentralAppControl
@@ -26,8 +28,11 @@ import eu.seldon1000.nextpass.ui.theme.colors
 
 @Composable
 fun CopyButton(label: String, clip: String) {
+    val context = LocalContext.current
+
     IconButton(onClick = {
         CentralAppControl.setPrimaryClip(
+            manager = context.getSystemService(ClipboardManager::class.java),
             label = label,
             clip = clip
         )

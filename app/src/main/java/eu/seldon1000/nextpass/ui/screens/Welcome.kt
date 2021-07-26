@@ -32,8 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApi
 
 @ExperimentalMaterialApi
 @Composable
@@ -58,7 +58,7 @@ fun WelcomeScreen() {
             fontSize = 36.sp, fontWeight = FontWeight.SemiBold,
         )
         Button(
-            onClick = { NextcloudApi.attemptLogin() },
+            onClick = { CentralAppControl.attemptLogin() },
             shape = RoundedCornerShape(size = 8.dp)
         ) {
             Text(

@@ -16,6 +16,7 @@
 
 package eu.seldon1000.nextpass.ui.items
 
+import android.content.ClipboardManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -81,8 +82,6 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 modifier = Modifier.weight(weight = 1f)
             )
             FavoriteButton(favorite = folder.favorite) {
-                CentralAppControl.setRefreshing(refreshing = true)
-
                 val params = mutableMapOf(
                     "id" to folder.id,
                     "label" to folder.label,
@@ -90,7 +89,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 )
                 if (it) params["favorite"] = "true"
 
-                NextcloudApi.updateFolderRequest(params = params)
+                CentralAppControl.refreshLists { NextcloudApi.updateFolderRequest(params = params) }
             }
         }
         if (icon == null) {
@@ -120,6 +119,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 }
                 DropdownMenuItem({
                     CentralAppControl.setPrimaryClip(
+                        manager = context.getSystemService(ClipboardManager::class.java),
                         label = context.getString(R.string.folder_label),
                         clip = folder.label
                     )
@@ -163,8 +163,10 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                         },
                         confirm = true
                     ) {
-                        NextcloudApi.deleteFolderRequest(id = folder.id)
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
+                        CentralAppControl.refreshLists {
+                            NextcloudApi.deleteFolderRequest(id = folder.id)
+                            CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
+                        }
                     }
 
                     expanded = false

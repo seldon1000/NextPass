@@ -28,6 +28,7 @@ import android.text.InputType
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.api.NextcloudApi.generatePassword
@@ -61,9 +62,12 @@ class NextPassAutofillService : AutofillService() {
     override fun onCreate() {
         super.onCreate()
 
-        NextcloudApi.initializeApi(
-            res = resources,
-            pref = getSharedPreferences("nextpass", 0)
+        val sharedPreferences = getSharedPreferences("nextpass", 0)
+
+        NextcloudApi.login(
+            server = sharedPreferences.getString("server", "")!!,
+            loginName = sharedPreferences.getString("loginName", "")!!,
+            appPassword = sharedPreferences.getString("appPassword", "")!!
         )
 
         usernameHints = resources.getStringArray(R.array.username_hints)
@@ -74,7 +78,9 @@ class NextPassAutofillService : AutofillService() {
         return if (NextcloudApi.storedPasswords.value.isEmpty() &&
             NextcloudApi.isLogged()
         ) {
-            NextcloudApi.refreshServerList(refreshFolders = false, refreshTags = false)
+            coroutineScope.launch {
+                NextcloudApi.refreshServerList(refreshFolders = false, refreshTags = false)
+            }
 
             START_STICKY
         } else {
@@ -89,7 +95,9 @@ class NextPassAutofillService : AutofillService() {
 
         if (NextcloudApi.storedPasswords.value.isEmpty() &&
             NextcloudApi.isLogged()
-        ) NextcloudApi.refreshServerList(refreshFolders = false, refreshTags = false)
+        ) coroutineScope.launch {
+            NextcloudApi.refreshServerList(refreshFolders = false, refreshTags = false)
+        }
     }
 
     override fun onFillRequest(
@@ -228,9 +236,11 @@ class NextPassAutofillService : AutofillService() {
                 )
             }
 
-            NextcloudApi.createPasswordRequest(params = params, tags = emptyList())
+            CentralAppControl.refreshLists {
+                NextcloudApi.createPasswordRequest(params = params, tags = emptyList())
 
-            callback.onSuccess()
+                callback.onSuccess()
+            }
         }
     }
 

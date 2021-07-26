@@ -93,8 +93,6 @@ fun PasswordDetails(passwordData: Password) {
                     ) {
                         edit = false
 
-                        CentralAppControl.setRefreshing(refreshing = true)
-
                         val concreteCustomFields = mutableListOf<Map<String, String>>()
                         customFields.forEach { customField ->
                             try {
@@ -129,8 +127,10 @@ fun PasswordDetails(passwordData: Password) {
                         )
                         if (passwordData.favorite) params["favorite"] = "true"
 
-                        NextcloudApi.updatePasswordRequest(params = params, tags = tags)
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.password_updated_snack))
+                        CentralAppControl.refreshLists {
+                            NextcloudApi.updatePasswordRequest(params = params, tags = tags)
+                            CentralAppControl.showSnackbar(message = context.getString(R.string.password_updated_snack))
+                        }
                     }
                 } else CentralAppControl.showDialog(
                     title = context.getString(R.string.missing_info),
@@ -256,8 +256,6 @@ fun PasswordDetails(passwordData: Password) {
                             alignment = Alignment.Start
                         ) {
                             if (it != null) {
-                                CentralAppControl.setRefreshing(refreshing = true)
-
                                 if (tags.contains(element = it)) tags.remove(element = it)
                                 else tags.add(element = it)
 
@@ -274,10 +272,12 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                                 if (passwordData.favorite) params["favorite"] = "true"
 
-                                NextcloudApi.updatePasswordRequest(
-                                    params = params,
-                                    tags = tags
-                                )
+                                CentralAppControl.refreshLists {
+                                    NextcloudApi.updatePasswordRequest(
+                                        params = params,
+                                        tags = tags
+                                    )
+                                }
                             }
                         }
                         Row(
@@ -293,8 +293,6 @@ fun PasswordDetails(passwordData: Password) {
                                     folder = storedFolders.indexOfFirst { passwordData.folder == it.id })
                             }
                             FavoriteButton(favorite = passwordData.favorite) {
-                                CentralAppControl.setRefreshing(refreshing = true)
-
                                 val params = mutableMapOf(
                                     "id" to passwordData.id,
                                     "label" to passwordData.label,
@@ -308,10 +306,12 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                                 if (it) params["favorite"] = "true"
 
-                                NextcloudApi.updatePasswordRequest(
-                                    params = params,
-                                    tags = passwordData.tags
-                                )
+                                CentralAppControl.refreshLists {
+                                    NextcloudApi.updatePasswordRequest(
+                                        params = params,
+                                        tags = passwordData.tags
+                                    )
+                                }
                             }
                         }
                     }
@@ -523,8 +523,10 @@ fun PasswordDetails(passwordData: Password) {
                                 },
                                 confirm = true
                             ) {
-                                NextcloudApi.deletePasswordRequest(id = passwordData.id)
-                                CentralAppControl.popBackStack()
+                                CentralAppControl.refreshLists {
+                                    NextcloudApi.deletePasswordRequest(id = passwordData.id)
+                                    CentralAppControl.popBackStack()
+                                }
                             }
                         }
                         ) {

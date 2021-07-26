@@ -30,8 +30,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.ui.screens.*
 
 @ExperimentalAnimationApi
@@ -59,7 +59,9 @@ fun CentralScreenControl() {
         snackbarHost = { MySnackbar(snackbarHostState = scaffoldState.snackbarHostState) }) {
         SwipeRefresh(
             state = refreshState,
-            onRefresh = { NextcloudApi.refreshServerList() },
+            onRefresh = {
+                CentralAppControl.refreshLists { NextcloudApi.refreshServerList() }
+            },
             swipeEnabled = currentScreen?.destination?.route?.contains(other = Routes.AccessPin.route) == false &&
                     currentScreen?.destination?.route?.contains(other = Routes.WebView.route) == false &&
                     currentScreen?.destination?.route != Routes.Welcome.route &&
