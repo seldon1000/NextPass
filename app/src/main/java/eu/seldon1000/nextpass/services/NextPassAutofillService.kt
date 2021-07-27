@@ -75,8 +75,7 @@ class NextPassAutofillService : AutofillService() {
             loginName = sharedPreferences.getString("loginName", "")!!,
             appPassword = sharedPreferences.getString("appPassword", "")!!
         )
-
-        (getSystemService(ConnectivityManager::class.java))
+        if (NextcloudApi.storedPasswords.value.isEmpty()) (getSystemService(ConnectivityManager::class.java))
             .registerNetworkCallback(
                 networkRequest,
                 object : ConnectivityManager.NetworkCallback() {

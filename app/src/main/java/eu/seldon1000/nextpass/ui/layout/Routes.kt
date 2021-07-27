@@ -17,14 +17,6 @@
 package eu.seldon1000.nextpass.ui.layout
 
 sealed class Routes(val route: String) {
-    object AccessPin : Routes(route = "access-pin/{shouldRaiseBiometric}") {
-        fun getRoute(arg: Boolean) = "access-pin/$arg"
-    }
-
-    object WebView : Routes(route = "webview/{url}") {
-        fun getRoute(arg: String) = "webview/$arg"
-    }
-
     object Welcome : Routes(route = "welcome")
     object Search : Routes(route = "search")
     object Passwords : Routes(route = "passwords")
@@ -34,6 +26,14 @@ sealed class Routes(val route: String) {
     object Settings : Routes(route = "settings")
     object About : Routes(route = "about")
     object Pin : Routes(route = "pin")
+
+    object AccessPin : Routes(route = "access-pin/{shouldRaiseBiometric}") {
+        fun getRoute(arg: Boolean) = "access-pin/$arg"
+    }
+
+    object WebView : Routes(route = "webview/{url}") {
+        fun getRoute(arg: String) = "webview/$arg"
+    }
 
     object PasswordDetails : Routes(route = "password-details/{data}") {
         fun getRoute(arg: Int) = "password-details/$arg"

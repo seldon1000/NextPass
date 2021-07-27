@@ -17,7 +17,9 @@
 package eu.seldon1000.nextpass.ui.layout
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
+import eu.seldon1000.nextpass.ui.theme.Orange500
 
 @Composable
 fun MyAlertDialog() {
@@ -44,19 +47,17 @@ fun MyAlertDialog() {
             onDismissRequest = { CentralAppControl.dismissDialog() },
             confirmButton = {
                 if (dialogConfirm)
-                    Button(
+                    TextButton(
                         onClick = {
                             CentralAppControl.dismissDialog()
                             dialogAction()
-                        },
-                        shape = RoundedCornerShape(size = 8.dp)
-                    ) { Text(text = context.getString(R.string.confirm)) }
+                        }
+                    ) { Text(text = context.getString(R.string.confirm), color = Orange500) }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { CentralAppControl.dismissDialog() },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent)
-                ) { Text(text = context.getString(R.string.dismiss)) }
+                TextButton(onClick = { CentralAppControl.dismissDialog() }) {
+                    Text(text = context.getString(R.string.dismiss), color = Color.LightGray)
+                }
             },
             title = {
                 Text(

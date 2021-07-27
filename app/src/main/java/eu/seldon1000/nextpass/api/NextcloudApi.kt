@@ -102,31 +102,35 @@ object NextcloudApi {
         }
     }
 
-    fun logout(handler: () -> Unit) {
-        try {
-            coroutineScope.launch {
+    suspend fun logout(onFailure: () -> Unit, onSuccess: () -> Unit) {
+        coroutineScope.launch(context = Dispatchers.Main) {
+            try {
                 client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
                     header("OCS-APIREQUEST", true)
                 }
-            }
 
-            storedPasswordsState.value.clear()
-            storedFoldersState.value.clear()
-            storedTagsState.value.clear()
+                storedPasswordsState.value.clear()
+                storedFoldersState.value.clear()
+                storedTagsState.value.clear()
 
-            server = ""
-            loginName = ""
-            appPassword = ""
+                server = ""
+                loginName = ""
+                appPassword = ""
 
-            client = HttpClient(CIO) {
-                install(JsonFeature) {
-                    serializer = KotlinxSerializer(json = json)
+                client = HttpClient(CIO) {
+                    install(JsonFeature) {
+                        serializer = KotlinxSerializer(json = json)
+                    }
                 }
-            }
-        } catch (e: Exception) {
-            handler()
-        }
 
+                onSuccess()
+
+                client.coroutineContext.cancelChildren()
+                coroutineContext.cancelChildren()
+            } catch (e: Exception) {
+                onFailure()
+            }
+        }.join()
     }
 
     private suspend inline fun <reified T> listRequest(): SnapshotStateList<T> {
@@ -148,11 +152,8 @@ object NextcloudApi {
     suspend fun refreshServerList(
         refreshFolders: Boolean = true,
         refreshTags: Boolean = true,
-        handler: () -> Unit = {}
+        onFailure: () -> Unit = {}
     ) {
-        coroutineScope.coroutineContext.cancelChildren()
-        client.coroutineContext.cancelChildren()
-
         if (refreshFolders) {
             coroutineScope.launch {
                 try {
@@ -188,7 +189,7 @@ object NextcloudApi {
 
                 storedPasswordsState.value = passwords
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
@@ -213,7 +214,8 @@ object NextcloudApi {
     suspend fun createPasswordRequest(
         params: Map<String, String>,
         tags: List<Tag>,
-        handler: () -> Unit = {}
+        onFailure: () -> Unit = {},
+        onSuccess: () -> Unit = {}
     ) {
         coroutineScope.launch {
             try {
@@ -232,15 +234,18 @@ object NextcloudApi {
                 data.sortBy { it.label.lowercase() }
 
                 storedPasswordsState.value = data
+
+                onSuccess()
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
 
     suspend fun createFolderRequest(
         params: Map<String, String>,
-        handler: () -> Unit
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit = {}
     ) {
         coroutineScope.launch {
             try {
@@ -258,15 +263,18 @@ object NextcloudApi {
                 data.add(index = 0, element = baseFolder)
 
                 storedFoldersState.value = data
+
+                onSuccess()
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
 
     suspend fun createTagRequest(
         params: Map<String, String>,
-        handler: () -> Unit
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit = {}
     ) {
         coroutineScope.launch {
             try {
@@ -282,13 +290,19 @@ object NextcloudApi {
                 data.sortBy { it.label.lowercase() }
 
                 storedTagsState.value = data
+
+                onSuccess()
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
 
-    suspend fun deletePasswordRequest(id: String, handler: () -> Unit) {
+    suspend fun deletePasswordRequest(
+        id: String,
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit = {}
+    ) {
         coroutineScope.launch {
             try {
                 client.delete<Any>(urlString = "$server$endpoint/password/delete") {
@@ -296,13 +310,19 @@ object NextcloudApi {
                 }
 
                 storedPasswordsState.value.removeIf { it.id == id }
+
+                onSuccess()
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
 
-    suspend fun deleteFolderRequest(id: String, handler: () -> Unit) {
+    suspend fun deleteFolderRequest(
+        id: String,
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit = {}
+    ) {
         coroutineScope.launch {
             try {
                 client.delete<Any>(urlString = "$server$endpoint/folder/delete") {
@@ -310,13 +330,19 @@ object NextcloudApi {
                 }
 
                 refreshServerList()
+
+                onSuccess()
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
 
-    suspend fun deleteTagRequest(id: String, handler: () -> Unit) {
+    suspend fun deleteTagRequest(
+        id: String,
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit = {}
+    ) {
         coroutineScope.launch {
             try {
                 client.delete<Any>(urlString = "$server$endpoint/tag/delete") {
@@ -324,8 +350,10 @@ object NextcloudApi {
                 }
 
                 refreshServerList()
+
+                onSuccess()
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
@@ -333,7 +361,8 @@ object NextcloudApi {
     suspend fun updatePasswordRequest(
         params: Map<String, String>,
         tags: List<Tag>,
-        handler: () -> Unit
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit = {}
     ) {
         coroutineScope.launch {
             try {
@@ -351,15 +380,18 @@ object NextcloudApi {
                 else updatedPassword.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
 
                 storedPasswordsState.value[index] = updatedPassword
+
+                onSuccess()
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
 
     suspend fun updateFolderRequest(
         params: Map<String, String>,
-        handler: () -> Unit
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit = {}
     ) {
         coroutineScope.launch {
             try {
@@ -372,15 +404,18 @@ object NextcloudApi {
                 storedFoldersState.value[storedFoldersState.value.indexOfFirst {
                     it.id == params["id"]!!
                 }] = updatedFolder
+
+                onSuccess()
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
 
     suspend fun updateTagRequest(
         params: Map<String, String>,
-        handler: () -> Unit
+        onFailure: () -> Unit,
+        onSuccess: () -> Unit = {}
     ) {
         coroutineScope.launch {
             try {
@@ -395,20 +430,29 @@ object NextcloudApi {
                 }] = updatedTag
 
                 refreshServerList(refreshFolders = false, refreshTags = false)
+
+                onSuccess()
             } catch (e: Exception) {
-                handler()
+                onFailure()
             }
         }.join()
     }
 
-    suspend fun generatePassword(handler: () -> Unit = {}): String {
+    suspend fun generatePassword(
+        onFailure: () -> Unit = {},
+        onSuccess: () -> Unit = {}
+    ): String {
         return try {
-            client.get<JsonObject>(urlString = "$server$endpoint/service/password") {
+            val response = client.get<JsonObject>(urlString = "$server$endpoint/service/password") {
                 expectSuccess = false
                 parameter("details", "model+tags")
             }["password"]!!.jsonPrimitive.content
+
+            onSuccess()
+
+            response
         } catch (e: Exception) {
-            handler()
+            onFailure()
 
             ""
         }

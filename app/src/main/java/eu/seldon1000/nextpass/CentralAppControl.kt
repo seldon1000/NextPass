@@ -405,36 +405,27 @@ object CentralAppControl {
         lockTimeoutState.value = timeout
     }
 
-    fun shouldShowRefresh(): Boolean {
-        return navControllerState.value.currentDestination?.route?.contains(other = Routes.AccessPin.route) == false &&
-                navControllerState.value.currentDestination?.route?.contains(other = Routes.WebView.route) == false &&
-                navControllerState.value.currentDestination?.route!! != Routes.AccessPin.route &&
-                navControllerState.value.currentDestination?.route!! != Routes.Welcome.route &&
-                navControllerState.value.currentDestination?.route!! != Routes.About.route &&
-                navControllerState.value.currentDestination?.route!! != Routes.Pin.route
-    }
-
     private fun setKeyboardMode() {
-        if (navControllerState.value.currentDestination?.route!! == Routes.Search.route ||
-            navControllerState.value.currentDestination?.route!! == Routes.Pin.route
+        if (navControllerState.value.currentDestination?.route == Routes.Search.route ||
+            navControllerState.value.currentDestination?.route == Routes.Pin.route
         ) window.setSoftInputMode(16)
         else window.setSoftInputMode(32)
     }
 
     fun navigate(route: String) {
-        if (navControllerState.value.currentDestination?.route!!
-                .substringBefore(delimiter = "/") != route.substringBefore(delimiter = "/")
+        if (navControllerState.value.currentDestination?.route
+                ?.substringBefore(delimiter = "/") != route.substringBefore(delimiter = "/")
         ) {
             navControllerState.value.navigate(route = route) {
                 launchSingleTop = true
                 restoreState = true
             }
 
-            if (navControllerState.value.currentDestination?.route!! == Routes.AccessPin.route ||
-                navControllerState.value.currentDestination?.route!! == Routes.Welcome.route ||
-                navControllerState.value.currentDestination?.route!! == Routes.Settings.route ||
-                navControllerState.value.currentDestination?.route!! == Routes.About.route ||
-                navControllerState.value.currentDestination?.route!! == Routes.Pin.route
+            if (navControllerState.value.currentDestination?.route == Routes.AccessPin.route ||
+                navControllerState.value.currentDestination?.route == Routes.Welcome.route ||
+                navControllerState.value.currentDestination?.route == Routes.Settings.route ||
+                navControllerState.value.currentDestination?.route == Routes.About.route ||
+                navControllerState.value.currentDestination?.route == Routes.Pin.route
             ) refreshingState.value = false
         }
 
@@ -443,21 +434,23 @@ object CentralAppControl {
 
     fun popBackStack(): Boolean {
         try {
-            return if ((navControllerState.value.previousBackStackEntry?.destination?.route!! == Routes.Welcome.route &&
-                        navControllerState.value.currentDestination?.route!! == Routes.WebView.route) ||
-                navControllerState.value.previousBackStackEntry?.destination?.route!! == Routes.AccessPin.route ||
-                navControllerState.value.currentDestination?.route!! == Routes.Welcome.route ||
-                (navControllerState.value.currentDestination?.route!! == Routes.AccessPin.route && pendingUnlockAction == null) ||
-                navControllerState.value.currentDestination?.route!! == Routes.Passwords.route
+            return if ((navControllerState.value.previousBackStackEntry?.destination?.route == Routes.Welcome.route &&
+                        navControllerState.value.currentDestination?.route == Routes.WebView.route) ||
+                navControllerState.value.previousBackStackEntry?.destination?.route == Routes.AccessPin.route ||
+                navControllerState.value.currentDestination?.route == Routes.Welcome.route ||
+                (navControllerState.value.currentDestination?.route == Routes.AccessPin.route && pendingUnlockAction == null) ||
+                navControllerState.value.currentDestination?.route == Routes.Passwords.route
             )
                 if (currentFolderState.value != 0) {
                     setCurrentFolder()
+
                     true
                 } else false
             else {
                 navControllerState.value.popBackStack()
+                println("CIAO")
 
-                if (navControllerState.value.currentDestination?.route!! != Routes.NewPassword.route)
+                if (navControllerState.value.currentDestination?.route != Routes.NewPassword.route)
                     NextcloudApi.faviconRequest(data = "")
 
                 setKeyboardMode()
@@ -596,6 +589,8 @@ object CentralAppControl {
                             )
                         })
                     else if (i <= 120) {
+                        refreshingState.value = true
+
                         NextcloudApi.login(
                             server = loginResponse["server"]!!,
                             loginName = loginResponse["loginName"]!!,
@@ -647,21 +642,28 @@ object CentralAppControl {
             },
             confirm = true
         ) {
-            NextcloudApi.logout { showError() }
+            executeRequest {
+                NextcloudApi.logout(onFailure = it) {
+                    sharedPreferences.edit().remove("server").apply()
+                    sharedPreferences.edit().remove("loginName").apply()
+                    sharedPreferences.edit().remove("appPassword").apply()
 
-            sharedPreferences.edit().remove("server").apply()
-            sharedPreferences.edit().remove("loginName").apply()
-            sharedPreferences.edit().remove("appPassword").apply()
-
-            refreshingState.value = false
-            resetUserPreferences(context = context)
-            navigate(route = Routes.Welcome.route)
-            showSnackbar(message = context.getString(R.string.disconnected_snack))
+                    refreshingState.value = false
+                    resetUserPreferences(context = context)
+                    navigate(route = Routes.Welcome.route)
+                    showSnackbar(message = context.getString(R.string.disconnected_snack))
+                }
+            }
         }
     }
 
     fun executeRequest(request: suspend (() -> Unit) -> Any) {
-        refreshingState.value = shouldShowRefresh()
+        refreshingState.value =
+            navControllerState.value.currentDestination?.route == Routes.Search.route ||
+                    navControllerState.value.currentDestination?.route == Routes.Passwords.route ||
+                    navControllerState.value.currentDestination?.route == Routes.Favorites.route ||
+                    navControllerState.value.currentDestination?.route == Routes.PasswordDetails.route ||
+                    navControllerState.value.currentDestination?.route == Routes.FolderDetails.route
 
         coroutineScope.launch {
             request { showError() }

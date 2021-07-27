@@ -130,9 +130,9 @@ fun PasswordDetails(passwordData: Password) {
                         CentralAppControl.executeRequest {
                             NextcloudApi.updatePasswordRequest(
                                 params = params,
-                                tags = tags
-                            ) { it() }
-                            CentralAppControl.showSnackbar(message = context.getString(R.string.password_updated_snack))
+                                tags = tags,
+                                onFailure = it
+                            ) { CentralAppControl.showSnackbar(message = context.getString(R.string.password_updated_snack)) }
                         }
                     }
                 } else CentralAppControl.showDialog(
@@ -278,8 +278,9 @@ fun PasswordDetails(passwordData: Password) {
                                 CentralAppControl.executeRequest { handler ->
                                     NextcloudApi.updatePasswordRequest(
                                         params = params,
-                                        tags = tags
-                                    ) { handler() }
+                                        tags = tags,
+                                        onFailure = handler
+                                    )
                                 }
                             }
                         }
@@ -312,8 +313,9 @@ fun PasswordDetails(passwordData: Password) {
                                 CentralAppControl.executeRequest { handler ->
                                     NextcloudApi.updatePasswordRequest(
                                         params = params,
-                                        tags = passwordData.tags
-                                    ) { handler() }
+                                        tags = passwordData.tags,
+                                        onFailure = handler
+                                    )
                                 }
                             }
                         }
@@ -529,8 +531,10 @@ fun PasswordDetails(passwordData: Password) {
                                 confirm = true
                             ) {
                                 CentralAppControl.executeRequest {
-                                    NextcloudApi.deletePasswordRequest(id = passwordData.id) { it() }
-                                    CentralAppControl.popBackStack()
+                                    NextcloudApi.deletePasswordRequest(
+                                        id = passwordData.id,
+                                        onFailure = it
+                                    ) { CentralAppControl.popBackStack() }
                                 }
                             }
                         }

@@ -156,8 +156,10 @@ fun TagsRow(
                                 )
 
                                 CentralAppControl.executeRequest {
-                                    NextcloudApi.updateTagRequest(params = params) { it() }
-                                    CentralAppControl.showSnackbar(message = context.getString(R.string.tag_updated_snack))
+                                    NextcloudApi.updateTagRequest(
+                                        params = params,
+                                        onFailure = it
+                                    ) { CentralAppControl.showSnackbar(message = context.getString(R.string.tag_updated_snack)) }
                                 }
 
                                 tagClickAction(null)
@@ -185,8 +187,10 @@ fun TagsRow(
                                 confirm = true
                             ) {
                                 CentralAppControl.executeRequest {
-                                    NextcloudApi.deleteTagRequest(id = tag.id) { it() }
-                                    CentralAppControl.showSnackbar(message = context.getString(R.string.tag_deleted_snack))
+                                    NextcloudApi.deleteTagRequest(
+                                        id = tag.id,
+                                        onFailure = it
+                                    ) { CentralAppControl.showSnackbar(message = context.getString(R.string.tag_deleted_snack)) }
                                 }
 
                                 tagClickAction(null)
@@ -247,8 +251,10 @@ fun TagsRow(
                         )
 
                         CentralAppControl.executeRequest {
-                            NextcloudApi.createTagRequest(params = params) { it() }
-                            CentralAppControl.showSnackbar(message = context.getString(R.string.tag_created_snack))
+                            NextcloudApi.createTagRequest(
+                                params = params,
+                                onFailure = it
+                            ) { CentralAppControl.showSnackbar(message = context.getString(R.string.tag_created_snack)) }
                         }
 
                         newTagLabel = ""

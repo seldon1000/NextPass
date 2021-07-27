@@ -48,6 +48,7 @@ fun CentralScreenControl() {
     val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
     val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
+    val currentScreen by CentralAppControl.navController.collectAsState().value.currentBackStackEntryAsState()
     val refreshing by CentralAppControl.refreshing.collectAsState()
     val refreshState = rememberSwipeRefreshState(isRefreshing = refreshing)
 
@@ -58,7 +59,11 @@ fun CentralScreenControl() {
         SwipeRefresh(
             state = refreshState,
             onRefresh = { CentralAppControl.executeRequest { NextcloudApi.refreshServerList { it() } } },
-            swipeEnabled = CentralAppControl.shouldShowRefresh()
+            swipeEnabled = currentScreen?.destination?.route == Routes.Search.route ||
+                    currentScreen?.destination?.route == Routes.Passwords.route ||
+                    currentScreen?.destination?.route == Routes.Favorites.route ||
+                    currentScreen?.destination?.route == Routes.PasswordDetails.route ||
+                    currentScreen?.destination?.route == Routes.FolderDetails.route
         ) {
             NavHost(
                 navController = navController,

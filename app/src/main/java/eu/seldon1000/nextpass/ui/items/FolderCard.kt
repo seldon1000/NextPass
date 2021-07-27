@@ -89,7 +89,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 if (it) params["favorite"] = "true"
 
                 CentralAppControl.executeRequest { handler ->
-                    NextcloudApi.updateFolderRequest(params = params) { handler() }
+                    NextcloudApi.updateFolderRequest(params = params, onFailure = handler)
                 }
             }
         }
@@ -164,8 +164,10 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                         confirm = true
                     ) {
                         CentralAppControl.executeRequest {
-                            NextcloudApi.deleteFolderRequest(id = folder.id) { it() }
-                            CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
+                            NextcloudApi.deleteFolderRequest(
+                                id = folder.id,
+                                onFailure = it
+                            ) { CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack)) }
                         }
                     }
 

@@ -132,11 +132,13 @@ fun NewPassword() {
                     CentralAppControl.executeRequest {
                         NextcloudApi.createPasswordRequest(
                             params = params,
-                            tags = tags
-                        ) { it() }
-                        CentralAppControl.setSelectedFolder(folder = CentralAppControl.currentFolder.value)
-                        CentralAppControl.popBackStack()
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.password_created_snack))
+                            tags = tags,
+                            onFailure = it
+                        ) {
+                            CentralAppControl.setSelectedFolder(folder = CentralAppControl.currentFolder.value)
+                            CentralAppControl.popBackStack()
+                            CentralAppControl.showSnackbar(message = context.getString(R.string.password_created_snack))
+                        }
                     }
                 }
             } else CentralAppControl.showDialog(

@@ -139,8 +139,9 @@ fun PasswordCard(index: Int, password: Password) {
                 CentralAppControl.executeRequest { handler ->
                     NextcloudApi.updatePasswordRequest(
                         params = params,
-                        tags = password.tags
-                    ) { handler() }
+                        tags = password.tags,
+                        onFailure = handler
+                    )
                 }
             }
         }
@@ -232,8 +233,11 @@ fun PasswordCard(index: Int, password: Password) {
                     confirm = true
                 ) {
                     CentralAppControl.executeRequest {
-                        NextcloudApi.deletePasswordRequest(id = password.id) { it() }
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
+                        NextcloudApi.deletePasswordRequest(id = password.id, onFailure = it) {
+                            CentralAppControl.showSnackbar(
+                                message = context.getString(R.string.password_deleted)
+                            )
+                        }
                     }
                 }
             }) {
