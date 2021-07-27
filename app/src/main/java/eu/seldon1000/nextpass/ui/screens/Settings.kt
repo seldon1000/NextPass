@@ -16,7 +16,6 @@
 
 package eu.seldon1000.nextpass.ui.screens
 
-import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -130,7 +129,6 @@ fun Settings() {
                     body = NextcloudApi.getCurrentAccount()
                 ) {
                     CentralAppControl.setPrimaryClip(
-                        manager = context.getSystemService(ClipboardManager::class.java),
                         label = context.getString(R.string.current_account),
                         clip = NextcloudApi.getCurrentAccount()
                     )
@@ -167,12 +165,13 @@ fun Settings() {
                     title = context.getString(R.string.generate_random_password),
                     body = context.getString(R.string.random_password_tip)
                 ) {
-                    coroutineScope.launch {
-                        CentralAppControl.setPrimaryClip(
-                            manager = context.getSystemService(ClipboardManager::class.java),
-                            label = context.getString(R.string.generated_password),
-                            clip = NextcloudApi.generatePassword()
-                        )
+                    CentralAppControl.executeRequest {
+                        coroutineScope.launch {
+                            CentralAppControl.setPrimaryClip(
+                                label = context.getString(R.string.generated_password),
+                                clip = NextcloudApi.generatePassword { it() }
+                            )
+                        }
                     }
                 }
             }

@@ -44,10 +44,13 @@ fun MyAlertDialog() {
             onDismissRequest = { CentralAppControl.dismissDialog() },
             confirmButton = {
                 if (dialogConfirm)
-                    Button(onClick = {
-                        CentralAppControl.dismissDialog()
-                        dialogAction()
-                    }) { Text(text = context.getString(R.string.confirm)) }
+                    Button(
+                        onClick = {
+                            CentralAppControl.dismissDialog()
+                            dialogAction()
+                        },
+                        shape = RoundedCornerShape(size = 8.dp)
+                    ) { Text(text = context.getString(R.string.confirm)) }
             },
             dismissButton = {
                 TextButton(

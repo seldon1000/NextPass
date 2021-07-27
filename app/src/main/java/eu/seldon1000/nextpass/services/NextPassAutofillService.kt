@@ -21,14 +21,13 @@ import android.app.assist.AssistStructure
 import android.app.assist.AssistStructure.ViewNode
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.net.Uri
+import android.net.*
 import android.os.CancellationSignal
 import android.service.autofill.*
 import android.text.InputType
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
-import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.api.NextcloudApi.generatePassword
@@ -59,10 +58,19 @@ class NextPassAutofillService : AutofillService() {
     private var passwordId = mutableListOf<AutofillId>()
     private var ready = false
 
+    private val networkRequest = NetworkRequest.Builder()
+        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+        .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+        .build()
+
     override fun onCreate() {
         super.onCreate()
 
         val sharedPreferences = getSharedPreferences("nextpass", 0)
+
+        usernameHints = resources.getStringArray(R.array.username_hints)
+        passwordHints = resources.getStringArray(R.array.password_hints)
 
         NextcloudApi.login(
             server = sharedPreferences.getString("server", "")!!,
@@ -70,32 +78,32 @@ class NextPassAutofillService : AutofillService() {
             appPassword = sharedPreferences.getString("appPassword", "")!!
         )
 
-        usernameHints = resources.getStringArray(R.array.username_hints)
-        passwordHints = resources.getStringArray(R.array.password_hints)
+        (getSystemService(ConnectivityManager::class.java))
+            .registerNetworkCallback(
+                networkRequest,
+                object : ConnectivityManager.NetworkCallback() {
+                    override fun onAvailable(network: Network) {
+                        super.onAvailable(network)
+
+                        coroutineScope.launch {
+                            NextcloudApi.refreshServerList(
+                                refreshFolders = false,
+                                refreshTags = false
+                            )
+                        }
+                    }
+                }
+            )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return if (NextcloudApi.storedPasswords.value.isEmpty() &&
-            NextcloudApi.isLogged()
-        ) {
-            coroutineScope.launch {
-                NextcloudApi.refreshServerList(refreshFolders = false, refreshTags = false)
-            }
-
-            START_STICKY
-        } else {
-            stopSelf()
-
-            START_NOT_STICKY
-        }
+        return START_STICKY
     }
 
     override fun onConnected() {
         super.onConnected()
 
-        if (NextcloudApi.storedPasswords.value.isEmpty() &&
-            NextcloudApi.isLogged()
-        ) coroutineScope.launch {
+        if (NextcloudApi.storedPasswords.value.isEmpty()) coroutineScope.launch {
             NextcloudApi.refreshServerList(refreshFolders = false, refreshTags = false)
         }
     }
@@ -236,7 +244,7 @@ class NextPassAutofillService : AutofillService() {
                 )
             }
 
-            CentralAppControl.executeRequest {
+            coroutineScope.launch {
                 NextcloudApi.createPasswordRequest(params = params, tags = emptyList())
 
                 callback.onSuccess()

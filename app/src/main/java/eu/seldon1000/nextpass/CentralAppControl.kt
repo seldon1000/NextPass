@@ -51,6 +51,7 @@ object CentralAppControl {
     private lateinit var context: Context
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var window: Window
+    private lateinit var clipboardManager: ClipboardManager
     private lateinit var autofillManager: AutofillManager
 
     private lateinit var snackbarHostState: SnackbarHostState
@@ -121,6 +122,7 @@ object CentralAppControl {
         context = con
         sharedPreferences = context.getSharedPreferences("nextpass", 0)
         window = (context as MainActivity).window
+        clipboardManager = context.getSystemService(ClipboardManager::class.java)
         autofillManager = context.getSystemService(AutofillManager::class.java)
 
         if (sharedPreferences.contains("server"))
@@ -162,9 +164,9 @@ object CentralAppControl {
             .build()
     }
 
-    fun setPrimaryClip(manager: ClipboardManager, label: String, clip: String) {
+    fun setPrimaryClip(label: String, clip: String) {
         coroutineScope.launch {
-            manager.setPrimaryClip(ClipData.newPlainText(label, clip))
+            clipboardManager.setPrimaryClip(ClipData.newPlainText(label, clip))
         }
 
         showSnackbar(message = context.getString(R.string.copy_snack_message, label))

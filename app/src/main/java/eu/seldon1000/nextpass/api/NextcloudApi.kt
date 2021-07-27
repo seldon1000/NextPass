@@ -150,6 +150,7 @@ object NextcloudApi {
         refreshTags: Boolean = true,
         handler: () -> Unit = {}
     ) {
+        coroutineScope.coroutineContext.cancelChildren()
         client.coroutineContext.cancelChildren()
 
         if (refreshFolders) {
@@ -400,11 +401,17 @@ object NextcloudApi {
         }.join()
     }
 
-    suspend fun generatePassword(): String {
-        return client.get<JsonObject>(urlString = "$server$endpoint/service/password") {
-            expectSuccess = false
-            parameter("details", "model+tags")
-        }["password"]!!.jsonPrimitive.content
+    suspend fun generatePassword(handler: () -> Unit = {}): String {
+        return try {
+            client.get<JsonObject>(urlString = "$server$endpoint/service/password") {
+                expectSuccess = false
+                parameter("details", "model+tags")
+            }["password"]!!.jsonPrimitive.content
+        } catch (e: Exception) {
+            handler()
+
+            ""
+        }
     }
 
     fun faviconRequest(data: Any) {

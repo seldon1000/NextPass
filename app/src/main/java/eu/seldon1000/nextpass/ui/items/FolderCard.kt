@@ -16,7 +16,6 @@
 
 package eu.seldon1000.nextpass.ui.items
 
-import android.content.ClipboardManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -32,10 +31,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Folder
 import eu.seldon1000.nextpass.api.NextcloudApi
-import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 
@@ -121,7 +120,6 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 }
                 DropdownMenuItem({
                     CentralAppControl.setPrimaryClip(
-                        manager = context.getSystemService(ClipboardManager::class.java),
                         label = context.getString(R.string.folder_label),
                         clip = folder.label
                     )

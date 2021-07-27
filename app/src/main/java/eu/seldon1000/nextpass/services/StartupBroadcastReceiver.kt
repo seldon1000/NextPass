@@ -19,39 +19,17 @@ package eu.seldon1000.nextpass.services
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.view.autofill.AutofillManager
 import eu.seldon1000.nextpass.CentralAppControl
 
 class StartupBroadcastReceiver : BroadcastReceiver() {
-    private val networkRequest = NetworkRequest.Builder()
-        .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-        .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
-        .build()
-
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             val autofillManager = context.getSystemService(AutofillManager::class.java)
 
             if (autofillManager.hasEnabledAutofillServices() &&
                 context.getSharedPreferences("nextpass", 0).contains("autostart")
-            ) {
-                (context.getSystemService(ConnectivityManager::class.java))
-                    .registerNetworkCallback(
-                        networkRequest,
-                        object : ConnectivityManager.NetworkCallback() {
-                            override fun onAvailable(network: Network) {
-                                super.onAvailable(network)
-
-                                CentralAppControl.startAutofillService()
-                            }
-                        }
-                    )
-            }
+            ) CentralAppControl.startAutofillService()
         }
     }
 }

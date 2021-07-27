@@ -381,8 +381,10 @@ fun PasswordDetails(passwordData: Password) {
                             )
 
                             IconButton(onClick = {
-                                coroutineScope.launch {
-                                    password = NextcloudApi.generatePassword()
+                                CentralAppControl.executeRequest {
+                                    coroutineScope.launch {
+                                        password = NextcloudApi.generatePassword()
+                                    }
                                 }
 
                                 if (rotation >= 360F * 10) {

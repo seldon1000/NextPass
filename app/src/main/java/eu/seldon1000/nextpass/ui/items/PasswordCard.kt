@@ -16,7 +16,6 @@
 
 package eu.seldon1000.nextpass.ui.items
 
-import android.content.ClipboardManager
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -35,9 +34,12 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
-import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.*
 import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.R
+import eu.seldon1000.nextpass.api.CustomField
+import eu.seldon1000.nextpass.api.NextcloudApi
+import eu.seldon1000.nextpass.api.Password
+import eu.seldon1000.nextpass.api.SnapshotListSerializer
 import eu.seldon1000.nextpass.ui.layout.Routes
 
 @ExperimentalMaterialApi
@@ -152,7 +154,6 @@ fun PasswordCard(index: Int, password: Password) {
                 expanded = false
 
                 CentralAppControl.setPrimaryClip(
-                    manager = context.getSystemService(ClipboardManager::class.java),
                     label = context.getString(R.string.username),
                     clip = password.username
                 )
@@ -170,7 +171,6 @@ fun PasswordCard(index: Int, password: Password) {
                 expanded = false
 
                 CentralAppControl.setPrimaryClip(
-                    manager = context.getSystemService(ClipboardManager::class.java),
                     label = context.getString(R.string.password),
                     clip = password.password
                 )
