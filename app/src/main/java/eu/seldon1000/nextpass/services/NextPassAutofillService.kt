@@ -47,16 +47,14 @@ class NextPassAutofillService : AutofillService() {
     private var usernameHints = arrayOf<String>()
     private var passwordHints = arrayOf<String>()
 
+    private var ready = false
     private var idPackage = ""
     private var viewWebDomain = ""
-
     private var saveUsername = ""
     private var savePassword = ""
-
-    private var fillResponse = FillResponse.Builder()
     private var usernameId = mutableListOf<AutofillId>()
     private var passwordId = mutableListOf<AutofillId>()
-    private var ready = false
+    private var fillResponse = FillResponse.Builder()
 
     private val networkRequest = NetworkRequest.Builder()
         .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
@@ -100,30 +98,20 @@ class NextPassAutofillService : AutofillService() {
         return START_STICKY
     }
 
-    override fun onConnected() {
-        super.onConnected()
-
-        if (NextcloudApi.storedPasswords.value.isEmpty()) coroutineScope.launch {
-            NextcloudApi.refreshServerList(refreshFolders = false, refreshTags = false)
-        }
-    }
-
     override fun onFillRequest(
         request: FillRequest,
         cancellationSignal: CancellationSignal,
         callback: FillCallback
     ) {
         coroutineScope.launch {
+            ready = false
             idPackage = ""
             viewWebDomain = ""
-
             saveUsername = ""
             savePassword = ""
-
-            fillResponse = FillResponse.Builder()
             usernameId = mutableListOf()
             passwordId = mutableListOf()
-            ready = false
+            fillResponse = FillResponse.Builder()
 
             val context = request.fillContexts
             val structure = context.last().structure

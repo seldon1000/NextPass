@@ -308,11 +308,13 @@ object CentralAppControl {
     fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlocked) {
             if (NextcloudApi.isLogged()) {
-                startAutofillService()
-
                 if (!shouldRememberScreen) navigate(route = Routes.Passwords.route)
 
-                executeRequest { NextcloudApi.refreshServerList { showError() } }
+                executeRequest {
+                    NextcloudApi.refreshServerList { showError() }
+
+                    startAutofillService()
+                }
             }
         } else navigate(route = Routes.AccessPin.getRoute(arg = true))
     }
