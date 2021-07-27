@@ -29,11 +29,8 @@ import io.ktor.client.features.auth.providers.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -43,6 +40,11 @@ import kotlinx.serialization.serializer
 @SuppressLint("StaticFieldLeak")
 object NextcloudApi {
     private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
+
+    private var server = ""
+    private var loginName = ""
+    private var appPassword = ""
+    private const val endpoint = "/index.php/apps/passwords/api/1.0"
 
     val json = Json {
         ignoreUnknownKeys = true
@@ -54,12 +56,6 @@ object NextcloudApi {
             serializer = KotlinxSerializer(json = json)
         }
     }
-
-    private var server = ""
-    private var loginName = ""
-    private var appPassword = ""
-
-    private const val endpoint = "/index.php/apps/passwords/api/1.0"
 
     private val baseFolder = json.decodeFromString<Folder>(
         string = "{\"id\":\"00000000-0000-0000-0000-000000000000\"," +
@@ -106,78 +102,93 @@ object NextcloudApi {
         }
     }
 
-    fun logout() {
-        coroutineScope.launch {
-            client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
-                header("OCS-APIREQUEST", true)
+    fun logout(handler: () -> Unit) {
+        try {
+            coroutineScope.launch {
+                client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
+                    header("OCS-APIREQUEST", true)
+                }
             }
+
+            storedPasswordsState.value.clear()
+            storedFoldersState.value.clear()
+            storedTagsState.value.clear()
+
+            server = ""
+            loginName = ""
+            appPassword = ""
+
+            client = HttpClient(CIO) {
+                install(JsonFeature) {
+                    serializer = KotlinxSerializer(json = json)
+                }
+            }
+        } catch (e: Exception) {
+            handler()
         }
 
-        storedPasswordsState.value.clear()
-        storedFoldersState.value.clear()
-        storedTagsState.value.clear()
-
-        server = ""
-        loginName = ""
-        appPassword = ""
-
-        client = HttpClient(CIO) {
-            install(JsonFeature) {
-                serializer = KotlinxSerializer(json = json)
-            }
-        }
     }
 
     private suspend inline fun <reified T> listRequest(): SnapshotStateList<T> {
-        return try {
-            json.decodeFromString(deserializer = SnapshotListSerializer(dataSerializer = serializer()),
-                string = client.get(
-                    urlString = "$server$endpoint/${
-                        when (T::class) {
-                            Password::class -> "password"
-                            Folder::class -> "folder"
-                            else -> "tag"
-                        }
-                    }/list"
-                ) {
-                    if (T::class == Password::class)
-                        parameter(key = "details", value = "model+tags")
-                })
-        } catch (e: Exception) {
-            mutableStateListOf()
-        }
+        return json.decodeFromString(deserializer = SnapshotListSerializer(dataSerializer = serializer()),
+            string = client.get(
+                urlString = "$server$endpoint/${
+                    when (T::class) {
+                        Password::class -> "password"
+                        Folder::class -> "folder"
+                        else -> "tag"
+                    }
+                }/list"
+            ) {
+                if (T::class == Password::class)
+                    parameter(key = "details", value = "model+tags")
+            })
     }
 
-    suspend fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
+    suspend fun refreshServerList(
+        refreshFolders: Boolean = true,
+        refreshTags: Boolean = true,
+        handler: () -> Unit = {}
+    ) {
         client.coroutineContext.cancelChildren()
 
         if (refreshFolders) {
             coroutineScope.launch {
-                val folders = listRequest<Folder>()
+                try {
+                    val folders = listRequest<Folder>()
 
-                folders.sortBy { it.label.lowercase() }
-                folders.add(index = 0, element = baseFolder)
+                    folders.sortBy { it.label.lowercase() }
+                    folders.add(index = 0, element = baseFolder)
 
-                storedFoldersState.value = folders
+                    storedFoldersState.value = folders
+                } catch (e: Exception) {
+                }
             }
         }
 
         if (refreshTags)
             coroutineScope.launch {
-                val tags = listRequest<Tag>()
+                try {
+                    val tags = listRequest<Tag>()
 
-                tags.sortBy { it.label.lowercase() }
+                    tags.sortBy { it.label.lowercase() }
 
-                storedTagsState.value = tags
+                    storedTagsState.value = tags
+                } catch (e: Exception) {
+                }
             }
 
         coroutineScope.launch {
-            val passwords = listRequest<Password>()
+            try {
+                val passwords = listRequest<Password>()
 
-            passwords.sortBy { it.label.lowercase() }
-            passwords.forEach { password -> faviconRequest(data = password) }
+                passwords.sortBy { it.label.lowercase() }
+                passwords.forEach { password -> faviconRequest(data = password) }
 
-            storedPasswordsState.value = passwords
+                storedPasswordsState.value = passwords
+            } catch (e: Exception) {
+                handler()
+            }
         }.join()
     }
 
@@ -198,138 +209,194 @@ object NextcloudApi {
             })
     }
 
-    suspend fun createPasswordRequest(params: Map<String, String>, tags: List<Tag>) {
+    suspend fun createPasswordRequest(
+        params: Map<String, String>,
+        tags: List<Tag>,
+        handler: () -> Unit = {}
+    ) {
         coroutineScope.launch {
-            val newPassword = showRequest<Password>(
-                id = client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
+            try {
+                val newPassword = showRequest<Password>(
+                    id = client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
+                        params.forEach { parameter(key = it.key, value = it.value) }
+                        tags.forEach { parameter(key = "tags[]", value = it.id) }
+                    }["id"]!!.jsonPrimitive.content
+                )
+
+                faviconRequest(data = newPassword)
+
+                val data = storedPasswordsState.value
+
+                data.add(element = newPassword)
+                data.sortBy { it.label.lowercase() }
+
+                storedPasswordsState.value = data
+            } catch (e: Exception) {
+                handler()
+            }
+        }.join()
+    }
+
+    suspend fun createFolderRequest(
+        params: Map<String, String>,
+        handler: () -> Unit
+    ) {
+        coroutineScope.launch {
+            try {
+                val newFolder = showRequest<Folder>(
+                    id = client.post<JsonObject>(urlString = "$server$endpoint/folder/create") {
+                        params.forEach { parameter(key = it.key, value = it.value) }
+                    }["id"]!!.jsonPrimitive.content
+                )
+
+                val data = storedFoldersState.value
+
+                data.removeAt(index = 0)
+                data.add(element = newFolder)
+                data.sortBy { it.label.lowercase() }
+                data.add(index = 0, element = baseFolder)
+
+                storedFoldersState.value = data
+            } catch (e: Exception) {
+                handler()
+            }
+        }.join()
+    }
+
+    suspend fun createTagRequest(
+        params: Map<String, String>,
+        handler: () -> Unit
+    ) {
+        coroutineScope.launch {
+            try {
+                val newTag = showRequest<Tag>(
+                    id = client.post<JsonObject>(urlString = "$server$endpoint/tag/create") {
+                        params.forEach { parameter(key = it.key, value = it.value) }
+                    }["id"]!!.jsonPrimitive.content
+                )
+
+                val data = storedTagsState.value
+
+                data.add(element = newTag)
+                data.sortBy { it.label.lowercase() }
+
+                storedTagsState.value = data
+            } catch (e: Exception) {
+                handler()
+            }
+        }.join()
+    }
+
+    suspend fun deletePasswordRequest(id: String, handler: () -> Unit) {
+        coroutineScope.launch {
+            try {
+                client.delete<Any>(urlString = "$server$endpoint/password/delete") {
+                    parameter(key = "id", value = id)
+                }
+
+                storedPasswordsState.value.removeIf { it.id == id }
+            } catch (e: Exception) {
+                handler()
+            }
+        }.join()
+    }
+
+    suspend fun deleteFolderRequest(id: String, handler: () -> Unit) {
+        coroutineScope.launch {
+            try {
+                client.delete<Any>(urlString = "$server$endpoint/folder/delete") {
+                    parameter(key = "id", value = id)
+                }
+
+                refreshServerList()
+            } catch (e: Exception) {
+                handler()
+            }
+        }.join()
+    }
+
+    suspend fun deleteTagRequest(id: String, handler: () -> Unit) {
+        coroutineScope.launch {
+            try {
+                client.delete<Any>(urlString = "$server$endpoint/tag/delete") {
+                    parameter(key = "id", value = id)
+                }
+
+                refreshServerList()
+            } catch (e: Exception) {
+                handler()
+            }
+        }.join()
+    }
+
+    suspend fun updatePasswordRequest(
+        params: Map<String, String>,
+        tags: List<Tag>,
+        handler: () -> Unit
+    ) {
+        coroutineScope.launch {
+            try {
+                client.patch<Any>(urlString = "$server$endpoint/password/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
                     tags.forEach { parameter(key = "tags[]", value = it.id) }
-                }["id"]!!.jsonPrimitive.content
-            )
+                }
 
-            faviconRequest(data = newPassword)
+                val updatedPassword = showRequest<Password>(id = params["id"]!!)
 
-            val data = storedPasswordsState.value
+                val index = storedPasswordsState.value.indexOfFirst { it.id == params["id"]!! }
 
-            data.add(element = newPassword)
-            data.sortBy { it.label.lowercase() }
+                if (params["url"]!! != storedPasswordsState.value[index].url)
+                    faviconRequest(data = updatedPassword)
+                else updatedPassword.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
 
-            storedPasswordsState.value = data
+                storedPasswordsState.value[index] = updatedPassword
+            } catch (e: Exception) {
+                handler()
+            }
         }.join()
     }
 
-    suspend fun createFolderRequest(params: Map<String, String>) {
+    suspend fun updateFolderRequest(
+        params: Map<String, String>,
+        handler: () -> Unit
+    ) {
         coroutineScope.launch {
-            val newFolder = showRequest<Folder>(
-                id = client.post<JsonObject>(urlString = "$server$endpoint/folder/create") {
+            try {
+                client.patch<Any>(urlString = "$server$endpoint/folder/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
-                }["id"]!!.jsonPrimitive.content
-            )
+                }
 
-            val data = storedFoldersState.value
+                val updatedFolder = showRequest<Folder>(id = params["id"]!!)
 
-            data.removeAt(index = 0)
-            data.add(element = newFolder)
-            data.sortBy { it.label.lowercase() }
-            data.add(index = 0, element = baseFolder)
-
-            storedFoldersState.value = data
+                storedFoldersState.value[storedFoldersState.value.indexOfFirst {
+                    it.id == params["id"]!!
+                }] = updatedFolder
+            } catch (e: Exception) {
+                handler()
+            }
         }.join()
     }
 
-    suspend fun createTagRequest(params: Map<String, String>) {
+    suspend fun updateTagRequest(
+        params: Map<String, String>,
+        handler: () -> Unit
+    ) {
         coroutineScope.launch {
-            val newTag = showRequest<Tag>(
-                id = client.post<JsonObject>(urlString = "$server$endpoint/tag/create") {
+            try {
+                client.patch<Any>(urlString = "$server$endpoint/tag/update") {
                     params.forEach { parameter(key = it.key, value = it.value) }
-                }["id"]!!.jsonPrimitive.content
-            )
+                }
 
-            val data = storedTagsState.value
+                val updatedTag = showRequest<Tag>(id = params["id"]!!)
 
-            data.add(element = newTag)
-            data.sortBy { it.label.lowercase() }
+                storedTagsState.value[storedTagsState.value.indexOfFirst {
+                    it.id == params["id"]!!
+                }] = updatedTag
 
-            storedTagsState.value = data
-        }.join()
-    }
-
-    suspend fun deletePasswordRequest(id: String) {
-        coroutineScope.launch {
-            client.delete<Any>(urlString = "$server$endpoint/password/delete") {
-                parameter(key = "id", value = id)
+                refreshServerList(refreshFolders = false, refreshTags = false)
+            } catch (e: Exception) {
+                handler()
             }
-
-            storedPasswordsState.value.removeIf { it.id == id }
-        }.join()
-    }
-
-    suspend fun deleteFolderRequest(id: String) {
-        coroutineScope.launch {
-            client.delete<Any>(urlString = "$server$endpoint/folder/delete") {
-                parameter(key = "id", value = id)
-            }
-
-            refreshServerList()
-        }.join()
-    }
-
-    suspend fun deleteTagRequest(id: String) {
-        coroutineScope.launch {
-            client.delete<Any>(urlString = "$server$endpoint/tag/delete") {
-                parameter(key = "id", value = id)
-            }
-
-            refreshServerList()
-        }.join()
-    }
-
-    suspend fun updatePasswordRequest(params: Map<String, String>, tags: List<Tag>) {
-        coroutineScope.launch {
-            client.patch<Any>(urlString = "$server$endpoint/password/update") {
-                params.forEach { parameter(key = it.key, value = it.value) }
-                tags.forEach { parameter(key = "tags[]", value = it.id) }
-            }
-
-            val updatedPassword = showRequest<Password>(id = params["id"]!!)
-
-            val index = storedPasswordsState.value.indexOfFirst { it.id == params["id"]!! }
-
-            if (params["url"]!! != storedPasswordsState.value[index].url)
-                faviconRequest(data = updatedPassword)
-            else updatedPassword.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
-
-            storedPasswordsState.value[index] = updatedPassword
-        }.join()
-    }
-
-    suspend fun updateFolderRequest(params: Map<String, String>) {
-        coroutineScope.launch {
-            client.patch<Any>(urlString = "$server$endpoint/folder/update") {
-                params.forEach { parameter(key = it.key, value = it.value) }
-            }
-
-            val updatedFolder = showRequest<Folder>(id = params["id"]!!)
-
-            storedFoldersState.value[storedFoldersState.value.indexOfFirst {
-                it.id == params["id"]!!
-            }] = updatedFolder
-        }.join()
-    }
-
-    suspend fun updateTagRequest(params: Map<String, String>) {
-        coroutineScope.launch {
-            client.patch<Any>(urlString = "$server$endpoint/tag/update") {
-                params.forEach { parameter(key = it.key, value = it.value) }
-            }
-
-            val updatedTag = showRequest<Tag>(id = params["id"]!!)
-
-            storedTagsState.value[storedTagsState.value.indexOfFirst {
-                it.id == params["id"]!!
-            }] = updatedTag
-
-            refreshServerList(refreshFolders = false, refreshTags = false)
         }.join()
     }
 

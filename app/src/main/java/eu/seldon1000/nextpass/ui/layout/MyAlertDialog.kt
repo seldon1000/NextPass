@@ -26,8 +26,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.R
 
 @Composable
 fun MyAlertDialog() {
@@ -45,8 +45,8 @@ fun MyAlertDialog() {
             confirmButton = {
                 if (dialogConfirm)
                     Button(onClick = {
-                        dialogAction()
                         CentralAppControl.dismissDialog()
+                        dialogAction()
                     }) { Text(text = context.getString(R.string.confirm)) }
             },
             dismissButton = {
@@ -63,7 +63,7 @@ fun MyAlertDialog() {
                 )
             },
             text = dialogBody,
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(10.dp)
         )
     }
 }

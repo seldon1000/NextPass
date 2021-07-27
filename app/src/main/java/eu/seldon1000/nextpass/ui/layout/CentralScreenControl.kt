@@ -57,7 +57,7 @@ fun CentralScreenControl() {
         snackbarHost = { MySnackbar(snackbarHostState = scaffoldState.snackbarHostState) }) {
         SwipeRefresh(
             state = refreshState,
-            onRefresh = { CentralAppControl.executeRequest { NextcloudApi.refreshServerList() } },
+            onRefresh = { CentralAppControl.executeRequest { NextcloudApi.refreshServerList { it() } } },
             swipeEnabled = CentralAppControl.shouldShowRefresh()
         ) {
             NavHost(

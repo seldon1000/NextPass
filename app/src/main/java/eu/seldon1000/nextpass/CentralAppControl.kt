@@ -37,12 +37,9 @@ import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Routes
 import io.ktor.client.features.*
 import io.ktor.client.request.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -313,7 +310,7 @@ object CentralAppControl {
 
                 if (!shouldRememberScreen) navigate(route = Routes.Passwords.route)
 
-                executeRequest { NextcloudApi.refreshServerList() }
+                executeRequest { NextcloudApi.refreshServerList { showError() } }
             }
         } else navigate(route = Routes.AccessPin.getRoute(arg = true))
     }
@@ -413,20 +410,6 @@ object CentralAppControl {
                 navControllerState.value.currentDestination?.route!! != Routes.Pin.route
     }
 
-    fun executeRequest(request: suspend () -> Any) {
-        refreshingState.value = shouldShowRefresh()
-
-        coroutineScope.launch {
-            try {
-                request()
-
-                refreshingState.value = false
-            } catch (e: Exception) {
-                showError()
-            }
-        }
-    }
-
     private fun setKeyboardMode() {
         if (navControllerState.value.currentDestination?.route!! == Routes.Search.route ||
             navControllerState.value.currentDestination?.route!! == Routes.Pin.route
@@ -519,7 +502,7 @@ object CentralAppControl {
     }
 
     fun enableTags(refresh: Boolean = true) {
-        if (refresh) executeRequest { NextcloudApi.refreshServerList() }
+        if (refresh) executeRequest { NextcloudApi.refreshServerList { showError() } }
 
         sharedPreferences.edit().putBoolean("tags", true).apply()
         tagsState.value = true
@@ -641,6 +624,7 @@ object CentralAppControl {
                     cookieManager.removeSessionCookies {}
                     cookieManager.removeAllCookies {}
                     cookieManager.flush()
+
                 } catch (e: Exception) {
                     showError()
                 }
@@ -659,11 +643,7 @@ object CentralAppControl {
             },
             confirm = true
         ) {
-            try {
-                NextcloudApi.logout()
-            } catch (e: Exception) {
-                showError()
-            }
+            NextcloudApi.logout { showError() }
 
             sharedPreferences.edit().remove("server").apply()
             sharedPreferences.edit().remove("loginName").apply()
@@ -673,6 +653,16 @@ object CentralAppControl {
             resetUserPreferences(context = context)
             navigate(route = Routes.Welcome.route)
             showSnackbar(message = context.getString(R.string.disconnected_snack))
+        }
+    }
+
+    fun executeRequest(request: suspend (() -> Unit) -> Any) {
+        refreshingState.value = shouldShowRefresh()
+
+        coroutineScope.launch {
+            request { showError() }
+
+            refreshingState.value = false
         }
     }
 
