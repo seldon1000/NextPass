@@ -18,7 +18,10 @@ package eu.seldon1000.nextpass.ui.screens
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,9 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.MainViewModel
+import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.theme.Orange500
@@ -96,20 +98,10 @@ fun AccessPin(shouldRaiseBiometric: Boolean, viewModel: MainViewModel) {
                     }
                     Box(modifier = Modifier.size(size = 16.dp))
                 }
-                FloatingActionButton(onClick = {
-                    if (viewModel.checkPin(pin = pin)) viewModel.unlock()
-                    else {
-                        viewModel.showDialog(
-                            title = context.getString(R.string.wrong_pin),
-                            body = {
-                                Text(
-                                    text = context.getString(R.string.wrong_pin_body),
-                                    fontSize = 14.sp
-                                )
-                            }
-                        )
-                    }
-                }, modifier = Modifier.padding(bottom = 64.dp)) {
+                FloatingActionButton(
+                    onClick = { viewModel.checkPin(pin = pin) },
+                    modifier = Modifier.padding(bottom = 64.dp)
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_round_arrow_forward_24),
                         contentDescription = "access",

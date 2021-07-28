@@ -66,7 +66,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     lateinit var navController: MutableStateFlow<NavController>
     private lateinit var snackbarHostState: SnackbarHostState
 
-    private var unlocked = true
+    private var unlocked = false
     private var pendingUnlockAction: (() -> Unit)? = null
     private var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var biometricPrompt: BiometricPrompt
@@ -84,7 +84,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val currentFolder = MutableStateFlow(value = 0)
     val selectedFolder = MutableStateFlow(value = currentFolder.value)
     val folders = MutableStateFlow(value = sharedPreferences.contains("folders"))
-    val tags = MutableStateFlow(value = sharedPreferences.contains("tags"))
+    val tags = MutableStateFlow(value = !sharedPreferences.contains("tags"))
     val openDialog = MutableStateFlow(value = false)
     val dialogTitle = MutableStateFlow(value = "")
     val dialogBody = MutableStateFlow<@Composable () -> Unit> {}
@@ -99,14 +99,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 appPassword = sharedPreferences.getString("appPassword", "")!!
             )
 
+        unlocked = !pinProtected.value || lockTimeout.value == (-1).toLong()
+
         if (autofillManager.hasEnabledAutofillServices()) {
             if (autostart.value) autofillIntent =
                 Intent(context, NextPassAutofillService::class.java)
         } else sharedPreferences.edit().remove("autostart").apply()
-
-        if (pinProtected.value) {
-            if (lockTimeout.value != (-1).toLong()) unlocked = false
-        }
 
         if (folders.value) setFolderMode(mode = true)
 
@@ -135,22 +133,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetUserPreferences() {
         pendingUnlockAction = {
-            stopAutofillService(show = false)
-            disableAutostart()
+            refreshing.value = false
+
+            unlocked = true
+            sharedPreferences.edit().remove("PIN").apply()
+            pinProtected.value = false
+            sharedPreferences.edit().remove("timeout").apply()
+            lockTimeout.value = (-1).toLong()
+
+            stopAutofillService(showSnackMessage = false)
             disableAutofill()
-            disableScreenProtection(lock = false)
+            disableScreenProtection()
             disableFolders()
+            disableBiometric()
             enableTags()
-            disablePin(lock = false)
 
             showSnackbar(message = context.getString(R.string.preferences_reset_snack))
         }
 
-        if (pinProtected.value) lock(shouldRaiseBiometric = true)
-        else {
-            pendingUnlockAction!!()
-            pendingUnlockAction = null
-        }
+        lock(shouldRaiseBiometric = true)
     }
 
     fun showSnackbar(message: String) {
@@ -175,18 +176,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         screenProtection.value = true
     }
 
-    fun disableScreenProtection(lock: Boolean = true) {
+    fun disableScreenProtection() {
         pendingUnlockAction = {
             (navController.value.context as MainActivity).window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+
             sharedPreferences.edit().remove("screen").apply()
             screenProtection.value = false
         }
 
-        if (pinProtected.value && lock) lock(shouldRaiseBiometric = true)
-        else {
-            pendingUnlockAction!!()
-            pendingUnlockAction = null
-        }
+        lock()
     }
 
     private fun startAutofillService() {
@@ -202,12 +200,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun stopAutofillService(show: Boolean = true) {
+    fun stopAutofillService(showSnackMessage: Boolean = true) {
         if (autofill.value) {
             context.stopService(autofillIntent)
 
-            if (show) showSnackbar(message = context.getString(R.string.service_terminated_snack))
-        } else if (show) showSnackbar(message = context.getString(R.string.service_not_enabled_snack))
+            if (showSnackMessage) showSnackbar(message = context.getString(R.string.service_terminated_snack))
+        } else if (showSnackMessage) showSnackbar(message = context.getString(R.string.service_not_enabled_snack))
     }
 
     fun enableAutofill() {
@@ -218,12 +216,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun disableAutofill() {
         stopAutofillService()
+        disableAutostart()
 
         autofillManager.disableAutofillServices()
 
         autofill.value = false
-
-        disableAutostart()
     }
 
     fun enableAutostart() {
@@ -239,24 +236,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun lock(shouldRaiseBiometric: Boolean = true) {
         if (pinProtected.value) {
             unlocked = false
-
-            if (biometricProtected.value) biometricDismissed.value = false
-
             refreshing.value = false
-            navigate(route = Routes.AccessPin.getRoute(arg = shouldRaiseBiometric))
+            if (biometricProtected.value) biometricDismissed.value = false
             dismissDialog()
+
+            navigate(route = Routes.AccessPin.getRoute(arg = shouldRaiseBiometric))
+        } else {
+            pendingUnlockAction?.let { it() }
+            pendingUnlockAction = null
         }
     }
 
-    fun unlock() {
+    private fun unlock() {
         unlocked = true
+
+        pendingUnlockAction?.let { it() }
+        pendingUnlockAction = null
 
         if (navController.value.previousBackStackEntry?.destination?.route != Routes.Welcome.route)
             navController.value.popBackStack()
         else openApp()
-
-        pendingUnlockAction?.let { it() }
-        pendingUnlockAction = null
     }
 
     fun openApp(shouldRememberScreen: Boolean = false) {
@@ -270,15 +269,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     startAutofillService()
                 }
             }
-        } else navigate(route = Routes.AccessPin.getRoute(arg = true))
+        } else lock(shouldRaiseBiometric = true)
     }
 
-    fun checkPin(pin: String): Boolean {
-        return if (sharedPreferences.getString("PIN", null) == pin) {
-            unlocked = true
+    fun checkPin(pin: String) {
+        unlocked = sharedPreferences.getString("PIN", null) == pin
 
-            true
-        } else false
+        if (unlocked) unlock()
+        else showDialog(
+            title = context.getString(R.string.wrong_pin),
+            body = {
+                Text(
+                    text = context.getString(R.string.wrong_pin_body),
+                    fontSize = 14.sp
+                )
+            }
+        )
     }
 
     fun changePin() {
@@ -301,8 +307,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun disablePin(lock: Boolean = true) {
+    fun disablePin() {
         pendingUnlockAction = {
+            unlocked = true
             sharedPreferences.edit().remove("PIN").apply()
             pinProtected.value = false
             sharedPreferences.edit().remove("timeout").apply()
@@ -312,11 +319,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             showSnackbar(message = context.getString(R.string.pin_disabled_snack))
         }
 
-        if (pinProtected.value && lock) lock(shouldRaiseBiometric = true)
-        else {
-            pendingUnlockAction!!()
-            pendingUnlockAction = {}
-        }
+        lock(shouldRaiseBiometric = true)
     }
 
     fun enableBiometric() {
@@ -591,20 +594,37 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             },
             confirm = true
         ) {
-            executeRequest {
-                nextcloudApi.logout()
+            pendingUnlockAction = {
+                executeRequest {
+                    nextcloudApi.logout()
 
-                nextcloudApi = NextcloudApi()
+                    nextcloudApi = NextcloudApi()
 
-                sharedPreferences.edit().remove("server").apply()
-                sharedPreferences.edit().remove("loginName").apply()
-                sharedPreferences.edit().remove("appPassword").apply()
+                    navigate(route = Routes.Welcome.route)
 
-                refreshing.value = false
-                resetUserPreferences()
-                navigate(route = Routes.Welcome.route)
-                showSnackbar(message = context.getString(R.string.disconnected_snack))
+                    unlocked = true
+                    refreshing.value = false
+                    sharedPreferences.edit().remove("PIN").apply()
+                    pinProtected.value = false
+                    sharedPreferences.edit().remove("timeout").apply()
+                    lockTimeout.value = (-1).toLong()
+
+                    stopAutofillService(showSnackMessage = false)
+                    disableAutofill()
+                    disableScreenProtection()
+                    disableFolders()
+                    disableBiometric()
+                    enableTags()
+
+                    showSnackbar(message = context.getString(R.string.disconnected_snack))
+
+                    sharedPreferences.edit().remove("server").apply()
+                    sharedPreferences.edit().remove("loginName").apply()
+                    sharedPreferences.edit().remove("appPassword").apply()
+                }
             }
+
+            lock(shouldRaiseBiometric = true)
         }
     }
 
