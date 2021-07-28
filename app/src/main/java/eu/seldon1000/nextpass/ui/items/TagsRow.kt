@@ -43,7 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
@@ -56,7 +56,7 @@ fun TagsRow(
     tags: List<Tag>? = null,
     alignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     tagClickAction: (tag: Tag?) -> Unit,
-    viewModel: CentralAppControl
+    viewModel: MainViewModel
 ) {
     val context = LocalContext.current
 

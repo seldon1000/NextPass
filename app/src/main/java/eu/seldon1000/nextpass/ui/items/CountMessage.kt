@@ -30,10 +30,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 
 @Composable
-fun CountMessage(message: String, viewModel: CentralAppControl) {
+fun CountMessage(message: String, viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val refreshing by viewModel.refreshing.collectAsState()

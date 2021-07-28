@@ -34,7 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Folder
 import eu.seldon1000.nextpass.ui.items.CopyButton
@@ -49,7 +49,7 @@ import eu.seldon1000.nextpass.ui.theme.colors
 @Composable
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
-fun FolderDetails(folder: Folder, viewModel: CentralAppControl) {
+fun FolderDetails(folder: Folder, viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val scrollState = rememberScrollState()

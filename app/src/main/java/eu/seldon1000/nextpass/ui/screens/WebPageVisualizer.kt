@@ -40,13 +40,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 import eu.seldon1000.nextpass.ui.theme.colors
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebPageVisualizer(urlToRender: String, viewModel: CentralAppControl) {
+fun WebPageVisualizer(urlToRender: String, viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val webView by remember {

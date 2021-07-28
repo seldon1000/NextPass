@@ -21,11 +21,11 @@ import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.ui.theme.colors
 
 @Composable
-fun DefaultFab(viewModel: CentralAppControl) {
+fun DefaultFab(viewModel: MainViewModel) {
     FloatingActionButton(onClick = { viewModel.navigate(route = Routes.NewPassword.route) }) {
         Icon(
             painter = painterResource(id = R.drawable.ic_round_add_24),

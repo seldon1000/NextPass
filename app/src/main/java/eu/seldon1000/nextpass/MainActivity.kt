@@ -36,7 +36,7 @@ import kotlinx.coroutines.*
 class MainActivity : FragmentActivity() {
     private val coroutineScope = MainScope()
 
-    private lateinit var viewModel: CentralAppControl
+    private lateinit var viewModel: MainViewModel
     lateinit var autofillSettingsResult: ActivityResultLauncher<Intent>
 
     @ExperimentalAnimationApi
@@ -46,7 +46,7 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
 
         viewModel =
-            ViewModelProvider(this).get(CentralAppControl(application = application)::class.java)
+            ViewModelProvider(this).get(MainViewModel(application = application)::class.java)
 
         autofillSettingsResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

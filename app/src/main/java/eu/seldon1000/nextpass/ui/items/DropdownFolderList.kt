@@ -33,7 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.layout.Routes
 
@@ -43,7 +43,7 @@ fun DropdownFolderList(
     enabled: Boolean = true,
     canAdd: Boolean = true,
     folder: Int,
-    viewModel: CentralAppControl
+    viewModel: MainViewModel
 ) {
     val context = LocalContext.current
 

@@ -36,13 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
 
 @Composable
-fun DefaultBottomBar(lazyListState: LazyListState, viewModel: CentralAppControl) {
+fun DefaultBottomBar(lazyListState: LazyListState, viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()

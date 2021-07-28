@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.CustomField
 import eu.seldon1000.nextpass.api.NextcloudApi.Companion.json
@@ -45,7 +45,7 @@ import eu.seldon1000.nextpass.ui.layout.Routes
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
-fun PasswordCard(index: Int, password: Password, viewModel: CentralAppControl) {
+fun PasswordCard(index: Int, password: Password, viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()

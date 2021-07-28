@@ -35,7 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.items.CountMessage
@@ -49,7 +49,7 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
-fun Search(viewModel: CentralAppControl) {
+fun Search(viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val storedPasswords by viewModel.nextcloudApi.storedPasswords.collectAsState()

@@ -28,14 +28,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.ui.screens.*
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun CentralScreenControl(viewModel: CentralAppControl) {
+fun CentralScreenControl(viewModel: MainViewModel) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
 

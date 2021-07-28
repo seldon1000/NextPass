@@ -35,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.items.CountMessage
@@ -49,7 +49,7 @@ import eu.seldon1000.nextpass.ui.layout.*
 @ExperimentalFoundationApi
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
-fun PasswordList(viewModel: CentralAppControl) {
+fun PasswordList(viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val lazyListState = rememberLazyListState()

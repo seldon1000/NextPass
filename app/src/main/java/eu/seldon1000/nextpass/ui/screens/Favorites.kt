@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.items.CountMessage
@@ -47,7 +47,7 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
-fun Favorites(viewModel: CentralAppControl) {
+fun Favorites(viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val lazyListState = rememberLazyListState()

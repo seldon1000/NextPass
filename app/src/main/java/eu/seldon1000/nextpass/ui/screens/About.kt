@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.BuildConfig
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.ui.items.GenericColumnItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
@@ -47,7 +47,7 @@ import java.util.*
 
 @ExperimentalMaterialApi
 @Composable
-fun About(viewModel: CentralAppControl) {
+fun About(viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val scrollState = rememberScrollState()

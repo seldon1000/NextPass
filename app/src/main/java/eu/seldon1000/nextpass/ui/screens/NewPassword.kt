@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApi.Companion.json
 import eu.seldon1000.nextpass.api.Tag
@@ -54,7 +54,7 @@ import java.security.MessageDigest
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun NewPassword(viewModel: CentralAppControl) {
+fun NewPassword(viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val scrollState = rememberScrollState()

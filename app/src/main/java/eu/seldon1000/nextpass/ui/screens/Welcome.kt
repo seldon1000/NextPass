@@ -32,13 +32,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.theme.Orange500
 
 @ExperimentalMaterialApi
 @Composable
-fun WelcomeScreen(viewModel: CentralAppControl) {
+fun WelcomeScreen(viewModel: MainViewModel) {
     val context = LocalContext.current
 
     Column(

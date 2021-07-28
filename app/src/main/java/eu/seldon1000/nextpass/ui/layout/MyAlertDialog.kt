@@ -28,12 +28,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.theme.Orange500
 
 @Composable
-fun MyAlertDialog(viewModel: CentralAppControl) {
+fun MyAlertDialog(viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val openDialog by viewModel.openDialog.collectAsState()

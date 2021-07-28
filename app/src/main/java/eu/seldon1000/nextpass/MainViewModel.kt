@@ -52,7 +52,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 @SuppressLint("StaticFieldLeak")
-class CentralAppControl(application: Application) : AndroidViewModel(application) {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
     val nextcloudApi = NextcloudApi()
 
     private val context = getApplication<Application>().applicationContext

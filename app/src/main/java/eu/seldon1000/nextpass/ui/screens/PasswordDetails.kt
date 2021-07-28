@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.*
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.api.NextcloudApi.Companion.json
 import eu.seldon1000.nextpass.ui.items.*
 import eu.seldon1000.nextpass.ui.layout.Header
@@ -56,7 +56,7 @@ import kotlinx.serialization.encodeToString
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun PasswordDetails(passwordData: Password, viewModel: CentralAppControl) {
+fun PasswordDetails(passwordData: Password, viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()

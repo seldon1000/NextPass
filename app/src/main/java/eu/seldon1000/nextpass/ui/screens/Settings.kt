@@ -41,7 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.MainActivity
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.items.GenericColumnItem
@@ -56,7 +56,7 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
-fun Settings(viewModel: CentralAppControl) {
+fun Settings(viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()

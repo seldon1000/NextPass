@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Folder
 import eu.seldon1000.nextpass.ui.layout.Routes
@@ -39,7 +39,7 @@ import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 
 @ExperimentalMaterialApi
 @Composable
-fun FolderCard(index: Int, folder: Folder, icon: Painter? = null, viewModel: CentralAppControl) {
+fun FolderCard(index: Int, folder: Folder, icon: Painter? = null, viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()

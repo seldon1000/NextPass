@@ -28,7 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.theme.Orange500
@@ -36,7 +36,7 @@ import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @Composable
-fun AccessPin(shouldRaiseBiometric: Boolean, viewModel: CentralAppControl) {
+fun AccessPin(shouldRaiseBiometric: Boolean, viewModel: MainViewModel) {
     val context = LocalContext.current
 
     val biometricDismissed by viewModel.biometricDismissed.collectAsState()
