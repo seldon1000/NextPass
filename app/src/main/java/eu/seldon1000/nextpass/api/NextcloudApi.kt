@@ -94,23 +94,6 @@ class NextcloudApi {
         client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
             header("OCS-APIREQUEST", true)
         }
-
-        storedPasswords.value.clear()
-        storedFolders.value.clear()
-        storedTags.value.clear()
-
-        server = ""
-        loginName = ""
-        appPassword = ""
-
-        client = HttpClient(CIO) {
-            install(JsonFeature) {
-                serializer = KotlinxSerializer(json = json)
-            }
-        }
-
-        client.coroutineContext.cancelChildren()
-        coroutineScope.coroutineContext.cancelChildren()
     }
 
     private suspend inline fun <reified T> listRequest(): SnapshotStateList<T> {

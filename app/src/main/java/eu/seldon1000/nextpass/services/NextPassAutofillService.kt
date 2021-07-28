@@ -44,8 +44,6 @@ import java.security.MessageDigest
 class NextPassAutofillService : AutofillService() {
     private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
 
-    val nextcloudApi = NextcloudApi()
-
     private var usernameHints = arrayOf<String>()
     private var passwordHints = arrayOf<String>()
 
@@ -372,5 +370,9 @@ class NextPassAutofillService : AutofillService() {
                 } catch (e: Exception) {
                     false
                 } || password.customFields.contains(other = idPackage, ignoreCase = true))))
+    }
+
+    companion object {
+        var nextcloudApi = NextcloudApi()
     }
 }

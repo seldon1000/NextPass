@@ -53,7 +53,8 @@ import kotlinx.serialization.json.jsonPrimitive
 
 @SuppressLint("StaticFieldLeak")
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    val nextcloudApi = NextcloudApi()
+    var nextcloudApi = NextcloudApi()
+        private set
 
     private val context = getApplication<Application>().applicationContext
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences("nextpass", 0)
@@ -571,10 +572,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
 
                     val cookieManager = CookieManager.getInstance()
-                    cookieManager.removeSessionCookies {}
                     cookieManager.removeAllCookies {}
-                    cookieManager.flush()
-
                 } catch (e: Exception) {
                     showError()
                 }
@@ -595,6 +593,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ) {
             executeRequest {
                 nextcloudApi.logout()
+
+                nextcloudApi = NextcloudApi()
 
                 sharedPreferences.edit().remove("server").apply()
                 sharedPreferences.edit().remove("loginName").apply()
@@ -621,6 +621,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 request()
+
+                if (autofillManager.hasEnabledAutofillServices())
+                    NextPassAutofillService.nextcloudApi = nextcloudApi
             } catch (e: Exception) {
                 showError()
             }
