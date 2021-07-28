@@ -192,8 +192,16 @@ fun Settings() {
                         Switch(
                             checked = protected,
                             onCheckedChange = {
-                                if (protected) CentralAppControl.disablePin()
-                                else CentralAppControl.navigate(route = Routes.Pin.route)
+                                if (protected) {
+                                    CentralAppControl.showDialog(
+                                        title = context.getString(R.string.disable_pin),
+                                        body = {
+                                            Text(
+                                                text = context.getString(R.string.disable_pin_body)
+                                            )
+                                        },
+                                        confirm = true) { CentralAppControl.disablePin() }
+                                } else CentralAppControl.navigate(route = Routes.Pin.route)
                             },
                             colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)

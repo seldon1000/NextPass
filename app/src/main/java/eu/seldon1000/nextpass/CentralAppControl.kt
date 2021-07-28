@@ -354,6 +354,8 @@ object CentralAppControl {
             sharedPreferences.edit().remove("timeout").apply()
             lockTimeoutState.value = (-1).toLong()
             disableBiometric()
+
+            showSnackbar(message = context.getString(R.string.pin_disabled_snack))
         }
 
         if (pinProtectedState.value && lock) lock(shouldRaiseBiometric = true)
