@@ -56,34 +56,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val nextcloudApi = NextcloudApi()
 
     private val context = getApplication<Application>().applicationContext
-    private var sharedPreferences: SharedPreferences = context.getSharedPreferences("nextpass", 0)
-    private var clipboardManager: ClipboardManager =
+    private val sharedPreferences: SharedPreferences = context.getSharedPreferences("nextpass", 0)
+    private val clipboardManager: ClipboardManager =
         context.getSystemService(ClipboardManager::class.java)
-    private var autofillManager: AutofillManager =
+    private val autofillManager: AutofillManager =
         context.getSystemService(AutofillManager::class.java)
 
+    lateinit var navController: MutableStateFlow<NavController>
     private lateinit var snackbarHostState: SnackbarHostState
-    private lateinit var biometricPrompt: BiometricPrompt
-    private lateinit var autofillIntent: Intent
-    private var promptInfo: BiometricPrompt.PromptInfo
+
     private var unlocked = true
     private var pendingUnlockAction: (() -> Unit)? = null
+    private var promptInfo: BiometricPrompt.PromptInfo
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var autofillIntent: Intent
 
-    lateinit var navController: MutableStateFlow<NavController>
-
-    val screenProtection = MutableStateFlow(value = false)
+    val screenProtection = MutableStateFlow(value = sharedPreferences.contains("screen"))
     val autofill = MutableStateFlow(value = false)
-    val autostart = MutableStateFlow(value = false)
-    val pinProtected = MutableStateFlow(value = false)
-    val biometricProtected = MutableStateFlow(value = false)
+    val autostart = MutableStateFlow(value = sharedPreferences.contains("autostart"))
+    val pinProtected = MutableStateFlow(value = sharedPreferences.contains("PIN"))
+    val biometricProtected = MutableStateFlow(value = sharedPreferences.contains("biometric"))
     val biometricDismissed = MutableStateFlow(value = false)
-    val lockTimeout = MutableStateFlow(value = (-1).toLong())
+    val lockTimeout = MutableStateFlow(value = sharedPreferences.getLong("timeout", 0))
     val refreshing = MutableStateFlow(value = false)
     val folderMode = MutableStateFlow(value = false)
     val currentFolder = MutableStateFlow(value = 0)
     val selectedFolder = MutableStateFlow(value = currentFolder.value)
-    val folders = MutableStateFlow(value = false)
-    val tags = MutableStateFlow(value = false)
+    val folders = MutableStateFlow(value = sharedPreferences.contains("folders"))
+    val tags = MutableStateFlow(value = sharedPreferences.contains("tags"))
     val openDialog = MutableStateFlow(value = false)
     val dialogTitle = MutableStateFlow(value = "")
     val dialogBody = MutableStateFlow<@Composable () -> Unit> {}
@@ -98,29 +98,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 appPassword = sharedPreferences.getString("appPassword", "")!!
             )
 
-        if (sharedPreferences.contains("screen")) screenProtection.value = true
-
         if (autofillManager.hasEnabledAutofillServices()) {
-            autostart.value = sharedPreferences.contains("autostart")
-
             if (autostart.value) autofillIntent =
                 Intent(context, NextPassAutofillService::class.java)
         } else sharedPreferences.edit().remove("autostart").apply()
 
-        if (sharedPreferences.contains("PIN")) {
-            pinProtected.value = true
-            lockTimeout.value = sharedPreferences.getLong("timeout", 0)
+        if (pinProtected.value) {
             if (lockTimeout.value != (-1).toLong()) unlocked = false
-            biometricProtected.value = sharedPreferences.contains("biometric")
         }
 
-        if (sharedPreferences.contains("folders")) {
-            setFolderMode(mode = true)
-            folders.value = true
-        } else setFolderMode(mode = false)
-
-        if (!sharedPreferences.contains("tags")) enableTags(refresh = false)
-        else tags.value = sharedPreferences.getBoolean("tags", true)
+        if (folders.value) setFolderMode(mode = true)
 
         promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(context.getString(R.string.access_nextpass))
@@ -470,7 +457,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun disableTags() {
-        sharedPreferences.edit().putBoolean("tags", false).apply()
+        sharedPreferences.edit().remove("tags").apply()
         tags.value = false
     }
 
