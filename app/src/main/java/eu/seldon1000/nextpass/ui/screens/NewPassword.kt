@@ -130,15 +130,10 @@ fun NewPassword() {
                     if (favorite) params["favorite"] = "true"
 
                     CentralAppControl.executeRequest {
-                        NextcloudApi.createPasswordRequest(
-                            params = params,
-                            tags = tags,
-                            onFailure = it
-                        ) {
-                            CentralAppControl.setSelectedFolder(folder = CentralAppControl.currentFolder.value)
-                            CentralAppControl.popBackStack()
-                            CentralAppControl.showSnackbar(message = context.getString(R.string.password_created_snack))
-                        }
+                        NextcloudApi.createPasswordRequest(params = params, tags = tags)
+                        CentralAppControl.setSelectedFolder(folder = CentralAppControl.currentFolder.value)
+                        CentralAppControl.popBackStack()
+                        CentralAppControl.showSnackbar(message = context.getString(R.string.password_created_snack))
                     }
                 }
             } else CentralAppControl.showDialog(
@@ -250,9 +245,7 @@ fun NewPassword() {
 
                         IconButton(onClick = {
                             CentralAppControl.executeRequest {
-                                coroutineScope.launch {
-                                    password = NextcloudApi.generatePassword { it() }
-                                }
+                                coroutineScope.launch { password = NextcloudApi.generatePassword() }
                             }
 
                             if (rotation >= 360F * 10) {

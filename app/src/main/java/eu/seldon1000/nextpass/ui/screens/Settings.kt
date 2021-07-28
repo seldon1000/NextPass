@@ -169,7 +169,7 @@ fun Settings() {
                         coroutineScope.launch {
                             CentralAppControl.setPrimaryClip(
                                 label = context.getString(R.string.generated_password),
-                                clip = NextcloudApi.generatePassword { it() }
+                                clip = NextcloudApi.generatePassword()
                             )
                         }
                     }

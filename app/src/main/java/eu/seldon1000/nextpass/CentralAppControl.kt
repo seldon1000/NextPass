@@ -642,7 +642,7 @@ object CentralAppControl {
             confirm = true
         ) {
             executeRequest {
-                NextcloudApi.logout(onFailure = it) {
+                NextcloudApi.logout {
                     sharedPreferences.edit().remove("server").apply()
                     sharedPreferences.edit().remove("loginName").apply()
                     sharedPreferences.edit().remove("appPassword").apply()
@@ -656,7 +656,7 @@ object CentralAppControl {
         }
     }
 
-    fun executeRequest(request: suspend (() -> Unit) -> Any) {
+    fun executeRequest(request: suspend () -> Unit) {
         refreshingState.value =
             navControllerState.value.currentDestination?.route == Routes.Search.route ||
                     navControllerState.value.currentDestination?.route == Routes.Passwords.route ||
@@ -666,8 +666,12 @@ object CentralAppControl {
                     navControllerState.value.currentDestination?.route == Routes.NewPassword.route ||
                     navControllerState.value.currentDestination?.route == Routes.NewFolder.route
 
-        coroutineScope.launch {
-            request { showError() }
+        coroutineScope.launch(context = Dispatchers.Main) {
+            try {
+                request()
+            } catch (e: Exception) {
+                showError()
+            }
 
             refreshingState.value = false
         }

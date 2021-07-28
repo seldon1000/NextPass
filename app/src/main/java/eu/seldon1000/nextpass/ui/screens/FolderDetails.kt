@@ -87,9 +87,8 @@ fun FolderDetails(folder: Folder) {
                         if (folder.favorite) params["favorite"] = "true"
 
                         CentralAppControl.executeRequest {
-                            NextcloudApi.updateFolderRequest(params = params, onFailure = it) {
-                                CentralAppControl.showSnackbar(message = context.getString(R.string.folder_updated_snack))
-                            }
+                            NextcloudApi.updateFolderRequest(params = params)
+                            CentralAppControl.showSnackbar(message = context.getString(R.string.folder_updated_snack))
                         }
                     }
                 } else CentralAppControl.showDialog(
@@ -203,11 +202,8 @@ fun FolderDetails(folder: Folder) {
                                 )
                                 if (it) params["favorite"] = "true"
 
-                                CentralAppControl.executeRequest { handler ->
-                                    NextcloudApi.updateFolderRequest(
-                                        params = params,
-                                        onFailure = handler
-                                    )
+                                CentralAppControl.executeRequest {
+                                    NextcloudApi.updateFolderRequest(params = params)
                                 }
                             }
                         }
@@ -243,10 +239,10 @@ fun FolderDetails(folder: Folder) {
                             confirm = true
                         ) {
                             CentralAppControl.executeRequest {
-                                NextcloudApi.deleteFolderRequest(id = folder.id, onFailure = it) {
-                                    CentralAppControl.popBackStack()
-                                    CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
-                                }
+                                NextcloudApi.deleteFolderRequest(id = folder.id)
+                                CentralAppControl.popBackStack()
+                                CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
+                                NextcloudApi.refreshServerList()
                             }
                         }
                     }

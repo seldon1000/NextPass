@@ -58,12 +58,12 @@ import kotlinx.serialization.encodeToString
 fun PasswordDetails(passwordData: Password) {
     val context = LocalContext.current
 
+    val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+
     val storedFolders by NextcloudApi.storedFolders.collectAsState()
 
     val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
-
-    val coroutineScope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
 
     var showed by remember { mutableStateOf(value = false) }
     var edit by remember { mutableStateOf(value = false) }
@@ -128,11 +128,8 @@ fun PasswordDetails(passwordData: Password) {
                         if (passwordData.favorite) params["favorite"] = "true"
 
                         CentralAppControl.executeRequest {
-                            NextcloudApi.updatePasswordRequest(
-                                params = params,
-                                tags = tags,
-                                onFailure = it
-                            ) { CentralAppControl.showSnackbar(message = context.getString(R.string.password_updated_snack)) }
+                            NextcloudApi.updatePasswordRequest(params = params, tags = tags)
+                            CentralAppControl.showSnackbar(message = context.getString(R.string.password_updated_snack))
                         }
                     }
                 } else CentralAppControl.showDialog(
@@ -275,12 +272,8 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                                 if (passwordData.favorite) params["favorite"] = "true"
 
-                                CentralAppControl.executeRequest { handler ->
-                                    NextcloudApi.updatePasswordRequest(
-                                        params = params,
-                                        tags = tags,
-                                        onFailure = handler
-                                    )
+                                CentralAppControl.executeRequest {
+                                    NextcloudApi.updatePasswordRequest(params = params, tags = tags)
                                 }
                             }
                         }
@@ -310,11 +303,10 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                                 if (it) params["favorite"] = "true"
 
-                                CentralAppControl.executeRequest { handler ->
+                                CentralAppControl.executeRequest {
                                     NextcloudApi.updatePasswordRequest(
                                         params = params,
-                                        tags = passwordData.tags,
-                                        onFailure = handler
+                                        tags = passwordData.tags
                                     )
                                 }
                             }
@@ -531,22 +523,13 @@ fun PasswordDetails(passwordData: Password) {
                                 confirm = true
                             ) {
                                 CentralAppControl.executeRequest {
-                                    NextcloudApi.deletePasswordRequest(
-                                        id = passwordData.id,
-                                        onFailure = it
-                                    ) {
-                                        CentralAppControl.popBackStack()
-                                        CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
-                                    }
+                                    NextcloudApi.deletePasswordRequest(id = passwordData.id)
+                                    CentralAppControl.popBackStack()
+                                    CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
                                 }
                             }
                         }
-                        ) {
-                            Text(
-                                text = context.getString(R.string.delete),
-                                color = Color.Red
-                            )
-                        }
+                        ) { Text(text = context.getString(R.string.delete), color = Color.Red) }
                         Crossfade(targetState = edit) { state ->
                             TextButton(
                                 onClick = { customFields.add(element = CustomField()) },
