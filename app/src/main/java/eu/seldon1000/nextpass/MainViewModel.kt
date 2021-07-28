@@ -57,8 +57,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val context = getApplication<Application>().applicationContext
     private var sharedPreferences: SharedPreferences = context.getSharedPreferences("nextpass", 0)
-    private var clipboardManager: ClipboardManager = context.getSystemService(ClipboardManager::class.java)
-    private var autofillManager: AutofillManager = context.getSystemService(AutofillManager::class.java)
+    private var clipboardManager: ClipboardManager =
+        context.getSystemService(ClipboardManager::class.java)
+    private var autofillManager: AutofillManager =
+        context.getSystemService(AutofillManager::class.java)
 
     private lateinit var snackbarHostState: SnackbarHostState
     private lateinit var biometricPrompt: BiometricPrompt
@@ -340,12 +342,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun showBiometricPrompt(toEnable: Boolean = false) {
         biometricPrompt = BiometricPrompt(
-            (context as MainActivity),
+            (navController.value.context as MainActivity),
             object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(
-                    errorCode: Int,
-                    errString: CharSequence
-                ) {
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     biometricDismissed.value = true
                 }
 
