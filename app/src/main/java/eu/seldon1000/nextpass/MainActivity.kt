@@ -48,9 +48,7 @@ class MainActivity : FragmentActivity() {
         CentralAppControl.setContext(con = this)
 
         setContent {
-            rememberCoroutineScope().launch {
-                CentralAppControl.openApp()
-            }
+            rememberCoroutineScope().launch { CentralAppControl.openApp() }
 
             NextPassTheme {
                 Surface {
