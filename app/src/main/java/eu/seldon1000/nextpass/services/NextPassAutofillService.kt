@@ -83,10 +83,13 @@ class NextPassAutofillService : AutofillService() {
                         super.onAvailable(network)
 
                         coroutineScope.launch {
-                            NextcloudApi.refreshServerList(
-                                refreshFolders = false,
-                                refreshTags = false
-                            )
+                            try {
+                                NextcloudApi.refreshServerList(
+                                    refreshFolders = false,
+                                    refreshTags = false
+                                )
+                            } catch (e: Exception) {
+                            }
                         }
                     }
                 }
@@ -232,9 +235,11 @@ class NextPassAutofillService : AutofillService() {
             }
 
             coroutineScope.launch {
-                NextcloudApi.createPasswordRequest(params = params, tags = emptyList())
-
-                callback.onSuccess()
+                try {
+                    NextcloudApi.createPasswordRequest(params = params, tags = emptyList())
+                    callback.onSuccess()
+                } catch (e: Exception) {
+                }
             }
         }
     }

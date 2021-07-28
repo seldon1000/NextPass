@@ -311,7 +311,7 @@ object CentralAppControl {
                 if (!shouldRememberScreen) navigate(route = Routes.Passwords.route)
 
                 executeRequest {
-                    NextcloudApi.refreshServerList { showError() }
+                    NextcloudApi.refreshServerList()
 
                     startAutofillService()
                 }
@@ -498,7 +498,7 @@ object CentralAppControl {
     }
 
     fun enableTags(refresh: Boolean = true) {
-        if (refresh) executeRequest { NextcloudApi.refreshServerList { showError() } }
+        if (refresh) executeRequest { NextcloudApi.refreshServerList() }
 
         sharedPreferences.edit().putBoolean("tags", true).apply()
         tagsState.value = true
@@ -642,16 +642,16 @@ object CentralAppControl {
             confirm = true
         ) {
             executeRequest {
-                NextcloudApi.logout {
-                    sharedPreferences.edit().remove("server").apply()
-                    sharedPreferences.edit().remove("loginName").apply()
-                    sharedPreferences.edit().remove("appPassword").apply()
+                NextcloudApi.logout()
 
-                    refreshingState.value = false
-                    resetUserPreferences(context = context)
-                    navigate(route = Routes.Welcome.route)
-                    showSnackbar(message = context.getString(R.string.disconnected_snack))
-                }
+                sharedPreferences.edit().remove("server").apply()
+                sharedPreferences.edit().remove("loginName").apply()
+                sharedPreferences.edit().remove("appPassword").apply()
+
+                refreshingState.value = false
+                resetUserPreferences(context = context)
+                navigate(route = Routes.Welcome.route)
+                showSnackbar(message = context.getString(R.string.disconnected_snack))
             }
         }
     }
@@ -666,7 +666,7 @@ object CentralAppControl {
                     navControllerState.value.currentDestination?.route == Routes.NewPassword.route ||
                     navControllerState.value.currentDestination?.route == Routes.NewFolder.route
 
-        coroutineScope.launch(context = Dispatchers.Main) {
+        coroutineScope.launch {
             try {
                 request()
             } catch (e: Exception) {

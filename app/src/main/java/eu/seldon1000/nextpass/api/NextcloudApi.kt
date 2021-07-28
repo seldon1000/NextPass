@@ -102,31 +102,27 @@ object NextcloudApi {
         }
     }
 
-    suspend fun logout(onSuccess: () -> Unit) {
-        coroutineScope.launch(context = Dispatchers.Main) {
-            client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
-                header("OCS-APIREQUEST", true)
+    suspend fun logout() {
+        client.delete<Any>(urlString = "$server/ocs/v2.php/core/apppassword") {
+            header("OCS-APIREQUEST", true)
+        }
+
+        storedPasswordsState.value.clear()
+        storedFoldersState.value.clear()
+        storedTagsState.value.clear()
+
+        server = ""
+        loginName = ""
+        appPassword = ""
+
+        client = HttpClient(CIO) {
+            install(JsonFeature) {
+                serializer = KotlinxSerializer(json = json)
             }
+        }
 
-            storedPasswordsState.value.clear()
-            storedFoldersState.value.clear()
-            storedTagsState.value.clear()
-
-            server = ""
-            loginName = ""
-            appPassword = ""
-
-            client = HttpClient(CIO) {
-                install(JsonFeature) {
-                    serializer = KotlinxSerializer(json = json)
-                }
-            }
-
-            onSuccess()
-
-            client.coroutineContext.cancelChildren()
-            coroutineContext.cancelChildren()
-        }.join()
+        client.coroutineContext.cancelChildren()
+        coroutineScope.coroutineContext.cancelChildren()
     }
 
     private suspend inline fun <reified T> listRequest(): SnapshotStateList<T> {
@@ -145,49 +141,30 @@ object NextcloudApi {
             })
     }
 
-    suspend fun refreshServerList(
-        refreshFolders: Boolean = true,
-        refreshTags: Boolean = true,
-        onFailure: () -> Unit = {}
-    ) {
+    suspend fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
+        val passwords = listRequest<Password>()
+
+        passwords.sortBy { it.label.lowercase() }
+        passwords.forEach { password -> faviconRequest(data = password) }
+
+        storedPasswordsState.value = passwords
+
         if (refreshFolders) {
-            coroutineScope.launch {
-                try {
-                    val folders = listRequest<Folder>()
+            val folders = listRequest<Folder>()
 
-                    folders.sortBy { it.label.lowercase() }
-                    folders.add(index = 0, element = baseFolder)
+            folders.sortBy { it.label.lowercase() }
+            folders.add(index = 0, element = baseFolder)
 
-                    storedFoldersState.value = folders
-                } catch (e: Exception) {
-                }
-            }
+            storedFoldersState.value = folders
         }
 
-        if (refreshTags)
-            coroutineScope.launch {
-                try {
-                    val tags = listRequest<Tag>()
+        if (refreshTags) {
+            val tags = listRequest<Tag>()
 
-                    tags.sortBy { it.label.lowercase() }
+            tags.sortBy { it.label.lowercase() }
 
-                    storedTagsState.value = tags
-                } catch (e: Exception) {
-                }
-            }
-
-        coroutineScope.launch {
-            try {
-                val passwords = listRequest<Password>()
-
-                passwords.sortBy { it.label.lowercase() }
-                passwords.forEach { password -> faviconRequest(data = password) }
-
-                storedPasswordsState.value = passwords
-            } catch (e: Exception) {
-                onFailure()
-            }
-        }.join()
+            storedTagsState.value = tags
+        }
     }
 
     private suspend inline fun <reified T> showRequest(id: String): T {
