@@ -217,28 +217,26 @@ object NextcloudApi {
         onFailure: () -> Unit = {},
         onSuccess: () -> Unit = {}
     ) {
-        coroutineScope.launch {
-            try {
-                val newPassword = showRequest<Password>(
-                    id = client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
-                        params.forEach { parameter(key = it.key, value = it.value) }
-                        tags.forEach { parameter(key = "tags[]", value = it.id) }
-                    }["id"]!!.jsonPrimitive.content
-                )
+        try {
+            val newPassword = showRequest<Password>(
+                id = client.post<JsonObject>(urlString = "$server$endpoint/password/create") {
+                    params.forEach { parameter(key = it.key, value = it.value) }
+                    tags.forEach { parameter(key = "tags[]", value = it.id) }
+                }["id"]!!.jsonPrimitive.content
+            )
 
-                faviconRequest(data = newPassword)
+            faviconRequest(data = newPassword)
 
-                val data = storedPasswordsState.value
-                data.add(element = newPassword)
-                data.sortBy { it.label.lowercase() }
+            val data = storedPasswordsState.value
+            data.add(element = newPassword)
+            data.sortBy { it.label.lowercase() }
 
-                storedPasswordsState.value = data
+            storedPasswordsState.value = data
 
-                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
-            } catch (e: Exception) {
-                onFailure()
-            }
-        }.join()
+            coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
+        } catch (e: Exception) {
+            onFailure()
+        }
     }
 
     suspend fun createFolderRequest(
@@ -246,28 +244,26 @@ object NextcloudApi {
         onFailure: () -> Unit,
         onSuccess: () -> Unit = {}
     ) {
-        coroutineScope.launch {
-            try {
-                val newFolder = showRequest<Folder>(
-                    id = client.post<JsonObject>(urlString = "$server$endpoint/folder/create") {
-                        params.forEach { parameter(key = it.key, value = it.value) }
-                    }["id"]!!.jsonPrimitive.content
-                )
+        try {
+            val newFolder = showRequest<Folder>(
+                id = client.post<JsonObject>(urlString = "$server$endpoint/folder/create") {
+                    params.forEach { parameter(key = it.key, value = it.value) }
+                }["id"]!!.jsonPrimitive.content
+            )
 
-                val data = storedFoldersState.value
+            val data = storedFoldersState.value
 
-                data.removeAt(index = 0)
-                data.add(element = newFolder)
-                data.sortBy { it.label.lowercase() }
-                data.add(index = 0, element = baseFolder)
+            data.removeAt(index = 0)
+            data.add(element = newFolder)
+            data.sortBy { it.label.lowercase() }
+            data.add(index = 0, element = baseFolder)
 
-                storedFoldersState.value = data
+            storedFoldersState.value = data
 
-                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
-            } catch (e: Exception) {
-                onFailure()
-            }
-        }.join()
+            coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
+        } catch (e: Exception) {
+            onFailure()
+        }
     }
 
     suspend fun createTagRequest(
@@ -275,26 +271,24 @@ object NextcloudApi {
         onFailure: () -> Unit,
         onSuccess: () -> Unit = {}
     ) {
-        coroutineScope.launch {
-            try {
-                val newTag = showRequest<Tag>(
-                    id = client.post<JsonObject>(urlString = "$server$endpoint/tag/create") {
-                        params.forEach { parameter(key = it.key, value = it.value) }
-                    }["id"]!!.jsonPrimitive.content
-                )
+        try {
+            val newTag = showRequest<Tag>(
+                id = client.post<JsonObject>(urlString = "$server$endpoint/tag/create") {
+                    params.forEach { parameter(key = it.key, value = it.value) }
+                }["id"]!!.jsonPrimitive.content
+            )
 
-                val data = storedTagsState.value
+            val data = storedTagsState.value
 
-                data.add(element = newTag)
-                data.sortBy { it.label.lowercase() }
+            data.add(element = newTag)
+            data.sortBy { it.label.lowercase() }
 
-                storedTagsState.value = data
+            storedTagsState.value = data
 
-                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
-            } catch (e: Exception) {
-                onFailure()
-            }
-        }.join()
+            coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
+        } catch (e: Exception) {
+            onFailure()
+        }
     }
 
     suspend fun deletePasswordRequest(
@@ -302,19 +296,19 @@ object NextcloudApi {
         onFailure: () -> Unit,
         onSuccess: () -> Unit = {}
     ) {
-        coroutineScope.launch {
-            try {
-                client.delete<Any>(urlString = "$server$endpoint/password/delete") {
-                    parameter(key = "id", value = id)
-                }
+        try {
+            client.delete<Any>(urlString = "$server$endpoint/password/delete") {
+                parameter(key = "id", value = id)
+            }
 
-                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
+            coroutineScope.launch(context = Dispatchers.Main) {
+                onSuccess()
 
                 storedPasswordsState.value.removeIf { it.id == id }
-            } catch (e: Exception) {
-                onFailure()
             }
-        }.join()
+        } catch (e: Exception) {
+            onFailure()
+        }
     }
 
     suspend fun deleteFolderRequest(
@@ -322,19 +316,20 @@ object NextcloudApi {
         onFailure: () -> Unit,
         onSuccess: () -> Unit = {}
     ) {
-        coroutineScope.launch {
-            try {
-                client.delete<Any>(urlString = "$server$endpoint/folder/delete") {
-                    parameter(key = "id", value = id)
-                }
+        try {
+            client.delete<Any>(urlString = "$server$endpoint/folder/delete") {
+                parameter(key = "id", value = id)
+            }
 
-                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
+            coroutineScope.launch(context = Dispatchers.Main) {
+                onSuccess()
 
                 refreshServerList()
-            } catch (e: Exception) {
-                onFailure()
             }
-        }.join()
+
+        } catch (e: Exception) {
+            onFailure()
+        }
     }
 
     suspend fun deleteTagRequest(
@@ -342,19 +337,17 @@ object NextcloudApi {
         onFailure: () -> Unit,
         onSuccess: () -> Unit = {}
     ) {
-        coroutineScope.launch {
-            try {
-                client.delete<Any>(urlString = "$server$endpoint/tag/delete") {
-                    parameter(key = "id", value = id)
-                }
-
-                refreshServerList()
-
-                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
-            } catch (e: Exception) {
-                onFailure()
+        try {
+            client.delete<Any>(urlString = "$server$endpoint/tag/delete") {
+                parameter(key = "id", value = id)
             }
-        }.join()
+
+            refreshServerList()
+
+            coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
+        } catch (e: Exception) {
+            onFailure()
+        }
     }
 
     suspend fun updatePasswordRequest(
@@ -363,28 +356,26 @@ object NextcloudApi {
         onFailure: () -> Unit,
         onSuccess: () -> Unit = {}
     ) {
-        coroutineScope.launch {
-            try {
-                client.patch<Any>(urlString = "$server$endpoint/password/update") {
-                    params.forEach { parameter(key = it.key, value = it.value) }
-                    tags.forEach { parameter(key = "tags[]", value = it.id) }
-                }
-
-                val updatedPassword = showRequest<Password>(id = params["id"]!!)
-
-                val index = storedPasswordsState.value.indexOfFirst { it.id == params["id"]!! }
-
-                if (params["url"]!! != storedPasswordsState.value[index].url)
-                    faviconRequest(data = updatedPassword)
-                else updatedPassword.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
-
-                storedPasswordsState.value[index] = updatedPassword
-
-                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
-            } catch (e: Exception) {
-                onFailure()
+        try {
+            client.patch<Any>(urlString = "$server$endpoint/password/update") {
+                params.forEach { parameter(key = it.key, value = it.value) }
+                tags.forEach { parameter(key = "tags[]", value = it.id) }
             }
-        }.join()
+
+            val updatedPassword = showRequest<Password>(id = params["id"]!!)
+
+            val index = storedPasswordsState.value.indexOfFirst { it.id == params["id"]!! }
+
+            if (params["url"]!! != storedPasswordsState.value[index].url)
+                faviconRequest(data = updatedPassword)
+            else updatedPassword.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
+
+            storedPasswordsState.value[index] = updatedPassword
+
+            coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
+        } catch (e: Exception) {
+            onFailure()
+        }
     }
 
     suspend fun updateFolderRequest(
@@ -392,23 +383,21 @@ object NextcloudApi {
         onFailure: () -> Unit,
         onSuccess: () -> Unit = {}
     ) {
-        coroutineScope.launch {
-            try {
-                client.patch<Any>(urlString = "$server$endpoint/folder/update") {
-                    params.forEach { parameter(key = it.key, value = it.value) }
-                }
-
-                val updatedFolder = showRequest<Folder>(id = params["id"]!!)
-
-                storedFoldersState.value[storedFoldersState.value.indexOfFirst {
-                    it.id == params["id"]!!
-                }] = updatedFolder
-
-                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
-            } catch (e: Exception) {
-                onFailure()
+        try {
+            client.patch<Any>(urlString = "$server$endpoint/folder/update") {
+                params.forEach { parameter(key = it.key, value = it.value) }
             }
-        }.join()
+
+            val updatedFolder = showRequest<Folder>(id = params["id"]!!)
+
+            storedFoldersState.value[storedFoldersState.value.indexOfFirst {
+                it.id == params["id"]!!
+            }] = updatedFolder
+
+            coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
+        } catch (e: Exception) {
+            onFailure()
+        }
     }
 
     suspend fun updateTagRequest(
@@ -416,25 +405,23 @@ object NextcloudApi {
         onFailure: () -> Unit,
         onSuccess: () -> Unit = {}
     ) {
-        coroutineScope.launch {
-            try {
-                client.patch<Any>(urlString = "$server$endpoint/tag/update") {
-                    params.forEach { parameter(key = it.key, value = it.value) }
-                }
-
-                val updatedTag = showRequest<Tag>(id = params["id"]!!)
-
-                storedTagsState.value[storedTagsState.value.indexOfFirst {
-                    it.id == params["id"]!!
-                }] = updatedTag
-
-                refreshServerList(refreshFolders = false, refreshTags = false)
-
-                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
-            } catch (e: Exception) {
-                onFailure()
+        try {
+            client.patch<Any>(urlString = "$server$endpoint/tag/update") {
+                params.forEach { parameter(key = it.key, value = it.value) }
             }
-        }.join()
+
+            val updatedTag = showRequest<Tag>(id = params["id"]!!)
+
+            storedTagsState.value[storedTagsState.value.indexOfFirst {
+                it.id == params["id"]!!
+            }] = updatedTag
+
+            refreshServerList(refreshFolders = false, refreshTags = false)
+
+            coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
+        } catch (e: Exception) {
+            onFailure()
+        }
     }
 
     suspend fun generatePassword(

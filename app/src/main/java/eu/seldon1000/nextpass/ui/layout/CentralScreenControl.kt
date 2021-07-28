@@ -18,14 +18,12 @@ package eu.seldon1000.nextpass.ui.layout
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -106,16 +104,4 @@ fun CentralScreenControl() {
             }
         }
     }
-}
-
-@Composable
-fun MySnackbar(snackbarHostState: SnackbarHostState) {
-    SnackbarHost(
-        hostState = snackbarHostState,
-        snackbar = { data ->
-            Snackbar(
-                backgroundColor = Color.DarkGray,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 96.dp)
-            ) { Text(text = data.message, color = Color.White) }
-        })
 }
