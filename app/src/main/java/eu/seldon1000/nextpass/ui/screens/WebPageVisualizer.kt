@@ -46,7 +46,7 @@ import eu.seldon1000.nextpass.ui.theme.colors
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebPageVisualizer(urlToRender: String) {
+fun WebPageVisualizer(urlToRender: String, viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     val webView by remember {
@@ -76,7 +76,7 @@ fun WebPageVisualizer(urlToRender: String) {
             if (rotation >= 360F * 10) {
                 rotation = 0F
 
-                CentralAppControl.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
+                viewModel.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
             } else rotation += 360F
         }) {
             Icon(
@@ -94,7 +94,7 @@ fun WebPageVisualizer(urlToRender: String) {
         ) {
             IconButton(onClick = {
                 if (webView.canGoBack()) webView.goBack()
-                else CentralAppControl.popBackStack()
+                else viewModel.popBackStack()
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),

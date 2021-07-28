@@ -20,7 +20,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.view.autofill.AutofillManager
-import eu.seldon1000.nextpass.CentralAppControl
 
 class StartupBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
@@ -29,7 +28,15 @@ class StartupBroadcastReceiver : BroadcastReceiver() {
 
             if (autofillManager.hasEnabledAutofillServices() &&
                 context.getSharedPreferences("nextpass", 0).contains("autostart")
-            ) CentralAppControl.startAutofillService()
+            ) {
+                autofillIntent = Intent(context, NextPassAutofillService::class.java)
+
+                context.startService(autofillIntent)
+            }
         }
+    }
+
+    companion object {
+        var autofillIntent: Intent? = null
     }
 }

@@ -34,25 +34,24 @@ import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.Folder
-import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.ui.layout.Routes
 import eu.seldon1000.nextpass.ui.theme.NextcloudBlue
 
 @ExperimentalMaterialApi
 @Composable
-fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
+fun FolderCard(index: Int, folder: Folder, icon: Painter? = null, viewModel: CentralAppControl) {
     val context = LocalContext.current
 
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
 
-    val currentFolder by CentralAppControl.currentFolder.collectAsState()
+    val currentFolder by viewModel.currentFolder.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
 
     Card(
         onClick = {
             if (icon == null) expanded = true
-            else CentralAppControl.setCurrentFolder()
+            else viewModel.setCurrentFolder()
         },
         elevation = 4.dp,
         shape = RoundedCornerShape(12.dp),
@@ -88,7 +87,9 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 )
                 if (it) params["favorite"] = "true"
 
-                CentralAppControl.executeRequest { NextcloudApi.updateFolderRequest(params = params) }
+                viewModel.executeRequest {
+                    viewModel.nextcloudApi.updateFolderRequest(params = params)
+                }
             }
         }
         if (icon == null) {
@@ -99,9 +100,9 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                 modifier = Modifier.width(width = 200.dp)
             ) {
                 DropdownMenuItem({
-                    CentralAppControl.setFolderMode(mode = true)
-                    CentralAppControl.setCurrentFolder(folder = index)
-                    CentralAppControl.navigate(route = Routes.Passwords.route)
+                    viewModel.setFolderMode(mode = true)
+                    viewModel.setCurrentFolder(folder = index)
+                    viewModel.navigate(route = Routes.Passwords.route)
 
                     expanded = false
                 }) {
@@ -117,7 +118,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                     }
                 }
                 DropdownMenuItem({
-                    CentralAppControl.setPrimaryClip(
+                    viewModel.setPrimaryClip(
                         label = context.getString(R.string.folder_label),
                         clip = folder.label
                     )
@@ -136,8 +137,8 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                     }
                 }
                 DropdownMenuItem({
-                    CentralAppControl.setCurrentFolder(folder = storedFolders.indexOfFirst { it.id == folder.parent })
-                    CentralAppControl.navigate(route = Routes.FolderDetails.getRoute(arg = index))
+                    viewModel.setCurrentFolder(folder = storedFolders.indexOfFirst { it.id == folder.parent })
+                    viewModel.navigate(route = Routes.FolderDetails.getRoute(arg = index))
 
                     expanded = false
                 }) {
@@ -151,7 +152,7 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                     )
                 }
                 DropdownMenuItem({
-                    CentralAppControl.showDialog(
+                    viewModel.showDialog(
                         title = context.getString(R.string.delete_folder),
                         body = {
                             Text(
@@ -161,10 +162,10 @@ fun FolderCard(index: Int, folder: Folder, icon: Painter? = null) {
                         },
                         confirm = true
                     ) {
-                        CentralAppControl.executeRequest {
-                            NextcloudApi.deleteFolderRequest(id = folder.id)
-                            NextcloudApi.refreshServerList()
-                            CentralAppControl.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
+                        viewModel.executeRequest {
+                            viewModel.nextcloudApi.deleteFolderRequest(id = folder.id)
+                            viewModel.nextcloudApi.refreshServerList()
+                            viewModel.showSnackbar(message = context.getString(R.string.folder_deleted_snack))
                         }
                     }
 

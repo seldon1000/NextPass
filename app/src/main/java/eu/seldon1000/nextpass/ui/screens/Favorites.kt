@@ -31,10 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApi
-import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.R
+import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
 import eu.seldon1000.nextpass.ui.items.PasswordCard
@@ -48,21 +47,26 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
-fun Favorites() {
+fun Favorites(viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     val lazyListState = rememberLazyListState()
 
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
-    val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
+    val storedPasswords by viewModel.nextcloudApi.storedPasswords.collectAsState()
 
-    val tags by CentralAppControl.tags.collectAsState()
+    val tags by viewModel.tags.collectAsState()
 
     var currentTag: Tag? by remember { mutableStateOf(value = null) }
 
     MyScaffoldLayout(
-        fab = { DefaultFab() },
-        bottomBar = { DefaultBottomBar(lazyListState = lazyListState) }) { paddingValues ->
+        fab = { DefaultFab(viewModel = viewModel) },
+        bottomBar = {
+            DefaultBottomBar(
+                lazyListState = lazyListState,
+                viewModel = viewModel
+            )
+        }) { paddingValues ->
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(
@@ -74,14 +78,23 @@ fun Favorites() {
             modifier = Modifier.fillMaxSize()
         ) {
             item { Header(expanded = true, title = context.getString(R.string.favorites)) }
-            if (tags) item { TagsRow { currentTag = if (it == currentTag) null else it } }
+            if (tags) item {
+                TagsRow(
+                    tagClickAction = { currentTag = if (it == currentTag) null else it },
+                    viewModel = viewModel
+                )
+            }
             else item { Box(modifier = Modifier.height(height = 12.dp)) }
             itemsIndexed(items = storedFolders) { index, folder ->
-                if (folder.favorite) FolderCard(index = index, folder = folder)
+                if (folder.favorite) FolderCard(
+                    index = index,
+                    folder = folder,
+                    viewModel = viewModel
+                )
             }
             itemsIndexed(items = storedPasswords) { index, password ->
                 if (if (currentTag != null) password.tags.any { it == currentTag } else password.favorite)
-                    PasswordCard(index = index, password = password)
+                    PasswordCard(index = index, password = password, viewModel = viewModel)
             }
             item {
                 val count = storedPasswords.count { it.favorite }
@@ -91,7 +104,8 @@ fun Favorites() {
                         R.plurals.favorites_number,
                         count,
                         count
-                    )
+                    ),
+                    viewModel = viewModel
                 )
             }
         }

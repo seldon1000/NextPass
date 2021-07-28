@@ -37,7 +37,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.CustomField
-import eu.seldon1000.nextpass.api.NextcloudApi
+import eu.seldon1000.nextpass.api.NextcloudApi.Companion.json
 import eu.seldon1000.nextpass.api.Password
 import eu.seldon1000.nextpass.api.SnapshotListSerializer
 import eu.seldon1000.nextpass.ui.layout.Routes
@@ -45,14 +45,14 @@ import eu.seldon1000.nextpass.ui.layout.Routes
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
-fun PasswordCard(index: Int, password: Password) {
+fun PasswordCard(index: Int, password: Password, viewModel: CentralAppControl) {
     val context = LocalContext.current
 
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
 
-    val currentScreen by CentralAppControl.navController.collectAsState().value.currentBackStackEntryAsState()
-    val folderMode by CentralAppControl.folderMode.collectAsState()
-    val currentFolder by CentralAppControl.currentFolder.collectAsState()
+    val currentScreen by viewModel.navController.collectAsState().value.currentBackStackEntryAsState()
+    val folderMode by viewModel.folderMode.collectAsState()
+    val currentFolder by viewModel.currentFolder.collectAsState()
 
     val favicon by password.favicon.collectAsState()
 
@@ -126,7 +126,7 @@ fun PasswordCard(index: Int, password: Password) {
                     "password" to password.password,
                     "url" to password.url,
                     "notes" to password.notes,
-                    "customFields" to NextcloudApi.json.encodeToString(
+                    "customFields" to json.encodeToString(
                         serializer = SnapshotListSerializer(
                             dataSerializer = CustomField.serializer()
                         ), value = password.customFieldsList
@@ -136,8 +136,11 @@ fun PasswordCard(index: Int, password: Password) {
                 )
                 if (it) params["favorite"] = "true"
 
-                CentralAppControl.executeRequest {
-                    NextcloudApi.updatePasswordRequest(params = params, tags = password.tags)
+                viewModel.executeRequest {
+                    viewModel.nextcloudApi.updatePasswordRequest(
+                        params = params,
+                        tags = password.tags
+                    )
                 }
             }
         }
@@ -150,7 +153,7 @@ fun PasswordCard(index: Int, password: Password) {
             DropdownMenuItem(onClick = {
                 expanded = false
 
-                CentralAppControl.setPrimaryClip(
+                viewModel.setPrimaryClip(
                     label = context.getString(R.string.username),
                     clip = password.username
                 )
@@ -167,7 +170,7 @@ fun PasswordCard(index: Int, password: Password) {
             DropdownMenuItem(onClick = {
                 expanded = false
 
-                CentralAppControl.setPrimaryClip(
+                viewModel.setPrimaryClip(
                     label = context.getString(R.string.password),
                     clip = password.password
                 )
@@ -184,7 +187,7 @@ fun PasswordCard(index: Int, password: Password) {
             DropdownMenuItem(onClick = {
                 expanded = false
 
-                CentralAppControl.navigate(route = Routes.PasswordDetails.getRoute(arg = index))
+                viewModel.navigate(route = Routes.PasswordDetails.getRoute(arg = index))
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_info_24),
@@ -202,9 +205,9 @@ fun PasswordCard(index: Int, password: Password) {
                 DropdownMenuItem(onClick = {
                     expanded = false
 
-                    CentralAppControl.setFolderMode(mode = true)
-                    CentralAppControl.setCurrentFolder(folder = storedFolders.indexOfFirst { password.folder == it.id })
-                    CentralAppControl.navigate(route = Routes.Passwords.route)
+                    viewModel.setFolderMode(mode = true)
+                    viewModel.setCurrentFolder(folder = storedFolders.indexOfFirst { password.folder == it.id })
+                    viewModel.navigate(route = Routes.Passwords.route)
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_round_drive_file_move_24),
@@ -218,7 +221,7 @@ fun PasswordCard(index: Int, password: Password) {
             DropdownMenuItem(onClick = {
                 expanded = false
 
-                CentralAppControl.showDialog(
+                viewModel.showDialog(
                     title = context.getString(R.string.delete_password),
                     body = {
                         Text(
@@ -228,9 +231,9 @@ fun PasswordCard(index: Int, password: Password) {
                     },
                     confirm = true
                 ) {
-                    CentralAppControl.executeRequest {
-                        NextcloudApi.deletePasswordRequest(id = password.id)
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
+                    viewModel.executeRequest {
+                        viewModel.nextcloudApi.deletePasswordRequest(id = password.id)
+                        viewModel.showSnackbar(message = context.getString(R.string.password_deleted))
                     }
                 }
             }) {

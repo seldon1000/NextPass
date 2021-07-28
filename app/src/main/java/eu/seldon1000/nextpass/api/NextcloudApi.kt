@@ -38,18 +38,13 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.serializer
 
 @SuppressLint("StaticFieldLeak")
-object NextcloudApi {
+class NextcloudApi {
     private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
 
     private var server = ""
     private var loginName = ""
     private var appPassword = ""
-    private const val endpoint = "/index.php/apps/passwords/api/1.0"
-
-    val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-    }
+    private val endpoint = "/index.php/apps/passwords/api/1.0"
 
     var client = HttpClient(engineFactory = CIO) {
         install(feature = JsonFeature) {
@@ -66,17 +61,10 @@ object NextcloudApi {
                 "\"updated\":0}"
     )
 
-    private val storedPasswordsState = MutableStateFlow(value = mutableStateListOf<Password>())
-    val storedPasswords = storedPasswordsState
-
-    private val storedFoldersState = MutableStateFlow(value = mutableStateListOf(baseFolder))
-    val storedFolders = storedFoldersState
-
-    private val storedTagsState = MutableStateFlow(value = mutableStateListOf<Tag>())
-    val storedTags = storedTagsState
-
-    private val currentRequestedFaviconState = MutableStateFlow<Bitmap?>(value = null)
-    val currentRequestedFavicon = currentRequestedFaviconState
+    val storedPasswords = MutableStateFlow(value = mutableStateListOf<Password>())
+    val storedFolders = MutableStateFlow(value = mutableStateListOf(baseFolder))
+    val storedTags = MutableStateFlow(value = mutableStateListOf<Tag>())
+    val currentRequestedFavicon = MutableStateFlow<Bitmap?>(value = null)
 
     fun getCurrentAccount() = "$loginName@${server.removePrefix(prefix = "https://")}"
 
@@ -93,8 +81,8 @@ object NextcloudApi {
                     sendWithoutRequest { true }
                     credentials {
                         BasicAuthCredentials(
-                            username = NextcloudApi.loginName,
-                            password = NextcloudApi.appPassword
+                            username = this@NextcloudApi.loginName,
+                            password = this@NextcloudApi.appPassword
                         )
                     }
                 }
@@ -107,9 +95,9 @@ object NextcloudApi {
             header("OCS-APIREQUEST", true)
         }
 
-        storedPasswordsState.value.clear()
-        storedFoldersState.value.clear()
-        storedTagsState.value.clear()
+        storedPasswords.value.clear()
+        storedFolders.value.clear()
+        storedTags.value.clear()
 
         server = ""
         loginName = ""
@@ -147,7 +135,7 @@ object NextcloudApi {
         passwords.sortBy { it.label.lowercase() }
         passwords.forEach { password -> faviconRequest(data = password) }
 
-        storedPasswordsState.value = passwords
+        storedPasswords.value = passwords
 
         if (refreshFolders) {
             val folders = listRequest<Folder>()
@@ -155,7 +143,7 @@ object NextcloudApi {
             folders.sortBy { it.label.lowercase() }
             folders.add(index = 0, element = baseFolder)
 
-            storedFoldersState.value = folders
+            storedFolders.value = folders
         }
 
         if (refreshTags) {
@@ -163,7 +151,7 @@ object NextcloudApi {
 
             tags.sortBy { it.label.lowercase() }
 
-            storedTagsState.value = tags
+            storedTags.value = tags
         }
     }
 
@@ -194,11 +182,11 @@ object NextcloudApi {
 
         faviconRequest(data = newPassword)
 
-        val data = storedPasswordsState.value
+        val data = storedPasswords.value
         data.add(element = newPassword)
         data.sortBy { it.label.lowercase() }
 
-        storedPasswordsState.value = data
+        storedPasswords.value = data
     }
 
     suspend fun createFolderRequest(params: Map<String, String>) {
@@ -208,14 +196,14 @@ object NextcloudApi {
             }["id"]!!.jsonPrimitive.content
         )
 
-        val data = storedFoldersState.value
+        val data = storedFolders.value
 
         data.removeAt(index = 0)
         data.add(element = newFolder)
         data.sortBy { it.label.lowercase() }
         data.add(index = 0, element = baseFolder)
 
-        storedFoldersState.value = data
+        storedFolders.value = data
     }
 
     suspend fun createTagRequest(params: Map<String, String>) {
@@ -225,12 +213,12 @@ object NextcloudApi {
             }["id"]!!.jsonPrimitive.content
         )
 
-        val data = storedTagsState.value
+        val data = storedTags.value
 
         data.add(element = newTag)
         data.sortBy { it.label.lowercase() }
 
-        storedTagsState.value = data
+        storedTags.value = data
     }
 
     suspend fun deletePasswordRequest(id: String) {
@@ -238,7 +226,7 @@ object NextcloudApi {
             parameter(key = "id", value = id)
         }
 
-        storedPasswordsState.value.removeIf { it.id == id }
+        storedPasswords.value.removeIf { it.id == id }
     }
 
     suspend fun deleteFolderRequest(id: String) {
@@ -261,13 +249,13 @@ object NextcloudApi {
 
         val updatedPassword = showRequest<Password>(id = params["id"]!!)
 
-        val index = storedPasswordsState.value.indexOfFirst { it.id == params["id"]!! }
+        val index = storedPasswords.value.indexOfFirst { it.id == params["id"]!! }
 
-        if (params["url"]!! != storedPasswordsState.value[index].url)
+        if (params["url"]!! != storedPasswords.value[index].url)
             faviconRequest(data = updatedPassword)
-        else updatedPassword.setFavicon(bitmap = storedPasswordsState.value[index].favicon.value)
+        else updatedPassword.setFavicon(bitmap = storedPasswords.value[index].favicon.value)
 
-        storedPasswordsState.value[index] = updatedPassword
+        storedPasswords.value[index] = updatedPassword
     }
 
     suspend fun updateFolderRequest(params: Map<String, String>) {
@@ -277,7 +265,7 @@ object NextcloudApi {
 
         val updatedFolder = showRequest<Folder>(id = params["id"]!!)
 
-        storedFoldersState.value[storedFoldersState.value.indexOfFirst {
+        storedFolders.value[storedFolders.value.indexOfFirst {
             it.id == params["id"]!!
         }] = updatedFolder
     }
@@ -289,7 +277,7 @@ object NextcloudApi {
 
         val updatedTag = showRequest<Tag>(id = params["id"]!!)
 
-        storedTagsState.value[storedTagsState.value.indexOfFirst {
+        storedTags.value[storedTags.value.indexOfFirst {
             it.id == params["id"]!!
         }] = updatedTag
     }
@@ -320,7 +308,7 @@ object NextcloudApi {
             is String -> coroutineScope.launch {
                 if (data.isNotEmpty()) {
                     try {
-                        currentRequestedFaviconState.value = BitmapFactory.decodeStream(
+                        currentRequestedFavicon.value = BitmapFactory.decodeStream(
                             client.get(
                                 urlString = "$server$endpoint/service/favicon/${
                                     Uri.parse(data).host ?: data
@@ -329,24 +317,31 @@ object NextcloudApi {
                         ).toRoundedCorners()
                     } catch (e: Exception) {
                     }
-                } else currentRequestedFaviconState.value = null
+                } else currentRequestedFavicon.value = null
             }
         }
     }
 
-    fun Bitmap.toRoundedCorners(cornerRadius: Float = 32F): Bitmap? {
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        Canvas(bitmap).apply {
-            clipPath(Path().apply {
-                addRoundRect(
-                    RectF(0f, 0f, width.toFloat(), height.toFloat()),
-                    cornerRadius,
-                    cornerRadius,
-                    Path.Direction.CCW
-                )
-            })
-        }.drawBitmap(this, 0f, 0f, null)
+    companion object {
+        val json = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
 
-        return bitmap
+        fun Bitmap.toRoundedCorners(cornerRadius: Float = 32F): Bitmap? {
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            Canvas(bitmap).apply {
+                clipPath(Path().apply {
+                    addRoundRect(
+                        RectF(0f, 0f, width.toFloat(), height.toFloat()),
+                        cornerRadius,
+                        cornerRadius,
+                        Path.Direction.CCW
+                    )
+                })
+            }.drawBitmap(this, 0f, 0f, null)
+
+            return bitmap
+        }
     }
 }

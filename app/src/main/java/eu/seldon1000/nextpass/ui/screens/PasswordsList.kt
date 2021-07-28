@@ -37,7 +37,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
@@ -50,24 +49,29 @@ import eu.seldon1000.nextpass.ui.layout.*
 @ExperimentalFoundationApi
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
-fun PasswordList() {
+fun PasswordList(viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     val lazyListState = rememberLazyListState()
 
-    val folderMode by CentralAppControl.folderMode.collectAsState()
-    val currentFolder by CentralAppControl.currentFolder.collectAsState()
+    val folderMode by viewModel.folderMode.collectAsState()
+    val currentFolder by viewModel.currentFolder.collectAsState()
 
-    val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
+    val storedPasswords by viewModel.nextcloudApi.storedPasswords.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
 
-    val tags by CentralAppControl.tags.collectAsState()
+    val tags by viewModel.tags.collectAsState()
 
     var currentTag: Tag? by remember { mutableStateOf(value = null) }
 
     MyScaffoldLayout(
-        fab = { DefaultFab() },
-        bottomBar = { DefaultBottomBar(lazyListState = lazyListState) }) { paddingValues ->
+        fab = { DefaultFab(viewModel = viewModel) },
+        bottomBar = {
+            DefaultBottomBar(
+                lazyListState = lazyListState,
+                viewModel = viewModel
+            )
+        }) { paddingValues ->
         LazyColumn(
             contentPadding = PaddingValues(
                 start = 16.dp,
@@ -89,7 +93,7 @@ fun PasswordList() {
                             if (folderMode) {
                                 Crossfade(targetState = folderMode) {
                                     IconButton(
-                                        onClick = { CentralAppControl.setCurrentFolder(folder = 0) },
+                                        onClick = { viewModel.setCurrentFolder(folder = 0) },
                                         enabled = currentFolder != 0
                                     ) {
                                         Icon(
@@ -99,7 +103,7 @@ fun PasswordList() {
                                     }
                                 }
                                 Crossfade(targetState = folderMode) {
-                                    IconButton(onClick = { CentralAppControl.navigate(route = Routes.NewFolder.route) }) {
+                                    IconButton(onClick = { viewModel.navigate(route = Routes.NewFolder.route) }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_round_create_new_folder_24),
                                             contentDescription = "new_folder"
@@ -113,8 +117,8 @@ fun PasswordList() {
                                     elevation = if (state) 8.dp else 0.dp
                                 ) {
                                     IconButton(onClick = {
-                                        if (folderMode) CentralAppControl.setCurrentFolder(folder = 0)
-                                        CentralAppControl.setFolderMode()
+                                        if (folderMode) viewModel.setCurrentFolder(folder = 0)
+                                        viewModel.setFolderMode()
                                     }) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_round_folder_24),
@@ -127,23 +131,28 @@ fun PasswordList() {
                     }
                 }
             }
-            if (tags) item { TagsRow { currentTag = if (it == currentTag) null else it } }
+            if (tags) item {
+                TagsRow(tagClickAction = {
+                    currentTag = if (it == currentTag) null else it
+                }, viewModel = viewModel)
+            }
             else item { Box(modifier = Modifier.height(height = 12.dp)) }
             if (currentFolder != 0 && folderMode) item {
                 FolderCard(
                     currentFolder,
                     folder = storedFolders[currentFolder],
-                    icon = painterResource(id = R.drawable.ic_round_back_arrow_24)
+                    icon = painterResource(id = R.drawable.ic_round_back_arrow_24),
+                    viewModel = viewModel
                 )
             }
             if (folderMode && storedFolders.size > 1) itemsIndexed(items = storedFolders) { index, folder ->
                 if (index > 0 && index != currentFolder && folder.parent == storedFolders[currentFolder].id)
-                    FolderCard(index = index, folder = folder)
+                    FolderCard(index = index, folder = folder, viewModel = viewModel)
             }
             itemsIndexed(items = storedPasswords) { index, password ->
                 if (if (currentTag != null) password.tags.contains(element = currentTag)
                     else !folderMode || password.folder == storedFolders[currentFolder].id
-                ) PasswordCard(index = index, password = password)
+                ) PasswordCard(index = index, password = password, viewModel = viewModel)
             }
             item {
                 CountMessage(
@@ -151,7 +160,8 @@ fun PasswordList() {
                         R.plurals.passwords_number,
                         storedPasswords.size,
                         storedPasswords.size
-                    )
+                    ),
+                    viewModel = viewModel
                 )
             }
         }

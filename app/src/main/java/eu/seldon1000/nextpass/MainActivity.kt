@@ -17,8 +17,10 @@
 package eu.seldon1000.nextpass
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -26,6 +28,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import eu.seldon1000.nextpass.ui.layout.CentralScreenControl
 import eu.seldon1000.nextpass.ui.theme.NextPassTheme
 import kotlinx.coroutines.*
@@ -33,11 +36,8 @@ import kotlinx.coroutines.*
 class MainActivity : FragmentActivity() {
     private val coroutineScope = MainScope()
 
-    var autofillSettingsResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == Activity.RESULT_OK)
-                CentralAppControl.enableAutofill()
-        }
+    private lateinit var viewModel: CentralAppControl
+    lateinit var autofillSettingsResult: ActivityResultLauncher<Intent>
 
     @ExperimentalAnimationApi
     @ExperimentalFoundationApi
@@ -45,14 +45,21 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        CentralAppControl.setContext(con = this)
+        viewModel =
+            ViewModelProvider(this).get(CentralAppControl(application = application)::class.java)
+
+        autofillSettingsResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (it.resultCode == Activity.RESULT_OK)
+                    viewModel.enableAutofill()
+            }
 
         setContent {
-            rememberCoroutineScope().launch { CentralAppControl.openApp() }
+            rememberCoroutineScope().launch { viewModel.openApp() }
 
             NextPassTheme {
                 Surface {
-                    CentralScreenControl()
+                    CentralScreenControl(viewModel = viewModel)
                 }
             }
         }
@@ -68,17 +75,17 @@ class MainActivity : FragmentActivity() {
         super.onStop()
 
         coroutineScope.launch {
-            if (CentralAppControl.lockTimeout.value != (-1).toLong() &&
-                CentralAppControl.lockTimeout.value != (-2).toLong()
+            if (viewModel.lockTimeout.value != (-1).toLong() &&
+                viewModel.lockTimeout.value != (-2).toLong()
             ) {
-                delay(CentralAppControl.lockTimeout.value)
-                CentralAppControl.lock()
+                delay(viewModel.lockTimeout.value)
+                viewModel.lock()
             }
         }
     }
 
     override fun onBackPressed() {
-        if (!CentralAppControl.popBackStack()) {
+        if (!viewModel.popBackStack()) {
             coroutineScope.cancel()
 
             finish()

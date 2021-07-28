@@ -33,10 +33,10 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.CentralAppControl
 
 @Composable
-fun CountMessage(message: String) {
+fun CountMessage(message: String, viewModel: CentralAppControl) {
     val context = LocalContext.current
 
-    val refreshing by CentralAppControl.refreshing.collectAsState()
+    val refreshing by viewModel.refreshing.collectAsState()
 
     Crossfade(targetState = refreshing) { state ->
         Text(

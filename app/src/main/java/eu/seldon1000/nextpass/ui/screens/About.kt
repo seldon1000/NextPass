@@ -47,7 +47,7 @@ import java.util.*
 
 @ExperimentalMaterialApi
 @Composable
-fun About() {
+fun About(viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     val scrollState = rememberScrollState()
@@ -60,7 +60,7 @@ fun About() {
             cutoutShape = CircleShape,
             modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
         ) {
-            IconButton(onClick = { CentralAppControl.popBackStack() }) {
+            IconButton(onClick = { viewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"
@@ -90,7 +90,7 @@ fun About() {
                         modifier = Modifier
                             .size(size = 144.dp)
                             .clip(shape = RoundedCornerShape(size = 16.dp))
-                            .clickable { CentralAppControl.showSnackbar(message = greetings.random()) }
+                            .clickable { viewModel.showSnackbar(message = greetings.random()) }
                     )
                     Text(
                         text = "${

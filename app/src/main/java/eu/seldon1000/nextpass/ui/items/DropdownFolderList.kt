@@ -17,7 +17,9 @@
 package eu.seldon1000.nextpass.ui.items
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,19 +33,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.layout.Routes
 
 @ExperimentalMaterialApi
 @Composable
-fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: Int) {
+fun DropdownFolderList(
+    enabled: Boolean = true,
+    canAdd: Boolean = true,
+    folder: Int,
+    viewModel: CentralAppControl
+) {
     val context = LocalContext.current
 
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
 
-    val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
+    val selectedFolder by viewModel.selectedFolder.collectAsState()
 
     var expanded by remember { mutableStateOf(value = false) }
     var folderChanged by remember { mutableStateOf(value = false) }
@@ -106,14 +112,14 @@ fun DropdownFolderList(enabled: Boolean = true, canAdd: Boolean = true, folder: 
                         isRotated = !isRotated
                         expanded = false
                         folderChanged = true
-                        CentralAppControl.setSelectedFolder(folder = index)
+                        viewModel.setSelectedFolder(folder = index)
                     }) { Text(text = folder.label) }
                 }
                 if (canAdd) DropdownMenuItem(onClick = {
                     isRotated = !isRotated
                     expanded = false
 
-                    CentralAppControl.navigate(route = Routes.NewFolder.route)
+                    viewModel.navigate(route = Routes.NewFolder.route)
                 }) { Text(text = context.getString(R.string.add_new_folder)) }
             }
         }

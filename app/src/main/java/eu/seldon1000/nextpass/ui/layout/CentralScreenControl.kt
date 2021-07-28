@@ -29,34 +29,33 @@ import androidx.navigation.compose.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.seldon1000.nextpass.CentralAppControl
-import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.ui.screens.*
 
 @ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun CentralScreenControl() {
+fun CentralScreenControl(viewModel: CentralAppControl) {
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
 
-    CentralAppControl.setNavController(controller = navController)
-    CentralAppControl.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
+    viewModel.setNavController(controller = navController)
+    viewModel.setSnackbarHostState(snackbar = scaffoldState.snackbarHostState)
 
-    val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
+    val storedPasswords by viewModel.nextcloudApi.storedPasswords.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
 
-    val currentScreen by CentralAppControl.navController.collectAsState().value.currentBackStackEntryAsState()
-    val refreshing by CentralAppControl.refreshing.collectAsState()
+    val currentScreen by viewModel.navController.collectAsState().value.currentBackStackEntryAsState()
+    val refreshing by viewModel.refreshing.collectAsState()
     val refreshState = rememberSwipeRefreshState(isRefreshing = refreshing)
 
-    MyAlertDialog()
+    MyAlertDialog(viewModel = viewModel)
     Scaffold(
         scaffoldState = scaffoldState,
         snackbarHost = { MySnackbar(snackbarHostState = scaffoldState.snackbarHostState) }) {
         SwipeRefresh(
             state = refreshState,
-            onRefresh = { CentralAppControl.executeRequest { NextcloudApi.refreshServerList() } },
+            onRefresh = { viewModel.executeRequest { viewModel.nextcloudApi.refreshServerList() } },
             swipeEnabled = currentScreen?.destination?.route == Routes.Search.route ||
                     currentScreen?.destination?.route == Routes.Passwords.route ||
                     currentScreen?.destination?.route == Routes.Favorites.route ||
@@ -68,39 +67,59 @@ fun CentralScreenControl() {
                 startDestination = Routes.Welcome.route
             ) {
                 composable(route = "get_yourself_together_google") {} //TODO: remove when new navigation alpha is out (maybe, I don't know)
-                composable(route = Routes.Welcome.route) { WelcomeScreen() }
-                composable(route = Routes.Search.route) { Search() }
-                composable(route = Routes.Passwords.route) { PasswordList() }
-                composable(route = Routes.NewPassword.route) { NewPassword() }
-                composable(route = Routes.NewFolder.route) { NewFolder() }
-                composable(route = Routes.Favorites.route) { Favorites() }
-                composable(route = Routes.Settings.route) { Settings() }
-                composable(route = Routes.About.route) { About() }
-                composable(route = Routes.Pin.route) { ChangePin() }
+                composable(route = Routes.Welcome.route) { WelcomeScreen(viewModel = viewModel) }
+                composable(route = Routes.Search.route) { Search(viewModel = viewModel) }
+                composable(route = Routes.Passwords.route) { PasswordList(viewModel = viewModel) }
+                composable(route = Routes.NewPassword.route) { NewPassword(viewModel = viewModel) }
+                composable(route = Routes.NewFolder.route) { NewFolder(viewModel = viewModel) }
+                composable(route = Routes.Favorites.route) { Favorites(viewModel = viewModel) }
+                composable(route = Routes.Settings.route) { Settings(viewModel = viewModel) }
+                composable(route = Routes.About.route) { About(viewModel = viewModel) }
+                composable(route = Routes.Pin.route) { ChangePin(viewModel = viewModel) }
                 composable(
                     route = Routes.AccessPin.route,
                     arguments = listOf(element = navArgument(name = "shouldRaiseBiometric") {
                         type = NavType.BoolType
                     })
-                ) { AccessPin(shouldRaiseBiometric = it.arguments?.getBoolean("shouldRaiseBiometric")!!) }
+                ) {
+                    AccessPin(
+                        shouldRaiseBiometric = it.arguments?.getBoolean("shouldRaiseBiometric")!!,
+                        viewModel = viewModel
+                    )
+                }
                 composable(
                     route = Routes.WebView.route,
                     arguments = listOf(element = navArgument(name = "url") {
                         type = NavType.StringType
                     })
-                ) { WebPageVisualizer(urlToRender = it.arguments?.getString("url")!!) }
+                ) {
+                    WebPageVisualizer(
+                        urlToRender = it.arguments?.getString("url")!!,
+                        viewModel = viewModel
+                    )
+                }
                 composable(
                     route = Routes.PasswordDetails.route,
                     arguments = listOf(element = navArgument(name = "data") {
                         type = NavType.IntType
                     })
-                ) { PasswordDetails(passwordData = storedPasswords[it.arguments?.getInt("data")!!]) }
+                ) {
+                    PasswordDetails(
+                        passwordData = storedPasswords[it.arguments?.getInt("data")!!],
+                        viewModel = viewModel
+                    )
+                }
                 composable(
                     route = Routes.FolderDetails.route,
                     arguments = listOf(element = navArgument(name = "data") {
                         type = NavType.IntType
                     })
-                ) { FolderDetails(folder = storedFolders[it.arguments?.getInt("data")!!]) }
+                ) {
+                    FolderDetails(
+                        folder = storedFolders[it.arguments?.getInt("data")!!],
+                        viewModel = viewModel
+                    )
+                }
             }
         }
     }

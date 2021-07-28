@@ -36,13 +36,13 @@ import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @Composable
-fun AccessPin(shouldRaiseBiometric: Boolean) {
+fun AccessPin(shouldRaiseBiometric: Boolean, viewModel: CentralAppControl) {
     val context = LocalContext.current
 
-    val biometricDismissed by CentralAppControl.biometricDismissed.collectAsState()
+    val biometricDismissed by viewModel.biometricDismissed.collectAsState()
 
-    if (CentralAppControl.biometricProtected.value && shouldRaiseBiometric && !biometricDismissed)
-        CentralAppControl.showBiometricPrompt()
+    if (viewModel.biometricProtected.value && shouldRaiseBiometric && !biometricDismissed)
+        viewModel.showBiometricPrompt()
 
     var showed by remember { mutableStateOf(value = false) }
     var pin by remember { mutableStateOf(value = "") }
@@ -82,9 +82,9 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                 }
             }
             Row {
-                if (CentralAppControl.biometricProtected.value) {
+                if (viewModel.biometricProtected.value) {
                     FloatingActionButton(
-                        onClick = { CentralAppControl.showBiometricPrompt() },
+                        onClick = { viewModel.showBiometricPrompt() },
                         backgroundColor = Orange500,
                         modifier = Modifier.padding(bottom = 64.dp)
                     ) {
@@ -97,9 +97,9 @@ fun AccessPin(shouldRaiseBiometric: Boolean) {
                     Box(modifier = Modifier.size(size = 16.dp))
                 }
                 FloatingActionButton(onClick = {
-                    if (CentralAppControl.checkPin(pin = pin)) CentralAppControl.unlock()
+                    if (viewModel.checkPin(pin = pin)) viewModel.unlock()
                     else {
-                        CentralAppControl.showDialog(
+                        viewModel.showDialog(
                             title = context.getString(R.string.wrong_pin),
                             body = {
                                 Text(

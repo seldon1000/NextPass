@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApi
+import eu.seldon1000.nextpass.api.NextcloudApi.Companion.json
 import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.items.*
 import eu.seldon1000.nextpass.ui.layout.Header
@@ -54,15 +54,15 @@ import java.security.MessageDigest
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @Composable
-fun NewPassword() {
+fun NewPassword(viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
 
-    val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
+    val selectedFolder by viewModel.selectedFolder.collectAsState()
 
     var showed by remember { mutableStateOf(value = false) }
     var favorite by remember { mutableStateOf(value = false) }
@@ -74,12 +74,12 @@ fun NewPassword() {
     var notes by remember { mutableStateOf(value = "") }
     val tags by remember { mutableStateOf(value = mutableStateListOf<Tag>()) }
     val customFields by remember { mutableStateOf(value = mutableStateListOf<SnapshotStateMap<String, String>>()) }
-    val favicon by NextcloudApi.currentRequestedFavicon.collectAsState()
+    val favicon by viewModel.nextcloudApi.currentRequestedFavicon.collectAsState()
 
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = {
             if (label.isNotEmpty() && password.isNotEmpty()) {
-                CentralAppControl.showDialog(
+                viewModel.showDialog(
                     title = context.getString(R.string.create_password),
                     body = {
                         Text(
@@ -125,18 +125,21 @@ fun NewPassword() {
                         "notes" to notes,
                         "hash" to hash,
                         "folder" to storedFolders[selectedFolder].id,
-                        "customFields" to NextcloudApi.json.encodeToString(value = concreteCustomFields)
+                        "customFields" to json.encodeToString(value = concreteCustomFields)
                     )
                     if (favorite) params["favorite"] = "true"
 
-                    CentralAppControl.executeRequest {
-                        NextcloudApi.createPasswordRequest(params = params, tags = tags)
-                        CentralAppControl.setSelectedFolder(folder = CentralAppControl.currentFolder.value)
-                        CentralAppControl.popBackStack()
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.password_created_snack))
+                    viewModel.executeRequest {
+                        viewModel.nextcloudApi.createPasswordRequest(
+                            params = params,
+                            tags = tags
+                        )
+                        viewModel.setSelectedFolder(folder = viewModel.currentFolder.value)
+                        viewModel.popBackStack()
+                        viewModel.showSnackbar(message = context.getString(R.string.password_created_snack))
                     }
                 }
-            } else CentralAppControl.showDialog(
+            } else viewModel.showDialog(
                 title = context.getString(R.string.missing_info),
                 body = {
                     Text(
@@ -158,7 +161,7 @@ fun NewPassword() {
             cutoutShape = CircleShape,
             modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
         ) {
-            IconButton(onClick = { CentralAppControl.popBackStack() }) {
+            IconButton(onClick = { viewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"
@@ -191,13 +194,15 @@ fun NewPassword() {
                 ) {
                     TagsRow(
                         tags = tags,
-                        alignment = Alignment.Start
-                    ) {
-                        if (it != null) {
-                            if (tags.contains(element = it)) tags.remove(element = it)
-                            else tags.add(element = it)
-                        }
-                    }
+                        alignment = Alignment.Start,
+                        tagClickAction = {
+                            if (it != null) {
+                                if (tags.contains(element = it)) tags.remove(element = it)
+                                else tags.add(element = it)
+                            }
+                        },
+                        viewModel = viewModel
+                    )
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
@@ -205,12 +210,12 @@ fun NewPassword() {
                             .fillMaxWidth()
                             .padding(bottom = 16.dp)
                     ) {
-                        DropdownFolderList(folder = selectedFolder)
+                        DropdownFolderList(folder = selectedFolder, viewModel = viewModel)
                         FavoriteButton(favorite = favorite) { favorite = !favorite }
                     }
                     TextFieldItem(text = url, onTextChanged = {
                         if (it.length >= url.length || it.isEmpty())
-                            NextcloudApi.faviconRequest(data = it)
+                            viewModel.nextcloudApi.faviconRequest(data = it)
 
                         url = it
                     }, label = context.getString(R.string.url))
@@ -244,14 +249,16 @@ fun NewPassword() {
                         )
 
                         IconButton(onClick = {
-                            CentralAppControl.executeRequest {
-                                coroutineScope.launch { password = NextcloudApi.generatePassword() }
+                            viewModel.executeRequest {
+                                coroutineScope.launch {
+                                    password = viewModel.nextcloudApi.generatePassword()
+                                }
                             }
 
                             if (rotation >= 360F * 10) {
                                 rotation = 0F
 
-                                CentralAppControl.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
+                                viewModel.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
                             } else rotation += 360F
                         }) {
                             Icon(
@@ -322,7 +329,7 @@ fun NewPassword() {
                                 if (customField["label"]!!.isNotEmpty()) {
                                     customField["type"] = "text"
                                     customField["value"] = ""
-                                } else CentralAppControl.showDialog(
+                                } else viewModel.showDialog(
                                     title = context.getString(R.string.missing_info),
                                     body = {
                                         Text(

@@ -17,9 +17,12 @@
 package eu.seldon1000.nextpass
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
-import android.view.Window
 import android.view.WindowManager
 import android.view.autofill.AutofillManager
 import android.webkit.CookieManager
@@ -30,132 +33,92 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.services.NextPassAutofillService
+import eu.seldon1000.nextpass.services.StartupBroadcastReceiver
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Routes
 import io.ktor.client.features.*
 import io.ktor.client.request.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 @SuppressLint("StaticFieldLeak")
-object CentralAppControl {
-    private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
+class CentralAppControl(application: Application) : AndroidViewModel(application) {
+    val nextcloudApi = NextcloudApi()
 
-    private lateinit var context: Context
-    private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var window: Window
-    private lateinit var clipboardManager: ClipboardManager
-    private lateinit var autofillManager: AutofillManager
+    private val context = getApplication<Application>().applicationContext
+    private var sharedPreferences: SharedPreferences = context.getSharedPreferences("nextpass", 0)
+    private var clipboardManager: ClipboardManager = context.getSystemService(ClipboardManager::class.java)
+    private var autofillManager: AutofillManager = context.getSystemService(AutofillManager::class.java)
 
     private lateinit var snackbarHostState: SnackbarHostState
-    private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var autofillIntent: Intent
+    private var promptInfo: BiometricPrompt.PromptInfo
     private var unlocked = true
     private var pendingUnlockAction: (() -> Unit)? = null
 
-    private lateinit var navControllerState: MutableStateFlow<NavController>
     lateinit var navController: MutableStateFlow<NavController>
 
-    private val screenProtectionState = MutableStateFlow(value = false)
-    val screenProtection = screenProtectionState
+    val screenProtection = MutableStateFlow(value = false)
+    val autofill = MutableStateFlow(value = false)
+    val autostart = MutableStateFlow(value = false)
+    val pinProtected = MutableStateFlow(value = false)
+    val biometricProtected = MutableStateFlow(value = false)
+    val biometricDismissed = MutableStateFlow(value = false)
+    val lockTimeout = MutableStateFlow(value = (-1).toLong())
+    val refreshing = MutableStateFlow(value = false)
+    val folderMode = MutableStateFlow(value = false)
+    val currentFolder = MutableStateFlow(value = 0)
+    val selectedFolder = MutableStateFlow(value = currentFolder.value)
+    val folders = MutableStateFlow(value = false)
+    val tags = MutableStateFlow(value = false)
+    val openDialog = MutableStateFlow(value = false)
+    val dialogTitle = MutableStateFlow(value = "")
+    val dialogBody = MutableStateFlow<@Composable () -> Unit> {}
+    val dialogAction = MutableStateFlow {}
+    val dialogConfirm = MutableStateFlow(value = false)
 
-    private val autofillState = MutableStateFlow(value = false)
-    val autofill = autofillState
-
-    private val autostartState = MutableStateFlow(value = false)
-    val autostart = autostartState
-
-    private val pinProtectedState = MutableStateFlow(value = false)
-    val pinProtected = pinProtectedState
-
-    private val biometricProtectedState = MutableStateFlow(value = false)
-    val biometricProtected = biometricProtectedState
-
-    private val biometricDismissedState = MutableStateFlow(value = false)
-    val biometricDismissed = biometricDismissedState
-
-    private val lockTimeoutState = MutableStateFlow(value = (-1).toLong())
-    val lockTimeout = lockTimeoutState
-
-    private val refreshingState = MutableStateFlow(value = false)
-    val refreshing: StateFlow<Boolean> = refreshingState
-
-    private val folderModeState = MutableStateFlow(value = false)
-    val folderMode = folderModeState
-
-    private val currentFolderState = MutableStateFlow(value = 0)
-    val currentFolder = currentFolderState
-
-    private val selectedFolderState = MutableStateFlow(value = currentFolder.value)
-    val selectedFolder = selectedFolderState
-
-    private val foldersState = MutableStateFlow(value = false)
-    val folders = foldersState
-
-    private val tagsState = MutableStateFlow(value = false)
-    val tags = tagsState
-
-    private val openDialogState = MutableStateFlow(value = false)
-    val openDialog = openDialogState
-
-    private val dialogTitleState = MutableStateFlow(value = "")
-    val dialogTitle = dialogTitleState
-
-    private val dialogBodyState = MutableStateFlow<@Composable () -> Unit> {}
-    val dialogBody = dialogBodyState
-
-    private val dialogActionState = MutableStateFlow {}
-    val dialogAction = dialogActionState
-
-    private val dialogConfirmState = MutableStateFlow(value = false)
-    val dialogConfirm = dialogConfirmState
-
-    fun setContext(con: Context) {
-        context = con
-        sharedPreferences = context.getSharedPreferences("nextpass", 0)
-        window = (context as MainActivity).window
-        clipboardManager = context.getSystemService(ClipboardManager::class.java)
-        autofillManager = context.getSystemService(AutofillManager::class.java)
-
+    init {
         if (sharedPreferences.contains("server"))
-            NextcloudApi.login(
+            nextcloudApi.login(
                 server = sharedPreferences.getString("server", "")!!,
                 loginName = sharedPreferences.getString("loginName", "")!!,
                 appPassword = sharedPreferences.getString("appPassword", "")!!
             )
 
-        screenProtectionState.value = sharedPreferences.contains("screen")
-        if (screenProtectionState.value) enableScreenProtection()
+        if (sharedPreferences.contains("screen")) screenProtection.value = true
 
         if (autofillManager.hasEnabledAutofillServices()) {
-            autostartState.value = sharedPreferences.contains("autostart")
+            autostart.value = sharedPreferences.contains("autostart")
 
-            if (autostartState.value) autofillIntent =
+            if (autostart.value) autofillIntent =
                 Intent(context, NextPassAutofillService::class.java)
         } else sharedPreferences.edit().remove("autostart").apply()
 
         if (sharedPreferences.contains("PIN")) {
-            pinProtectedState.value = true
-            lockTimeoutState.value = sharedPreferences.getLong("timeout", 0)
-            if (lockTimeoutState.value != (-1).toLong()) unlocked = false
-            biometricProtectedState.value = sharedPreferences.contains("biometric")
+            pinProtected.value = true
+            lockTimeout.value = sharedPreferences.getLong("timeout", 0)
+            if (lockTimeout.value != (-1).toLong()) unlocked = false
+            biometricProtected.value = sharedPreferences.contains("biometric")
         }
 
         if (sharedPreferences.contains("folders")) {
             setFolderMode(mode = true)
-            foldersState.value = true
+            folders.value = true
         } else setFolderMode(mode = false)
 
         if (!sharedPreferences.contains("tags")) enableTags(refresh = false)
-        else tagsState.value = sharedPreferences.getBoolean("tags", true)
+        else tags.value = sharedPreferences.getBoolean("tags", true)
 
         promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(context.getString(R.string.access_nextpass))
@@ -165,7 +128,7 @@ object CentralAppControl {
     }
 
     fun setPrimaryClip(label: String, clip: String) {
-        coroutineScope.launch {
+        viewModelScope.launch {
             clipboardManager.setPrimaryClip(ClipData.newPlainText(label, clip))
         }
 
@@ -173,15 +136,14 @@ object CentralAppControl {
     }
 
     fun setNavController(controller: NavController) {
-        navControllerState = MutableStateFlow(value = controller)
-        navController = navControllerState
+        navController = MutableStateFlow(value = controller)
     }
 
     fun setSnackbarHostState(snackbar: SnackbarHostState) {
         snackbarHostState = snackbar
     }
 
-    fun resetUserPreferences(context: Context) {
+    fun resetUserPreferences() {
         pendingUnlockAction = {
             stopAutofillService(show = false)
             disableAutostart()
@@ -194,7 +156,7 @@ object CentralAppControl {
             showSnackbar(message = context.getString(R.string.preferences_reset_snack))
         }
 
-        if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
+        if (pinProtected.value) lock(shouldRaiseBiometric = true)
         else {
             pendingUnlockAction!!()
             pendingUnlockAction = null
@@ -202,9 +164,9 @@ object CentralAppControl {
     }
 
     fun showSnackbar(message: String) {
-        coroutineScope.launch {
-            if (navControllerState.value.currentDestination?.route!! != Routes.AccessPin.route &&
-                navControllerState.value.currentDestination?.route!! != Routes.Pin.route
+        viewModelScope.launch {
+            if (navController.value.currentDestination?.route!! != Routes.AccessPin.route &&
+                navController.value.currentDestination?.route!! != Routes.Pin.route
             ) {
                 snackbarHostState.currentSnackbarData?.dismiss()
                 snackbarHostState.showSnackbar(message = message)
@@ -215,41 +177,43 @@ object CentralAppControl {
     fun enableScreenProtection() {
         sharedPreferences.edit().putBoolean("screen", true).apply()
 
-        window.setFlags(
+        (navController.value.context as MainActivity).window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE,
             WindowManager.LayoutParams.FLAG_SECURE
         )
 
-        screenProtectionState.value = true
+        screenProtection.value = true
     }
 
     fun disableScreenProtection(lock: Boolean = true) {
         pendingUnlockAction = {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            (navController.value.context as MainActivity).window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             sharedPreferences.edit().remove("screen").apply()
-            screenProtectionState.value = false
+            screenProtection.value = false
         }
 
-        if (pinProtectedState.value && lock) lock(shouldRaiseBiometric = true)
+        if (pinProtected.value && lock) lock(shouldRaiseBiometric = true)
         else {
             pendingUnlockAction!!()
             pendingUnlockAction = null
         }
     }
 
-    fun startAutofillService() {
-        if (autofillManager.hasEnabledAutofillServices() && NextcloudApi.isLogged()) {
-            if (!this::autofillIntent.isInitialized)
+    private fun startAutofillService() {
+        if (autofillManager.hasEnabledAutofillServices()) {
+            if (!this::autofillIntent.isInitialized && StartupBroadcastReceiver.autofillIntent != null)
+                autofillIntent = StartupBroadcastReceiver.autofillIntent!!
+            else if (!this::autofillIntent.isInitialized)
                 autofillIntent = Intent(context, NextPassAutofillService::class.java)
 
-            autofillState.value = true
+            autofill.value = true
 
             context.startService(autofillIntent)
         }
     }
 
     fun stopAutofillService(show: Boolean = true) {
-        if (autofillState.value) {
+        if (autofill.value) {
             context.stopService(autofillIntent)
 
             if (show) showSnackbar(message = context.getString(R.string.service_terminated_snack))
@@ -257,7 +221,7 @@ object CentralAppControl {
     }
 
     fun enableAutofill() {
-        autofillState.value = true
+        autofill.value = true
 
         startAutofillService()
     }
@@ -274,21 +238,21 @@ object CentralAppControl {
 
     fun enableAutostart() {
         sharedPreferences.edit().putBoolean("autostart", true).apply()
-        autostartState.value = true
+        autostart.value = true
     }
 
     fun disableAutostart() {
         sharedPreferences.edit().remove("autostart").apply()
-        autostartState.value = false
+        autostart.value = false
     }
 
     fun lock(shouldRaiseBiometric: Boolean = true) {
-        if (pinProtectedState.value) {
+        if (pinProtected.value) {
             unlocked = false
 
-            if (biometricProtectedState.value) biometricDismissedState.value = false
+            if (biometricProtected.value) biometricDismissed.value = false
 
-            refreshingState.value = false
+            refreshing.value = false
             navigate(route = Routes.AccessPin.getRoute(arg = shouldRaiseBiometric))
             dismissDialog()
         }
@@ -297,8 +261,8 @@ object CentralAppControl {
     fun unlock() {
         unlocked = true
 
-        if (navControllerState.value.previousBackStackEntry?.destination?.route != Routes.Welcome.route)
-            navControllerState.value.popBackStack()
+        if (navController.value.previousBackStackEntry?.destination?.route != Routes.Welcome.route)
+            navController.value.popBackStack()
         else openApp()
 
         pendingUnlockAction?.let { it() }
@@ -307,11 +271,11 @@ object CentralAppControl {
 
     fun openApp(shouldRememberScreen: Boolean = false) {
         if (unlocked) {
-            if (NextcloudApi.isLogged()) {
+            if (nextcloudApi.isLogged()) {
                 if (!shouldRememberScreen) navigate(route = Routes.Passwords.route)
 
                 executeRequest {
-                    NextcloudApi.refreshServerList()
+                    nextcloudApi.refreshServerList()
 
                     startAutofillService()
                 }
@@ -330,7 +294,7 @@ object CentralAppControl {
     fun changePin() {
         pendingUnlockAction = { navigate(route = Routes.Pin.route) }
 
-        if (pinProtectedState.value) lock(shouldRaiseBiometric = true)
+        if (pinProtected.value) lock(shouldRaiseBiometric = true)
         else {
             pendingUnlockAction!!()
             pendingUnlockAction = {}
@@ -340,25 +304,25 @@ object CentralAppControl {
     fun setPin(pin: String) {
         sharedPreferences.edit().putString("PIN", pin).apply()
 
-        if (!pinProtectedState.value) {
-            pinProtectedState.value = true
+        if (!pinProtected.value) {
+            pinProtected.value = true
 
-            setLockTimeout(timeout = lockTimeoutState.value)
+            setLockTimeout(timeout = lockTimeout.value)
         }
     }
 
     fun disablePin(lock: Boolean = true) {
         pendingUnlockAction = {
             sharedPreferences.edit().remove("PIN").apply()
-            pinProtectedState.value = false
+            pinProtected.value = false
             sharedPreferences.edit().remove("timeout").apply()
-            lockTimeoutState.value = (-1).toLong()
+            lockTimeout.value = (-1).toLong()
             disableBiometric()
 
             showSnackbar(message = context.getString(R.string.pin_disabled_snack))
         }
 
-        if (pinProtectedState.value && lock) lock(shouldRaiseBiometric = true)
+        if (pinProtected.value && lock) lock(shouldRaiseBiometric = true)
         else {
             pendingUnlockAction!!()
             pendingUnlockAction = {}
@@ -371,7 +335,7 @@ object CentralAppControl {
 
     fun disableBiometric() {
         sharedPreferences.edit().remove("biometric").apply()
-        biometricProtectedState.value = false
+        biometricProtected.value = false
     }
 
     fun showBiometricPrompt(toEnable: Boolean = false) {
@@ -382,7 +346,7 @@ object CentralAppControl {
                     errorCode: Int,
                     errString: CharSequence
                 ) {
-                    biometricDismissedState.value = true
+                    biometricDismissed.value = true
                 }
 
                 override fun onAuthenticationSucceeded(
@@ -390,12 +354,12 @@ object CentralAppControl {
                 ) {
                     if (toEnable) {
                         sharedPreferences.edit().putBoolean("biometric", true).apply()
-                        biometricProtectedState.value = true
+                        biometricProtected.value = true
                     } else unlock()
                 }
 
                 override fun onAuthenticationFailed() {
-                    biometricDismissedState.value = true
+                    biometricDismissed.value = true
                 }
             }
         )
@@ -404,31 +368,31 @@ object CentralAppControl {
 
     fun setLockTimeout(timeout: Long) {
         sharedPreferences.edit().putLong("timeout", timeout).apply()
-        lockTimeoutState.value = timeout
+        lockTimeout.value = timeout
     }
 
     private fun setKeyboardMode() {
-        if (navControllerState.value.currentDestination?.route == Routes.Search.route ||
-            navControllerState.value.currentDestination?.route == Routes.Pin.route
-        ) window.setSoftInputMode(16)
-        else window.setSoftInputMode(32)
+        if (navController.value.currentDestination?.route == Routes.Search.route ||
+            navController.value.currentDestination?.route == Routes.Pin.route
+        ) (navController.value.context as MainActivity).window.setSoftInputMode(16)
+        else (navController.value.context as MainActivity).window.setSoftInputMode(32)
     }
 
     fun navigate(route: String) {
-        if (navControllerState.value.currentDestination?.route
+        if (navController.value.currentDestination?.route
                 ?.substringBefore(delimiter = "/") != route.substringBefore(delimiter = "/")
         ) {
-            navControllerState.value.navigate(route = route) {
+            navController.value.navigate(route = route) {
                 launchSingleTop = true
                 restoreState = true
             }
 
-            if (navControllerState.value.currentDestination?.route == Routes.AccessPin.route ||
-                navControllerState.value.currentDestination?.route == Routes.Welcome.route ||
-                navControllerState.value.currentDestination?.route == Routes.Settings.route ||
-                navControllerState.value.currentDestination?.route == Routes.About.route ||
-                navControllerState.value.currentDestination?.route == Routes.Pin.route
-            ) refreshingState.value = false
+            if (navController.value.currentDestination?.route == Routes.AccessPin.route ||
+                navController.value.currentDestination?.route == Routes.Welcome.route ||
+                navController.value.currentDestination?.route == Routes.Settings.route ||
+                navController.value.currentDestination?.route == Routes.About.route ||
+                navController.value.currentDestination?.route == Routes.Pin.route
+            ) refreshing.value = false
         }
 
         setKeyboardMode()
@@ -436,23 +400,23 @@ object CentralAppControl {
 
     fun popBackStack(): Boolean {
         try {
-            return if ((navControllerState.value.previousBackStackEntry?.destination?.route == Routes.Welcome.route &&
-                        navControllerState.value.currentDestination?.route == Routes.WebView.route) ||
-                navControllerState.value.previousBackStackEntry?.destination?.route == Routes.AccessPin.route ||
-                navControllerState.value.currentDestination?.route == Routes.Welcome.route ||
-                (navControllerState.value.currentDestination?.route == Routes.AccessPin.route && pendingUnlockAction == null) ||
-                navControllerState.value.currentDestination?.route == Routes.Passwords.route
+            return if ((navController.value.previousBackStackEntry?.destination?.route == Routes.Welcome.route &&
+                        navController.value.currentDestination?.route == Routes.WebView.route) ||
+                navController.value.previousBackStackEntry?.destination?.route == Routes.AccessPin.route ||
+                navController.value.currentDestination?.route == Routes.Welcome.route ||
+                (navController.value.currentDestination?.route == Routes.AccessPin.route && pendingUnlockAction == null) ||
+                navController.value.currentDestination?.route == Routes.Passwords.route
             )
-                if (currentFolderState.value != 0) {
+                if (currentFolder.value != 0) {
                     setCurrentFolder()
 
                     true
                 } else false
             else {
-                if (navControllerState.value.currentDestination?.route == Routes.NewPassword.route)
-                    NextcloudApi.faviconRequest(data = "")
+                if (navController.value.currentDestination?.route == Routes.NewPassword.route)
+                    nextcloudApi.faviconRequest(data = "")
 
-                navControllerState.value.popBackStack()
+                navController.value.popBackStack()
 
                 setKeyboardMode()
 
@@ -464,51 +428,51 @@ object CentralAppControl {
     }
 
     fun setFolderMode(mode: Boolean? = null) {
-        if (mode == null) folderModeState.value = !folderModeState.value
-        else folderModeState.value = mode
+        if (mode == null) folderMode.value = !folderMode.value
+        else folderMode.value = mode
     }
 
     fun enableFolders() {
         sharedPreferences.edit().putBoolean("folders", false).apply()
-        foldersState.value = true
+        folders.value = true
 
         setFolderMode(mode = true)
     }
 
     fun disableFolders() {
         sharedPreferences.edit().remove("folders").apply()
-        foldersState.value = false
+        folders.value = false
 
         setFolderMode(mode = false)
     }
 
     fun setCurrentFolder(folder: Int? = null) {
         if (folder != null) {
-            currentFolderState.value = folder
-            selectedFolderState.value = folder
+            currentFolder.value = folder
+            selectedFolder.value = folder
         } else {
-            currentFolderState.value =
-                NextcloudApi.storedFolders.value.indexOfFirst {
-                    it.id == NextcloudApi.storedFolders.value[currentFolderState.value].parent
+            currentFolder.value =
+                nextcloudApi.storedFolders.value.indexOfFirst {
+                    it.id == nextcloudApi.storedFolders.value[currentFolder.value].parent
                 }
-            selectedFolderState.value = currentFolderState.value
+            selectedFolder.value = currentFolder.value
         }
     }
 
     fun setSelectedFolder(folder: Int) {
-        selectedFolderState.value = folder
+        selectedFolder.value = folder
     }
 
     fun enableTags(refresh: Boolean = true) {
-        if (refresh) executeRequest { NextcloudApi.refreshServerList() }
+        if (refresh) executeRequest { nextcloudApi.refreshServerList() }
 
         sharedPreferences.edit().putBoolean("tags", true).apply()
-        tagsState.value = true
+        tags.value = true
     }
 
     fun disableTags() {
         sharedPreferences.edit().putBoolean("tags", false).apply()
-        tagsState.value = false
+        tags.value = false
     }
 
     fun showDialog(
@@ -517,16 +481,16 @@ object CentralAppControl {
         confirm: Boolean = false,
         action: () -> Unit = {}
     ) {
-        dialogTitleState.value = title
-        dialogBodyState.value = body
-        dialogConfirmState.value = confirm
-        dialogActionState.value = action
+        dialogTitle.value = title
+        dialogBody.value = body
+        dialogConfirm.value = confirm
+        dialogAction.value = action
 
-        openDialogState.value = true
+        openDialog.value = true
     }
 
     fun dismissDialog() {
-        openDialogState.value = false
+        openDialog.value = false
     }
 
     @ExperimentalMaterialApi
@@ -550,9 +514,9 @@ object CentralAppControl {
             ) url.value = "https://${url.value}"
             url.value = "${url.value}/index.php/login/v2"
 
-            coroutineScope.launch(context = Dispatchers.Main) {
+            viewModelScope.launch(context = Dispatchers.Main) {
                 try {
-                    val response = NextcloudApi.client.post<JsonObject>(urlString = url.value)
+                    val response = nextcloudApi.client.post<JsonObject>(urlString = url.value)
 
                     val login = Uri.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
                     val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
@@ -565,7 +529,7 @@ object CentralAppControl {
 
                     while (loginResponse.isEmpty() && i <= 120) {
                         try {
-                            loginResponse = NextcloudApi.client.post(urlString = endpoint) {
+                            loginResponse = nextcloudApi.client.post(urlString = endpoint) {
                                 expectSuccess = false
                                 parameter(key = "token", value = token)
                             }
@@ -590,9 +554,9 @@ object CentralAppControl {
                             )
                         })
                     else if (i <= 120) {
-                        refreshingState.value = true
+                        refreshing.value = true
 
-                        NextcloudApi.login(
+                        nextcloudApi.login(
                             server = loginResponse["server"]!!,
                             loginName = loginResponse["loginName"]!!,
                             appPassword = loginResponse["appPassword"]!!
@@ -644,14 +608,14 @@ object CentralAppControl {
             confirm = true
         ) {
             executeRequest {
-                NextcloudApi.logout()
+                nextcloudApi.logout()
 
                 sharedPreferences.edit().remove("server").apply()
                 sharedPreferences.edit().remove("loginName").apply()
                 sharedPreferences.edit().remove("appPassword").apply()
 
-                refreshingState.value = false
-                resetUserPreferences(context = context)
+                refreshing.value = false
+                resetUserPreferences()
                 navigate(route = Routes.Welcome.route)
                 showSnackbar(message = context.getString(R.string.disconnected_snack))
             }
@@ -659,23 +623,23 @@ object CentralAppControl {
     }
 
     fun executeRequest(request: suspend () -> Unit) {
-        refreshingState.value =
-            navControllerState.value.currentDestination?.route == Routes.Search.route ||
-                    navControllerState.value.currentDestination?.route == Routes.Passwords.route ||
-                    navControllerState.value.currentDestination?.route == Routes.Favorites.route ||
-                    navControllerState.value.currentDestination?.route == Routes.PasswordDetails.route ||
-                    navControllerState.value.currentDestination?.route == Routes.FolderDetails.route ||
-                    navControllerState.value.currentDestination?.route == Routes.NewPassword.route ||
-                    navControllerState.value.currentDestination?.route == Routes.NewFolder.route
+        refreshing.value =
+            navController.value.currentDestination?.route == Routes.Search.route ||
+                    navController.value.currentDestination?.route == Routes.Passwords.route ||
+                    navController.value.currentDestination?.route == Routes.Favorites.route ||
+                    navController.value.currentDestination?.route == Routes.PasswordDetails.route ||
+                    navController.value.currentDestination?.route == Routes.FolderDetails.route ||
+                    navController.value.currentDestination?.route == Routes.NewPassword.route ||
+                    navController.value.currentDestination?.route == Routes.NewFolder.route
 
-        coroutineScope.launch {
+        viewModelScope.launch {
             try {
                 request()
             } catch (e: Exception) {
                 showError()
             }
 
-            refreshingState.value = false
+            refreshing.value = false
         }
     }
 
@@ -685,6 +649,6 @@ object CentralAppControl {
             body = { Text(text = context.getString(R.string.error_body), fontSize = 14.sp) }
         )
 
-        refreshingState.value = false
+        refreshing.value = false
     }
 }

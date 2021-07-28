@@ -33,29 +33,29 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.theme.Orange500
 
 @Composable
-fun MyAlertDialog() {
+fun MyAlertDialog(viewModel: CentralAppControl) {
     val context = LocalContext.current
 
-    val openDialog by CentralAppControl.openDialog.collectAsState()
-    val dialogTitle by CentralAppControl.dialogTitle.collectAsState()
-    val dialogBody by CentralAppControl.dialogBody.collectAsState()
-    val dialogConfirm by CentralAppControl.dialogConfirm.collectAsState()
-    val dialogAction by CentralAppControl.dialogAction.collectAsState()
+    val openDialog by viewModel.openDialog.collectAsState()
+    val dialogTitle by viewModel.dialogTitle.collectAsState()
+    val dialogBody by viewModel.dialogBody.collectAsState()
+    val dialogConfirm by viewModel.dialogConfirm.collectAsState()
+    val dialogAction by viewModel.dialogAction.collectAsState()
 
     if (openDialog) {
         AlertDialog(
-            onDismissRequest = { CentralAppControl.dismissDialog() },
+            onDismissRequest = { viewModel.dismissDialog() },
             confirmButton = {
                 if (dialogConfirm)
                     TextButton(
                         onClick = {
-                            CentralAppControl.dismissDialog()
+                            viewModel.dismissDialog()
                             dialogAction()
                         }
                     ) { Text(text = context.getString(R.string.confirm), color = Orange500) }
             },
             dismissButton = {
-                TextButton(onClick = { CentralAppControl.dismissDialog() }) {
+                TextButton(onClick = { viewModel.dismissDialog() }) {
                     Text(text = context.getString(R.string.dismiss), color = Color.LightGray)
                 }
             },

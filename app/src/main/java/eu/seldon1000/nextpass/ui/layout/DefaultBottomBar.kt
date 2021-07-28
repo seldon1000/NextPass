@@ -42,12 +42,12 @@ import eu.seldon1000.nextpass.ui.theme.colors
 import kotlinx.coroutines.launch
 
 @Composable
-fun DefaultBottomBar(lazyListState: LazyListState) {
+fun DefaultBottomBar(lazyListState: LazyListState, viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
 
-    val currentScreen by CentralAppControl.navController.collectAsState().value.currentBackStackEntryAsState()
+    val currentScreen by viewModel.navController.collectAsState().value.currentBackStackEntryAsState()
 
     BottomAppBar(
         backgroundColor = Color.Black,
@@ -55,11 +55,11 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
         modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
     ) {
         BottomNavigationItem(
-            label = { Text(text = context.getString(R.string.favorites), fontSize = 10.sp)},
+            label = { Text(text = context.getString(R.string.favorites), fontSize = 10.sp) },
             selected = currentScreen?.destination?.route == Routes.Favorites.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Favorites.route)
-                    CentralAppControl.navigate(route = Routes.Favorites.route)
+                    viewModel.navigate(route = Routes.Favorites.route)
                 else coroutineScope.launch { lazyListState.scrollToItem(index = 0) }
             },
             icon = {
@@ -72,13 +72,13 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
-            label = { Text(text = context.getString(R.string.passwords), fontSize = 10.sp)},
+            label = { Text(text = context.getString(R.string.passwords), fontSize = 10.sp) },
             selected = currentScreen?.destination?.route == Routes.Passwords.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Passwords.route)
-                    CentralAppControl.navigate(route = Routes.Passwords.route)
+                    viewModel.navigate(route = Routes.Passwords.route)
                 else {
-                    CentralAppControl.setCurrentFolder(folder = 0)
+                    viewModel.setCurrentFolder(folder = 0)
                     coroutineScope.launch { lazyListState.scrollToItem(index = 0) }
                 }
             },
@@ -93,11 +93,11 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
         )
         BottomNavigationItem(selected = false, onClick = {}, enabled = false, icon = {})
         BottomNavigationItem(
-            label = { Text(text = context.getString(R.string.search), fontSize = 10.sp)},
+            label = { Text(text = context.getString(R.string.search), fontSize = 10.sp) },
             selected = currentScreen?.destination?.route == Routes.Search.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Search.route)
-                    CentralAppControl.navigate(route = Routes.Search.route)
+                    viewModel.navigate(route = Routes.Search.route)
             },
             icon = {
                 Icon(
@@ -109,11 +109,11 @@ fun DefaultBottomBar(lazyListState: LazyListState) {
             unselectedContentColor = colors!!.onBackground
         )
         BottomNavigationItem(
-            label = { Text(text = context.getString(R.string.settings), fontSize = 10.sp)},
+            label = { Text(text = context.getString(R.string.settings), fontSize = 10.sp) },
             selected = currentScreen?.destination?.route == Routes.Settings.route,
             onClick = {
                 if (currentScreen?.destination?.route != Routes.Settings.route)
-                    CentralAppControl.navigate(route = Routes.Settings.route)
+                    viewModel.navigate(route = Routes.Settings.route)
                 else coroutineScope.launch { lazyListState.scrollToItem(0) }
             },
             icon = {

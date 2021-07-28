@@ -30,8 +30,8 @@ import android.view.autofill.AutofillValue
 import android.widget.RemoteViews
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.NextcloudApi
-import eu.seldon1000.nextpass.api.NextcloudApi.generatePassword
-import eu.seldon1000.nextpass.api.NextcloudApi.toRoundedCorners
+import eu.seldon1000.nextpass.api.NextcloudApi.Companion.json
+import eu.seldon1000.nextpass.api.NextcloudApi.Companion.toRoundedCorners
 import eu.seldon1000.nextpass.api.Password
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +43,8 @@ import java.security.MessageDigest
 
 class NextPassAutofillService : AutofillService() {
     private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
+
+    val nextcloudApi = NextcloudApi()
 
     private var usernameHints = arrayOf<String>()
     private var passwordHints = arrayOf<String>()
@@ -70,12 +72,12 @@ class NextPassAutofillService : AutofillService() {
         usernameHints = resources.getStringArray(R.array.username_hints)
         passwordHints = resources.getStringArray(R.array.password_hints)
 
-        NextcloudApi.login(
+        nextcloudApi.login(
             server = sharedPreferences.getString("server", "")!!,
             loginName = sharedPreferences.getString("loginName", "")!!,
             appPassword = sharedPreferences.getString("appPassword", "")!!
         )
-        if (NextcloudApi.storedPasswords.value.isEmpty()) (getSystemService(ConnectivityManager::class.java))
+        if (nextcloudApi.storedPasswords.value.isEmpty()) (getSystemService(ConnectivityManager::class.java))
             .registerNetworkCallback(
                 networkRequest,
                 object : ConnectivityManager.NetworkCallback() {
@@ -84,7 +86,7 @@ class NextPassAutofillService : AutofillService() {
 
                         coroutineScope.launch {
                             try {
-                                NextcloudApi.refreshServerList(
+                                nextcloudApi.refreshServerList(
                                     refreshFolders = false,
                                     refreshTags = false
                                 )
@@ -130,7 +132,7 @@ class NextPassAutofillService : AutofillService() {
             }
 
             if (passwordId.isNotEmpty()) {
-                val randomPassword = async { generatePassword() }
+                val randomPassword = async { nextcloudApi.generatePassword() }
 
                 passwordId.forEach {
                     val credentialsPresentation =
@@ -223,7 +225,7 @@ class NextPassAutofillService : AutofillService() {
             )
 
             if (viewWebDomain.isEmpty()) {
-                params["customFields"] = NextcloudApi.json.encodeToString(
+                params["customFields"] = json.encodeToString(
                     value = listOf(
                         mapOf(
                             "label" to "Android app",
@@ -236,7 +238,7 @@ class NextPassAutofillService : AutofillService() {
 
             coroutineScope.launch {
                 try {
-                    NextcloudApi.createPasswordRequest(params = params, tags = emptyList())
+                    nextcloudApi.createPasswordRequest(params = params, tags = emptyList())
                     callback.onSuccess()
                 } catch (e: Exception) {
                 }
@@ -259,7 +261,7 @@ class NextPassAutofillService : AutofillService() {
 
         if (!mode) {
             if (usernameId.isNotEmpty() && passwordId.isNotEmpty() && !ready) {
-                NextcloudApi.storedPasswords.value.forEach { password ->
+                nextcloudApi.storedPasswords.value.forEach { password ->
                     if (checkSuggestions(password = password)) {
                         val credentialsPresentation =
                             RemoteViews(packageName, R.layout.autofill_list_item)

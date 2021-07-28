@@ -35,10 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApi
-import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.R
+import eu.seldon1000.nextpass.api.Tag
 import eu.seldon1000.nextpass.ui.items.CountMessage
 import eu.seldon1000.nextpass.ui.items.FolderCard
 import eu.seldon1000.nextpass.ui.items.PasswordCard
@@ -50,13 +49,13 @@ import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
 @ExperimentalMaterialApi
 @ExperimentalAnimationApi
 @Composable
-fun Search() {
+fun Search(viewModel: CentralAppControl) {
     val context = LocalContext.current
 
-    val storedPasswords by NextcloudApi.storedPasswords.collectAsState()
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
+    val storedPasswords by viewModel.nextcloudApi.storedPasswords.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
 
-    val tags by CentralAppControl.tags.collectAsState()
+    val tags by viewModel.tags.collectAsState()
 
     var searchedText by remember { mutableStateOf(value = "") }
 
@@ -68,7 +67,7 @@ fun Search() {
             cutoutShape = CircleShape,
             modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
         ) {
-            IconButton(onClick = { CentralAppControl.popBackStack() }) {
+            IconButton(onClick = { viewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"
@@ -98,13 +97,18 @@ fun Search() {
             modifier = Modifier.fillMaxSize()
         ) {
             item { Header(expanded = true, title = context.getString(R.string.search)) }
-            if (tags) item { TagsRow { currentTag = if (it == currentTag) null else it } }
+            if (tags) item {
+                TagsRow(
+                    tagClickAction = { currentTag = if (it == currentTag) null else it },
+                    viewModel = viewModel
+                )
+            }
             else item { Box(modifier = Modifier.height(height = 12.dp)) }
             if (searchedText.isNotEmpty()) {
                 itemsIndexed(items = storedFolders) { index, folder ->
                     if (if (index > 0) folder.label.contains(searchedText, ignoreCase = true)
                         else false
-                    ) FolderCard(index = index, folder = folder)
+                    ) FolderCard(index = index, folder = folder, viewModel = viewModel)
                 }
                 itemsIndexed(items = storedPasswords) { index, password ->
                     if ((if (currentTag != null) password.tags.any { it == currentTag }
@@ -112,7 +116,7 @@ fun Search() {
                                 password.label.contains(searchedText, ignoreCase = true) ||
                                 password.username.contains(searchedText, ignoreCase = true) ||
                                 password.notes.contains(searchedText, ignoreCase = true)))
-                        PasswordCard(index = index, password = password)
+                        PasswordCard(index = index, password = password, viewModel = viewModel)
                 }
             }
             item {
@@ -132,7 +136,8 @@ fun Search() {
                 CountMessage(
                     message = if (searchedText.isNotEmpty())
                         context.resources.getQuantityString(R.plurals.results_number, count, count)
-                    else context.getString(R.string.search_message)
+                    else context.getString(R.string.search_message),
+                    viewModel = viewModel
                 )
             }
         }

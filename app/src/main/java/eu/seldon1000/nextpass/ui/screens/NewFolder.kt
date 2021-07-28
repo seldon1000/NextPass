@@ -31,9 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.R
-import eu.seldon1000.nextpass.api.NextcloudApi
 import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.items.DropdownFolderList
 import eu.seldon1000.nextpass.ui.items.FavoriteButton
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
@@ -44,13 +43,13 @@ import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @Composable
-fun NewFolder() {
+fun NewFolder(viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     val scrollState = rememberScrollState()
 
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
-    val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
+    val selectedFolder by viewModel.selectedFolder.collectAsState()
 
     var favorite by remember { mutableStateOf(value = false) }
 
@@ -59,7 +58,7 @@ fun NewFolder() {
     MyScaffoldLayout(fab = {
         FloatingActionButton(onClick = {
             if (label.isNotEmpty()) {
-                CentralAppControl.showDialog(
+                viewModel.showDialog(
                     title = context.getString(R.string.create_folder),
                     body = {
                         Text(
@@ -75,15 +74,15 @@ fun NewFolder() {
                     )
                     if (favorite) params["favorite"] = "true"
 
-                    CentralAppControl.executeRequest {
-                        NextcloudApi.createFolderRequest(params = params)
-                        CentralAppControl.setCurrentFolder(folder = selectedFolder)
-                        CentralAppControl.popBackStack()
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.folder_created_snack))
+                    viewModel.executeRequest {
+                        viewModel.nextcloudApi.createFolderRequest(params = params)
+                        viewModel.setCurrentFolder(folder = selectedFolder)
+                        viewModel.popBackStack()
+                        viewModel.showSnackbar(message = context.getString(R.string.folder_created_snack))
                     }
                 }
 
-            } else CentralAppControl.showDialog(
+            } else viewModel.showDialog(
                 title = context.getString(R.string.missing_info),
                 body = {
                     Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
@@ -102,7 +101,7 @@ fun NewFolder() {
             cutoutShape = CircleShape,
             modifier = Modifier.clip(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
         ) {
-            IconButton(onClick = { CentralAppControl.popBackStack() }) {
+            IconButton(onClick = { viewModel.popBackStack() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),
                     contentDescription = "back"
@@ -147,7 +146,11 @@ fun NewFolder() {
                             .fillMaxWidth()
                             .padding(vertical = 16.dp)
                     ) {
-                        DropdownFolderList(canAdd = false, folder = selectedFolder)
+                        DropdownFolderList(
+                            canAdd = false,
+                            folder = selectedFolder,
+                            viewModel = viewModel
+                        )
                         FavoriteButton(favorite = favorite) { favorite = !favorite }
                     }
                     TextFieldItem(

@@ -25,8 +25,8 @@ import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.theme.colors
 
 @Composable
-fun CopyButton(label: String, clip: String) {
-    IconButton(onClick = { CentralAppControl.setPrimaryClip(label = label, clip = clip) }) {
+fun CopyButton(label: String, clip: String, viewModel: CentralAppControl) {
+    IconButton(onClick = { viewModel.setPrimaryClip(label = label, clip = clip) }) {
         Icon(
             painter = painterResource(id = R.drawable.ic_round_content_copy_24),
             contentDescription = "copy",

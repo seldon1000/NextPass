@@ -39,7 +39,7 @@ import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @Composable
-fun ChangePin() {
+fun ChangePin(viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     var pin by remember { mutableStateOf(value = "") }
@@ -52,7 +52,7 @@ fun ChangePin() {
         FloatingActionButton({
             if (confirm) {
                 if (pin == tempPin) {
-                    CentralAppControl.showDialog(
+                    viewModel.showDialog(
                         title = context.getString(R.string.change_pin),
                         body = {
                             Text(
@@ -62,12 +62,12 @@ fun ChangePin() {
                         },
                         confirm = true
                     ) {
-                        CentralAppControl.setPin(pin = pin)
-                        CentralAppControl.setLockTimeout(timeout = 0)
-                        CentralAppControl.popBackStack()
-                        CentralAppControl.showSnackbar(message = context.getString(R.string.pin_changed_snack))
+                        viewModel.setPin(pin = pin)
+                        viewModel.setLockTimeout(timeout = 0)
+                        viewModel.popBackStack()
+                        viewModel.showSnackbar(message = context.getString(R.string.pin_changed_snack))
                     }
-                } else CentralAppControl.showDialog(
+                } else viewModel.showDialog(
                     title = context.getString(R.string.wrong_pin),
                     body = {
                         Text(
@@ -82,7 +82,7 @@ fun ChangePin() {
                     pin = ""
                     showed = false
                     confirm = true
-                } else CentralAppControl.showDialog(
+                } else viewModel.showDialog(
                     title = context.getString(R.string.pin_short),
                     body = {
                         Text(
@@ -109,7 +109,7 @@ fun ChangePin() {
                 if (confirm) {
                     confirm = false
                     pin = tempPin
-                } else CentralAppControl.popBackStack()
+                } else viewModel.popBackStack()
             }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_round_back_arrow_24),

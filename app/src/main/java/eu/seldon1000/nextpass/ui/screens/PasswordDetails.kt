@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.api.*
 import eu.seldon1000.nextpass.CentralAppControl
+import eu.seldon1000.nextpass.api.NextcloudApi.Companion.json
 import eu.seldon1000.nextpass.ui.items.*
 import eu.seldon1000.nextpass.ui.layout.Header
 import eu.seldon1000.nextpass.ui.layout.MyScaffoldLayout
@@ -55,15 +56,15 @@ import kotlinx.serialization.encodeToString
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
 @Composable
-fun PasswordDetails(passwordData: Password) {
+fun PasswordDetails(passwordData: Password, viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    val storedFolders by NextcloudApi.storedFolders.collectAsState()
+    val storedFolders by viewModel.nextcloudApi.storedFolders.collectAsState()
 
-    val selectedFolder by CentralAppControl.selectedFolder.collectAsState()
+    val selectedFolder by viewModel.selectedFolder.collectAsState()
 
     var showed by remember { mutableStateOf(value = false) }
     var edit by remember { mutableStateOf(value = false) }
@@ -81,7 +82,7 @@ fun PasswordDetails(passwordData: Password) {
         FloatingActionButton(onClick = {
             if (edit) {
                 if (label.isNotEmpty() && password.isNotEmpty()) {
-                    CentralAppControl.showDialog(
+                    viewModel.showDialog(
                         title = context.getString(R.string.update_password),
                         body = {
                             Text(
@@ -121,18 +122,21 @@ fun PasswordDetails(passwordData: Password) {
                             "password" to password,
                             "url" to url,
                             "notes" to notes,
-                            "customFields" to NextcloudApi.json.encodeToString(value = concreteCustomFields),
+                            "customFields" to json.encodeToString(value = concreteCustomFields),
                             "folder" to storedFolders[selectedFolder].id,
                             "hash" to passwordData.hash
                         )
                         if (passwordData.favorite) params["favorite"] = "true"
 
-                        CentralAppControl.executeRequest {
-                            NextcloudApi.updatePasswordRequest(params = params, tags = tags)
-                            CentralAppControl.showSnackbar(message = context.getString(R.string.password_updated_snack))
+                        viewModel.executeRequest {
+                            viewModel.nextcloudApi.updatePasswordRequest(
+                                params = params,
+                                tags = tags
+                            )
+                            viewModel.showSnackbar(message = context.getString(R.string.password_updated_snack))
                         }
                     }
-                } else CentralAppControl.showDialog(
+                } else viewModel.showDialog(
                     title = context.getString(R.string.missing_info),
                     body = {
                         Text(text = context.getString(R.string.missing_info_body), fontSize = 14.sp)
@@ -170,8 +174,8 @@ fun PasswordDetails(passwordData: Password) {
                         passwordData.resetCustomFields()
                         customFields = passwordData.customFieldsList
 
-                        CentralAppControl.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == passwordData.folder })
-                    } else CentralAppControl.popBackStack()
+                        viewModel.setSelectedFolder(folder = storedFolders.indexOfFirst { it.id == passwordData.folder })
+                    } else viewModel.popBackStack()
                 }
             ) {
                 Crossfade(targetState = edit) { state ->
@@ -253,30 +257,35 @@ fun PasswordDetails(passwordData: Password) {
                         )
                         TagsRow(
                             tags = tags,
-                            alignment = Alignment.Start
-                        ) {
-                            if (it != null) {
-                                if (tags.contains(element = it)) tags.remove(element = it)
-                                else tags.add(element = it)
+                            alignment = Alignment.Start,
+                            tagClickAction = {
+                                if (it != null) {
+                                    if (tags.contains(element = it)) tags.remove(element = it)
+                                    else tags.add(element = it)
 
-                                val params = mutableMapOf(
-                                    "id" to passwordData.id,
-                                    "label" to passwordData.label,
-                                    "username" to passwordData.username,
-                                    "password" to passwordData.password,
-                                    "url" to passwordData.url,
-                                    "notes" to passwordData.notes,
-                                    "customFields" to passwordData.customFields,
-                                    "folder" to passwordData.folder,
-                                    "hash" to passwordData.hash
-                                )
-                                if (passwordData.favorite) params["favorite"] = "true"
+                                    val params = mutableMapOf(
+                                        "id" to passwordData.id,
+                                        "label" to passwordData.label,
+                                        "username" to passwordData.username,
+                                        "password" to passwordData.password,
+                                        "url" to passwordData.url,
+                                        "notes" to passwordData.notes,
+                                        "customFields" to passwordData.customFields,
+                                        "folder" to passwordData.folder,
+                                        "hash" to passwordData.hash
+                                    )
+                                    if (passwordData.favorite) params["favorite"] = "true"
 
-                                CentralAppControl.executeRequest {
-                                    NextcloudApi.updatePasswordRequest(params = params, tags = tags)
+                                    viewModel.executeRequest {
+                                        viewModel.nextcloudApi.updatePasswordRequest(
+                                            params = params,
+                                            tags = tags
+                                        )
+                                    }
                                 }
-                            }
-                        }
+                            },
+                            viewModel = viewModel
+                        )
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
@@ -287,7 +296,9 @@ fun PasswordDetails(passwordData: Password) {
                             Crossfade(targetState = edit) { state ->
                                 DropdownFolderList(
                                     enabled = state,
-                                    folder = storedFolders.indexOfFirst { passwordData.folder == it.id })
+                                    folder = storedFolders.indexOfFirst { passwordData.folder == it.id },
+                                    viewModel = viewModel
+                                )
                             }
                             FavoriteButton(favorite = passwordData.favorite) {
                                 val params = mutableMapOf(
@@ -303,8 +314,8 @@ fun PasswordDetails(passwordData: Password) {
                                 )
                                 if (it) params["favorite"] = "true"
 
-                                CentralAppControl.executeRequest {
-                                    NextcloudApi.updatePasswordRequest(
+                                viewModel.executeRequest {
+                                    viewModel.nextcloudApi.updatePasswordRequest(
                                         params = params,
                                         tags = passwordData.tags
                                     )
@@ -330,7 +341,7 @@ fun PasswordDetails(passwordData: Password) {
                                     )
                                 )
                             } catch (e: Exception) {
-                                CentralAppControl.showSnackbar(message = context.getString(R.string.link_broken_snack))
+                                viewModel.showSnackbar(message = context.getString(R.string.link_broken_snack))
                             }
                         }) {
                             Icon(
@@ -339,7 +350,11 @@ fun PasswordDetails(passwordData: Password) {
                                 tint = colors!!.onBackground
                             )
                         }
-                        CopyButton(label = context.getString(R.string.url), clip = url)
+                        CopyButton(
+                            label = context.getString(R.string.url),
+                            clip = url,
+                            viewModel = viewModel
+                        )
                     }
                     TextFieldItem(
                         text = label,
@@ -348,13 +363,25 @@ fun PasswordDetails(passwordData: Password) {
                         enabled = edit,
                         required = true,
                         capitalized = true
-                    ) { CopyButton(label = context.getString(R.string.label), clip = label) }
+                    ) {
+                        CopyButton(
+                            label = context.getString(R.string.label),
+                            clip = label,
+                            viewModel = viewModel
+                        )
+                    }
                     TextFieldItem(
                         text = username,
                         onTextChanged = { username = it },
                         label = context.getString(R.string.username),
                         enabled = edit
-                    ) { CopyButton(label = context.getString(R.string.username), clip = username) }
+                    ) {
+                        CopyButton(
+                            label = context.getString(R.string.username),
+                            clip = username,
+                            viewModel = viewModel
+                        )
+                    }
                     TextFieldItem(
                         text = password,
                         onTextChanged = { password = it },
@@ -375,16 +402,16 @@ fun PasswordDetails(passwordData: Password) {
                             )
 
                             IconButton(onClick = {
-                                CentralAppControl.executeRequest {
+                                viewModel.executeRequest {
                                     coroutineScope.launch {
-                                        password = NextcloudApi.generatePassword()
+                                        password = viewModel.nextcloudApi.generatePassword()
                                     }
                                 }
 
                                 if (rotation >= 360F * 10) {
                                     rotation = 0F
 
-                                    CentralAppControl.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
+                                    viewModel.showSnackbar(message = context.getString(R.string.refresh_easter_egg))
                                 } else rotation += 360F
                             }, enabled = state) {
                                 Icon(
@@ -409,7 +436,8 @@ fun PasswordDetails(passwordData: Password) {
                         }
                         CopyButton(
                             label = context.getString(R.string.password),
-                            clip = password
+                            clip = password,
+                            viewModel = viewModel
                         )
                     }
                     TextFieldItem(
@@ -421,7 +449,8 @@ fun PasswordDetails(passwordData: Password) {
                     ) {
                         CopyButton(
                             label = context.getString(R.string.notes),
-                            clip = notes
+                            clip = notes,
+                            viewModel = viewModel
                         )
                     }
                     customFields.forEach { customField ->
@@ -468,7 +497,8 @@ fun PasswordDetails(passwordData: Password) {
                                 }
                                 CopyButton(
                                     label = context.getString(R.string.custom_field),
-                                    clip = customField.value.value
+                                    clip = customField.value.value,
+                                    viewModel = viewModel
                                 )
                             }
                         else TextFieldItem(
@@ -482,7 +512,7 @@ fun PasswordDetails(passwordData: Password) {
                             IconButton(onClick = {
                                 if (customField.label.value.isNotEmpty())
                                     customField.type.value = "text"
-                                else CentralAppControl.showDialog(
+                                else viewModel.showDialog(
                                     title = context.getString(R.string.missing_info),
                                     body = {
                                         Text(
@@ -512,7 +542,7 @@ fun PasswordDetails(passwordData: Password) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         TextButton(onClick = {
-                            CentralAppControl.showDialog(
+                            viewModel.showDialog(
                                 title = context.getString(R.string.delete_password),
                                 body = {
                                     Text(
@@ -522,10 +552,10 @@ fun PasswordDetails(passwordData: Password) {
                                 },
                                 confirm = true
                             ) {
-                                CentralAppControl.executeRequest {
-                                    NextcloudApi.deletePasswordRequest(id = passwordData.id)
-                                    CentralAppControl.popBackStack()
-                                    CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
+                                viewModel.executeRequest {
+                                    viewModel.nextcloudApi.deletePasswordRequest(id = passwordData.id)
+                                    viewModel.popBackStack()
+                                    viewModel.showSnackbar(message = context.getString(R.string.password_deleted))
                                 }
                             }
                         }

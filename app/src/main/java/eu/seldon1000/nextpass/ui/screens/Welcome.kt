@@ -38,7 +38,7 @@ import eu.seldon1000.nextpass.ui.theme.Orange500
 
 @ExperimentalMaterialApi
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(viewModel: CentralAppControl) {
     val context = LocalContext.current
 
     Column(
@@ -58,7 +58,7 @@ fun WelcomeScreen() {
             modifier = Modifier.padding(all = 56.dp), textAlign = TextAlign.Center,
             fontSize = 36.sp, fontWeight = FontWeight.SemiBold,
         )
-        TextButton(onClick = { CentralAppControl.attemptLogin() }) {
+        TextButton(onClick = { viewModel.attemptLogin() }) {
             Text(
                 text = context.getString(R.string.login),
                 fontSize = 24.sp,

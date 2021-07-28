@@ -25,8 +25,8 @@ import eu.seldon1000.nextpass.CentralAppControl
 import eu.seldon1000.nextpass.ui.theme.colors
 
 @Composable
-fun DefaultFab() {
-    FloatingActionButton(onClick = { CentralAppControl.navigate(route = Routes.NewPassword.route) }) {
+fun DefaultFab(viewModel: CentralAppControl) {
+    FloatingActionButton(onClick = { viewModel.navigate(route = Routes.NewPassword.route) }) {
         Icon(
             painter = painterResource(id = R.drawable.ic_round_add_24),
             contentDescription = "add",
