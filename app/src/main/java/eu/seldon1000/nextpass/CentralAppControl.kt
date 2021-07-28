@@ -447,11 +447,10 @@ object CentralAppControl {
                     true
                 } else false
             else {
-                navControllerState.value.popBackStack()
-                println("CIAO")
-
-                if (navControllerState.value.currentDestination?.route != Routes.NewPassword.route)
+                if (navControllerState.value.currentDestination?.route == Routes.NewPassword.route)
                     NextcloudApi.faviconRequest(data = "")
+
+                navControllerState.value.popBackStack()
 
                 setKeyboardMode()
 
@@ -663,7 +662,9 @@ object CentralAppControl {
                     navControllerState.value.currentDestination?.route == Routes.Passwords.route ||
                     navControllerState.value.currentDestination?.route == Routes.Favorites.route ||
                     navControllerState.value.currentDestination?.route == Routes.PasswordDetails.route ||
-                    navControllerState.value.currentDestination?.route == Routes.FolderDetails.route
+                    navControllerState.value.currentDestination?.route == Routes.FolderDetails.route ||
+                    navControllerState.value.currentDestination?.route == Routes.NewPassword.route ||
+                    navControllerState.value.currentDestination?.route == Routes.NewFolder.route
 
         coroutineScope.launch {
             request { showError() }

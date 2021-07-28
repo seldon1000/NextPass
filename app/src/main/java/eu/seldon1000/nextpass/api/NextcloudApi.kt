@@ -229,13 +229,12 @@ object NextcloudApi {
                 faviconRequest(data = newPassword)
 
                 val data = storedPasswordsState.value
-
                 data.add(element = newPassword)
                 data.sortBy { it.label.lowercase() }
 
                 storedPasswordsState.value = data
 
-                onSuccess()
+                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
                 onFailure()
             }
@@ -264,7 +263,7 @@ object NextcloudApi {
 
                 storedFoldersState.value = data
 
-                onSuccess()
+                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
                 onFailure()
             }
@@ -291,7 +290,7 @@ object NextcloudApi {
 
                 storedTagsState.value = data
 
-                onSuccess()
+                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
                 onFailure()
             }
@@ -309,9 +308,9 @@ object NextcloudApi {
                     parameter(key = "id", value = id)
                 }
 
-                storedPasswordsState.value.removeIf { it.id == id }
+                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
 
-                onSuccess()
+                storedPasswordsState.value.removeIf { it.id == id }
             } catch (e: Exception) {
                 onFailure()
             }
@@ -329,9 +328,9 @@ object NextcloudApi {
                     parameter(key = "id", value = id)
                 }
 
-                refreshServerList()
+                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
 
-                onSuccess()
+                refreshServerList()
             } catch (e: Exception) {
                 onFailure()
             }
@@ -351,7 +350,7 @@ object NextcloudApi {
 
                 refreshServerList()
 
-                onSuccess()
+                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
                 onFailure()
             }
@@ -381,7 +380,7 @@ object NextcloudApi {
 
                 storedPasswordsState.value[index] = updatedPassword
 
-                onSuccess()
+                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
                 onFailure()
             }
@@ -405,7 +404,7 @@ object NextcloudApi {
                     it.id == params["id"]!!
                 }] = updatedFolder
 
-                onSuccess()
+                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
                 onFailure()
             }
@@ -431,7 +430,7 @@ object NextcloudApi {
 
                 refreshServerList(refreshFolders = false, refreshTags = false)
 
-                onSuccess()
+                coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
             } catch (e: Exception) {
                 onFailure()
             }
@@ -448,7 +447,7 @@ object NextcloudApi {
                 parameter("details", "model+tags")
             }["password"]!!.jsonPrimitive.content
 
-            onSuccess()
+            coroutineScope.launch(context = Dispatchers.Main) { onSuccess() }
 
             response
         } catch (e: Exception) {

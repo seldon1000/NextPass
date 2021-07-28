@@ -534,7 +534,10 @@ fun PasswordDetails(passwordData: Password) {
                                     NextcloudApi.deletePasswordRequest(
                                         id = passwordData.id,
                                         onFailure = it
-                                    ) { CentralAppControl.popBackStack() }
+                                    ) {
+                                        CentralAppControl.popBackStack()
+                                        CentralAppControl.showSnackbar(message = context.getString(R.string.password_deleted))
+                                    }
                                 }
                             }
                         }
