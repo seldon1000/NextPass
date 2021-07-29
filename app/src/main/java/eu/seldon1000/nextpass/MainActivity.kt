@@ -45,7 +45,8 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(this).get(MainViewModel(application = application)::class.java)
+        viewModel =
+            ViewModelProvider(this).get(MainViewModel(application = application)::class.java)
 
         autofillSettingsResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

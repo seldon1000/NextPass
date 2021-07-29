@@ -448,12 +448,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun enableTags(refresh: Boolean = true) {
         if (refresh) executeRequest { nextcloudApi.refreshServerList() }
 
-        sharedPreferences.edit().putBoolean("tags", true).apply()
+        sharedPreferences.edit().remove("tags").apply()
         tags.value = true
     }
 
     fun disableTags() {
-        sharedPreferences.edit().remove("tags").apply()
+        sharedPreferences.edit().putBoolean("tags", true).apply()
         tags.value = false
     }
 
