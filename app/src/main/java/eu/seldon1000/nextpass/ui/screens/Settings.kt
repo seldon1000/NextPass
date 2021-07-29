@@ -214,20 +214,7 @@ fun Settings(viewModel: MainViewModel) {
                             modifier = Modifier.padding(end = 16.dp)
                         )
                     }
-                ) {
-                    if (protected) viewModel.changePin()
-                    else
-                        viewModel.showDialog(
-                            title = context.getString(R.string.pin_not_enabled),
-                            body = {
-                                Text(
-                                    text = context.getString(R.string.pin_not_enabled_body),
-                                    fontSize = 14.sp
-                                )
-                            },
-                            confirm = true
-                        ) { viewModel.navigate(route = Routes.Pin.route) }
-                }
+                ) { viewModel.changePin() }
             }
             item {
                 GenericColumnItem(

@@ -69,7 +69,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var unlocked = false
     private var pendingUnlockAction: (() -> Unit)? = null
     private var promptInfo: BiometricPrompt.PromptInfo
-    private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var autofillIntent: Intent
 
     private val disablePinAction = {
@@ -242,7 +241,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (pinProtected.value) {
             unlocked = false
             refreshing.value = false
-            if (biometricProtected.value) biometricDismissed.value = false
+            biometricDismissed.value = false
             dismissDialog()
 
             navigate(route = Routes.AccessPin.getRoute(arg = shouldRaiseBiometric))
@@ -284,11 +283,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun changePin() {
         pendingUnlockAction = { navigate(route = Routes.Pin.route) }
 
-        if (pinProtected.value) lock()
-        else {
-            pendingUnlockAction!!()
-            pendingUnlockAction = null
-        }
+        lock()
     }
 
     fun setPin(pin: String) {
@@ -321,7 +316,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun showBiometricPrompt(toEnable: Boolean = false) {
-        biometricPrompt = BiometricPrompt(
+        BiometricPrompt(
             (navController.value.context as MainActivity),
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -331,12 +326,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 override fun onAuthenticationSucceeded(
                     result: BiometricPrompt.AuthenticationResult
                 ) {
+                    biometricDismissed.value = true
+
                     if (toEnable) {
                         sharedPreferences.edit().putBoolean("biometric", true).apply()
                         biometricProtected.value = true
                     } else {
                         unlocked = true
-                        unlock()
+                        unlock(shouldRememberScreen = true)
                     }
                 }
 
@@ -344,8 +341,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     biometricDismissed.value = true
                 }
             }
-        )
-        biometricPrompt.authenticate(promptInfo)
+        ).authenticate(promptInfo)
     }
 
     fun setLockTimeout(timeout: Long) {

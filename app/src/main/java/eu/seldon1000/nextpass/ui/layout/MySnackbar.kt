@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun MySnackbar(snackbarHostState: SnackbarHostState) {
@@ -37,6 +38,13 @@ fun MySnackbar(snackbarHostState: SnackbarHostState) {
                 backgroundColor = Color.DarkGray,
                 shape = RoundedCornerShape(size = 8.dp),
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 96.dp)
-            ) { Text(text = data.message, fontWeight = FontWeight.SemiBold, color = Color.White) }
+            ) {
+                Text(
+                    text = data.message,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+            }
         })
 }

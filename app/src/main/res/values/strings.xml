@@ -60,8 +60,6 @@
     <string name="security">Security</string>
     <string name="pin_authentication">PIN authentication</string>
     <string name="pin_authentication_tip">Protect the app using a PIN code, at least 4-digit long. Click here to modify the current pin.</string>
-    <string name="pin_not_enabled">PIN authentication is not enabled</string>
-    <string name="pin_not_enabled_body">Do you want to enable it now?</string>
     <string name="biometric_authentication">Biometric authentication</string>
     <string name="biometric_authentication_tip">Protect the app using biometric authentication (if supported by the device). PIN authentication must be enabled as fallback.</string>
     <string name="url">URL</string>
