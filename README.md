@@ -20,7 +20,7 @@ NextPass officially supports Android up from 8.0. Please, if you experience issu
 
 # Known issues
 **Jetpack Compose**<br />
-Compose is still in beta, that means that you could experience some glitches and/or poor performance depending on your device. NextPass UI also lacks many animations, due to Compose navigation and foundation libraries still not supporting them. I will update the toolkit ASAP to provide the best possible experience.
+Compose is not in beta anymore but should be, that means that you could experience some glitches and/or poor performance depending on your device. NextPass UI also lacks many animations, due to Compose navigation and foundation libraries still not supporting them. I will update the toolkit ASAP to provide the best possible experience.
 
 **Autofill service**<br />
 Autofill service provides suggestions when you're logging in websites and apps. It should work properly most of the times, however sometimes it can seem partially or completely broken. This is due to the fact that the service requires some details and info to recognize the input fields, and apps/websites should provide them. If they don't, then NextPass just can't do its magic.
