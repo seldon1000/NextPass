@@ -53,7 +53,7 @@ class MainActivity : FragmentActivity() {
             }
 
         setContent {
-            rememberCoroutineScope().launch { viewModel.openApp() }
+            rememberCoroutineScope().launch { viewModel.unlock() }
 
             NextPassTheme {
                 Surface {
