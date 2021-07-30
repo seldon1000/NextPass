@@ -113,29 +113,36 @@ class NextcloudApi {
     }
 
     suspend fun refreshServerList(refreshFolders: Boolean = true, refreshTags: Boolean = true) {
+        if (refreshFolders)
+            coroutineScope.launch {
+                try {
+                    val folders = listRequest<Folder>()
+
+                    folders.sortBy { it.label.lowercase() }
+                    folders.add(index = 0, element = baseFolder)
+
+                    storedFolders.value = folders
+                } catch (e: Exception) {
+                }
+            }
+
+        if (refreshTags) coroutineScope.launch {
+            try {
+                val tags = listRequest<Tag>()
+
+                tags.sortBy { it.label.lowercase() }
+
+                storedTags.value = tags
+            } catch (e: Exception) {
+            }
+        }
+
         val passwords = listRequest<Password>()
 
         passwords.sortBy { it.label.lowercase() }
         passwords.forEach { password -> faviconRequest(data = password) }
 
         storedPasswords.value = passwords
-
-        if (refreshFolders) {
-            val folders = listRequest<Folder>()
-
-            folders.sortBy { it.label.lowercase() }
-            folders.add(index = 0, element = baseFolder)
-
-            storedFolders.value = folders
-        }
-
-        if (refreshTags) {
-            val tags = listRequest<Tag>()
-
-            tags.sortBy { it.label.lowercase() }
-
-            storedTags.value = tags
-        }
     }
 
     private suspend inline fun <reified T> showRequest(id: String): T {
