@@ -24,6 +24,7 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -36,6 +37,8 @@ import eu.seldon1000.nextpass.ui.screens.*
 @ExperimentalMaterialApi
 @Composable
 fun CentralScreenControl(viewModel: MainViewModel) {
+    val context = LocalContext.current
+
     val navController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
 
@@ -64,7 +67,14 @@ fun CentralScreenControl(viewModel: MainViewModel) {
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Routes.Welcome.route
+                startDestination = when {
+                    (viewModel.pinProtected.value &&
+                            viewModel.lockTimeout.value != (-1).toLong() &&
+                            viewModel.lockTimeout.value != (-2).toLong()) -> Routes.AccessPin.route
+                    context.getSharedPreferences("nextpass", 0)
+                        .contains("server") -> Routes.Passwords.route
+                    else -> Routes.Welcome.route
+                }
             ) {
                 composable(route = "get_yourself_together_google") {} //TODO: remove when new navigation alpha is out (maybe, I don't know)
                 composable(route = Routes.Welcome.route) { WelcomeScreen(viewModel = viewModel) }

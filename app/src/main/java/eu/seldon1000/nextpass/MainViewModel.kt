@@ -265,9 +265,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         unlocked = unlocked || pin == sharedPreferences.getString("PIN", null)
 
         if (unlocked && nextcloudApi.isLogged()) {
-            if (!shouldRememberScreen || navController.value.previousBackStackEntry?.destination?.route == Routes.Welcome.route
-            ) navigate(route = Routes.Passwords.route)
-            else navController.value.popBackStack()
+            if (shouldRememberScreen && navController.value.previousBackStackEntry != null)
+                navController.value.popBackStack()
+            else navigate(route = Routes.Passwords.route)
 
             if (pendingUnlockAction != null) {
                 pendingUnlockAction!!()
