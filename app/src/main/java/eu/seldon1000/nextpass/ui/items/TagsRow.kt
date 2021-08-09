@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -89,8 +88,9 @@ fun TagsRow(
 
                     Card(
                         backgroundColor = color.copy(
-                            alpha = if ((tags != null && tags.contains(element = tag)) ||
-                                state == index
+                            alpha = if ((tags != null && tags.contains(
+                                    element = tag
+                                )) || state == index
                             ) 0.8f else 0.3f
                         ),
                         modifier = Modifier
@@ -125,6 +125,9 @@ fun TagsRow(
                         DropdownMenuItem(onClick = {
                             expanded = false
 
+                            newTagColor = tag.color
+                            println("CIAO ${tag.color}")
+
                             viewModel.showDialog(
                                 title = context.getString(R.string.edit_tag),
                                 body = {
@@ -142,7 +145,7 @@ fun TagsRow(
                                                 viewModel = viewModel
                                             )
                                         }
-                                        ColorPicker { newTagColor = it }
+                                        ColorPicker(selected = newTagColor) { newTagColor = it }
                                     }
                                 },
                                 confirm = true
@@ -150,18 +153,12 @@ fun TagsRow(
                                 val params = mapOf(
                                     "id" to tag.id,
                                     "label" to label,
-                                    "color" to "#${
-                                        String.format("%06X", newTagColor.toArgb())
-                                            .removePrefix(prefix = "FF")
-                                    }"
+                                    "color" to newTagColor
                                 )
 
                                 viewModel.executeRequest {
                                     viewModel.nextcloudApi.updateTagRequest(params = params)
-                                    viewModel.nextcloudApi.refreshServerList(
-                                        refreshFolders = false,
-                                        refreshTags = false
-                                    )
+                                    viewModel.nextcloudApi.refreshServerList(refreshFolders = false)
                                     viewModel.showSnackbar(message = context.getString(R.string.tag_updated_snack))
                                 }
 
@@ -236,7 +233,7 @@ fun TagsRow(
                                     required = true,
                                     capitalized = true
                                 )
-                                ColorPicker { newTagColor = it }
+                                ColorPicker(selected = newTagColor) { newTagColor = it }
                             }
                         },
                         confirm = true
@@ -246,10 +243,7 @@ fun TagsRow(
 
                         val params = mapOf(
                             "label" to newTagLabel,
-                            "color" to "#${
-                                String.format("%06X", newTagColor.toArgb())
-                                    .removePrefix(prefix = "FF")
-                            }"
+                            "color" to newTagColor
                         )
 
                         viewModel.executeRequest {
@@ -258,7 +252,7 @@ fun TagsRow(
                         }
 
                         newTagLabel = ""
-                        newTagColor = Color.Blue
+                        newTagColor = pickerColors[0]
                     }
                 },
                 shape = RoundedCornerShape(size = 8.dp),

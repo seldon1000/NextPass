@@ -80,10 +80,7 @@ class NextcloudApi {
                 basic {
                     sendWithoutRequest { true }
                     credentials {
-                        BasicAuthCredentials(
-                            username = this@NextcloudApi.loginName,
-                            password = this@NextcloudApi.appPassword
-                        )
+                        BasicAuthCredentials(username = loginName, password = appPassword)
                     }
                 }
             }

@@ -37,29 +37,26 @@ import eu.seldon1000.nextpass.ui.layout.SimpleFlowRow
 import eu.seldon1000.nextpass.ui.theme.pickerColors
 
 @Composable
-fun ColorPicker(onClickAction: (color: Color) -> Unit) {
-    var selected by remember { mutableStateOf(value = 0) }
-
+fun ColorPicker(selected: String, onClickAction: (color: String) -> Unit) {
     SimpleFlowRow(
         verticalGap = 8.dp,
         horizontalGap = 8.dp,
         alignment = Alignment.Start,
         modifier = Modifier.padding(top = 16.dp, bottom = 24.dp)
     ) {
-        pickerColors.forEachIndexed { index, color ->
+        pickerColors.forEach { colorStr ->
+            val color = Color(android.graphics.Color.parseColor(colorStr))
+
             Surface(modifier = Modifier.shadow(elevation = 8.dp, shape = CircleShape)) {
                 IconButton(
-                    onClick = {
-                        selected = index
-                        onClickAction(pickerColors[selected])
-                    },
+                    onClick = { onClickAction(colorStr) },
                     modifier = Modifier
                         .size(size = 60.dp)
                         .background(color = color.copy(alpha = 0.8f))
                         .border(width = 3.dp, color = color, shape = CircleShape)
                 ) {
                     Crossfade(targetState = selected) { state ->
-                        if (state == index) Icon(
+                        if (state.equals(other = colorStr, ignoreCase = true)) Icon(
                             painter = painterResource(id = R.drawable.ic_round_done_24),
                             contentDescription = "select_color",
                             tint = eu.seldon1000.nextpass.ui.theme.colors!!.onBackground
