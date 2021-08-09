@@ -46,7 +46,7 @@ class NextcloudApi {
     private var appPassword = ""
     private val endpoint = "/index.php/apps/passwords/api/1.0"
 
-    var client = HttpClient(engineFactory = CIO) {
+    private var client = HttpClient(engineFactory = CIO) {
         install(feature = JsonFeature) {
             serializer = KotlinxSerializer(json = json)
         }
@@ -69,6 +69,28 @@ class NextcloudApi {
     fun getCurrentAccount() = "$loginName@${server.removePrefix(prefix = "https://")}"
 
     fun isLogged() = server.isNotEmpty()
+
+    suspend fun startLogin(url: String) = client.post<JsonObject>(urlString = url)
+
+    suspend fun loginPolling(endpoint: String, token: String): Map<String, String> {
+        var i = 0
+        var loginResponse = mapOf<String, String>()
+
+        while (loginResponse.isEmpty() && i <= 120) {
+            try {
+                loginResponse = client.post(urlString = endpoint) {
+                    expectSuccess = false
+                    parameter(key = "token", value = token)
+                }
+            } catch (e: Exception) {
+            }
+
+            delay(timeMillis = 500)
+            i++
+        }
+
+        return loginResponse
+    }
 
     fun login(server: String, loginName: String, appPassword: String) {
         this.server = server

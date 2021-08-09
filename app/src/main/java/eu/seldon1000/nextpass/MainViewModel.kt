@@ -41,13 +41,8 @@ import eu.seldon1000.nextpass.services.NextPassAutofillService
 import eu.seldon1000.nextpass.services.StartupBroadcastReceiver
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Routes
-import io.ktor.client.features.*
-import io.ktor.client.request.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -272,11 +267,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (pendingUnlockAction != null) {
                 pendingUnlockAction!!()
                 pendingUnlockAction = null
-            } else executeRequest {
-                nextcloudApi.refreshServerList()
-
-                startAutofillService()
-            }
+            } else executeRequest { nextcloudApi.refreshServerList() }
         } else lock()
     }
 
@@ -357,21 +348,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun navigate(route: String) {
-        if (navController.value.currentDestination?.route
-                ?.substringBefore(delimiter = "/") != route.substringBefore(delimiter = "/")
-        ) {
-            navController.value.navigate(route = route) {
-                launchSingleTop = true
-                restoreState = true
-            }
-
-            if (navController.value.currentDestination?.route == Routes.AccessPin.route ||
-                navController.value.currentDestination?.route == Routes.Welcome.route ||
-                navController.value.currentDestination?.route == Routes.Settings.route ||
-                navController.value.currentDestination?.route == Routes.About.route ||
-                navController.value.currentDestination?.route == Routes.Pin.route
-            ) refreshing.value = false
+        navController.value.navigate(route = route) {
+            launchSingleTop = true
+            restoreState = true
         }
+
+        if (navController.value.currentDestination?.route == Routes.AccessPin.route ||
+            navController.value.currentDestination?.route == Routes.Welcome.route ||
+            navController.value.currentDestination?.route == Routes.Settings.route ||
+            navController.value.currentDestination?.route == Routes.About.route ||
+            navController.value.currentDestination?.route == Routes.Pin.route
+        ) refreshing.value = false
 
         setKeyboardMode()
     }
@@ -492,38 +479,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ) url.value = "https://${url.value}"
             url.value = "${url.value}/index.php/login/v2"
 
-            viewModelScope.launch(context = Dispatchers.Main) {
-                try {
-                    val response = nextcloudApi.client.post<JsonObject>(urlString = url.value)
+            executeRequest {
+                val response = nextcloudApi.startLogin(url = url.value)
 
-                    val login = Uri.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
-                    val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
-                    val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
+                val login = Uri.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
+                val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
+                val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
 
-                    navigate(route = Routes.WebView.getRoute(login))
+                navigate(route = Routes.WebView.getRoute(login))
 
-                    var i = 0
-                    var loginResponse = mapOf<String, String>()
+                val loginResponse = nextcloudApi.loginPolling(endpoint = endpoint, token = token)
 
-                    while (loginResponse.isEmpty() && i <= 120) {
-                        try {
-                            loginResponse = nextcloudApi.client.post(urlString = endpoint) {
-                                expectSuccess = false
-                                parameter(key = "token", value = token)
-                            }
-                        } catch (e: Exception) {
-                        }
+                if (loginResponse.isEmpty()) {
+                    popBackStack()
 
-                        delay(timeMillis = 500)
-                        i++
-                    }
-
-                    if (sharedPreferences.contains("server")) popBackStack()
-
-                    if (i > 120 &&
-                        navController.value.currentDestination!!.route ==
-                        Routes.WebView.getRoute(arg = login)
-                    ) showDialog(
+                    showDialog(
                         title = context.getString(R.string.timeout_expired),
                         body = {
                             Text(
@@ -531,42 +501,37 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                 fontSize = 14.sp
                             )
                         })
-                    else if (i <= 120) {
-                        refreshing.value = true
+                } else {
+                    nextcloudApi.login(
+                        server = loginResponse["server"]!!,
+                        loginName = loginResponse["loginName"]!!,
+                        appPassword = loginResponse["appPassword"]!!
+                    )
 
-                        nextcloudApi.login(
-                            server = loginResponse["server"]!!,
-                            loginName = loginResponse["loginName"]!!,
-                            appPassword = loginResponse["appPassword"]!!
-                        )
-
-                        unlock(shouldRememberScreen = sharedPreferences.contains("server"))
-                        showSnackbar(
-                            message = context.getString(
-                                R.string.connected_snack,
-                                loginResponse["loginName"]!!
-                            )
-                        )
-
-                        sharedPreferences.edit().putString(
-                            "server",
-                            loginResponse["server"]!!
-                        ).apply()
-                        sharedPreferences.edit().putString(
-                            "loginName",
+                    unlock(shouldRememberScreen = sharedPreferences.contains("server"))
+                    showSnackbar(
+                        message = context.getString(
+                            R.string.connected_snack,
                             loginResponse["loginName"]!!
-                        ).apply()
-                        sharedPreferences.edit().putString(
-                            "appPassword",
-                            loginResponse["appPassword"]!!
-                        ).apply()
-                    }
+                        )
+                    )
 
-                    val cookieManager = CookieManager.getInstance()
-                    cookieManager.removeAllCookies {}
-                } catch (e: Exception) {
-                    showError()
+                    sharedPreferences.edit().putString(
+                        "server",
+                        loginResponse["server"]!!
+                    ).apply()
+                    sharedPreferences.edit().putString(
+                        "loginName",
+                        loginResponse["loginName"]!!
+                    ).apply()
+                    sharedPreferences.edit().putString(
+                        "appPassword",
+                        loginResponse["appPassword"]!!
+                    ).apply()
                 }
+
+                val cookieManager = CookieManager.getInstance()
+                cookieManager.removeAllCookies {}
             }
         }
     }
@@ -606,14 +571,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun executeRequest(request: suspend () -> Unit) {
-        refreshing.value =
-            navController.value.currentDestination?.route == Routes.Search.route ||
-                    navController.value.currentDestination?.route == Routes.Passwords.route ||
-                    navController.value.currentDestination?.route == Routes.Favorites.route ||
-                    navController.value.currentDestination?.route == Routes.PasswordDetails.route ||
-                    navController.value.currentDestination?.route == Routes.FolderDetails.route ||
-                    navController.value.currentDestination?.route == Routes.NewPassword.route ||
-                    navController.value.currentDestination?.route == Routes.NewFolder.route
+        refreshing.value = navController.value.currentDestination?.route == Routes.Search.route ||
+                navController.value.currentDestination?.route == Routes.Passwords.route ||
+                navController.value.currentDestination?.route == Routes.Favorites.route ||
+                navController.value.currentDestination?.route == Routes.PasswordDetails.route ||
+                navController.value.currentDestination?.route == Routes.FolderDetails.route ||
+                navController.value.currentDestination?.route == Routes.NewPassword.route ||
+                navController.value.currentDestination?.route == Routes.NewFolder.route
 
         viewModelScope.launch {
             try {
@@ -622,19 +586,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 if (autofillManager.hasEnabledAutofillServices())
                     NextPassAutofillService.nextcloudApi = nextcloudApi
             } catch (e: Exception) {
-                showError()
+                showDialog(
+                    title = context.getString(R.string.error),
+                    body = { Text(text = context.getString(R.string.error_body), fontSize = 14.sp) }
+                )
             }
 
             refreshing.value = false
         }
-    }
-
-    private fun showError() {
-        showDialog(
-            title = context.getString(R.string.error),
-            body = { Text(text = context.getString(R.string.error_body), fontSize = 14.sp) }
-        )
-
-        refreshing.value = false
     }
 }
