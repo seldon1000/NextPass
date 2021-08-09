@@ -467,7 +467,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ) url.value = "https://${url.value}"
             url.value = "${url.value}/index.php/login/v2"
 
-            executeRequest {
+            executeRequest(stopRefreshing = false) {
                 val response = nextcloudApi.startLogin(url = url.value)
 
                 navigate(
@@ -560,7 +560,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun executeRequest(request: suspend () -> Unit) {
+    fun executeRequest(stopRefreshing: Boolean = true, request: suspend () -> Unit) {
         refreshing.value = navController.value.currentDestination?.route == Routes.Search.route ||
                 navController.value.currentDestination?.route == Routes.Passwords.route ||
                 navController.value.currentDestination?.route == Routes.Favorites.route ||
@@ -582,7 +582,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
 
-            refreshing.value = false
+            refreshing.value = !stopRefreshing
         }
     }
 }
