@@ -37,7 +37,7 @@
     <string name="stop_service_now">Stop service now</string>
     <string name="stop_service_now_tip">Click here to manually terminate the background autofill service. Note that it will automatically restart if you restart NextPass.</string>
     <string name="lock_timeout">Lock timeout</string>
-    <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock.</string>
+    <string name="lock_timeout_tip">The app can automatically lock itself when you\'re not using it. Here you can choose when the app should lock. Currently selected: %1$s</string>
     <string name="special_thanks">Special thanks and mentions</string>
     <string name="special_thanks_tip">NextPass was made possible thanks to the work of many people and some amazing tools. Click here to learn more about them.</string>
     <string name="parent">Parent ID</string>
@@ -54,6 +54,7 @@
     <string name="generate_random_password">Generate random password now</string>
     <string name="random_password_tip">Click here to automatically generate a new random password and copy it to your device\'s clipboard. This action follows your server\'s settings.</string>
     <string name="search">Search</string>
+    <string name="choose_lock_timeout">Choose lock timeout</string>
     <string name="autostart_service">Autostart service</string>
     <string name="autostart_service_tip">If enabled, this will allow NextPass to run a background service as soon as your device boots, in order to provide suggestions automatically without opening the app first.</string>
     <string name="search_hint">Type here to search…</string>

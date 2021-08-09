@@ -20,29 +20,22 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.biometric.BiometricManager
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.MainActivity
+import eu.seldon1000.nextpass.MainViewModel
 import eu.seldon1000.nextpass.R
 import eu.seldon1000.nextpass.ui.items.GenericColumnItem
 import eu.seldon1000.nextpass.ui.layout.DefaultBottomBar
@@ -71,16 +64,7 @@ fun Settings(viewModel: MainViewModel) {
     val folders by viewModel.folders.collectAsState()
     val tags by viewModel.tags.collectAsState()
 
-    var expanded by remember { mutableStateOf(value = false) }
-
-    var isRotated by remember { mutableStateOf(value = false) }
-    val angle by animateFloatAsState(
-        targetValue = if (isRotated) 180F else 0F,
-        animationSpec = tween(
-            durationMillis = 500,
-            easing = FastOutSlowInEasing
-        )
-    )
+    var selectedLockTimeout by remember { mutableStateOf(value = lockTimeout) }
 
     val timeoutOptions = listOf<Long>(
         0,
@@ -240,101 +224,74 @@ fun Settings(viewModel: MainViewModel) {
                 Column {
                     GenericColumnItem(
                         title = context.getString(R.string.lock_timeout),
-                        body = context.getString(R.string.lock_timeout_tip),
-                        item = {}
-                    ) {}
-                    Surface(
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .align(alignment = Alignment.End)
-                            .shadow(
-                                elevation = if (protected) 8.dp else Dp.Unspecified,
-                                RoundedCornerShape(size = 8.dp),
-                                clip = true
-                            )
-                    ) {
-                        Card(
-                            onClick = {
-                                isRotated = !isRotated
-                                expanded = true
-                            },
-                            enabled = protected,
-                            shape = RoundedCornerShape(size = 8.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .padding(all = 8.dp)
-                                    .animateContentSize(
-                                        animationSpec = tween(
-                                            durationMillis = 200,
-                                            easing = FastOutSlowInEasing
-                                        )
+                        body = context.getString(
+                            R.string.lock_timeout_tip, when (lockTimeout) {
+                                0.toLong() -> context.getString(R.string.immediately)
+                                (-1).toLong() -> context.getString(R.string.never)
+                                (-2).toLong() -> context.getString(R.string.on_restart)
+                                else -> when {
+                                    lockTimeout < 3600000 -> context.resources.getQuantityString(
+                                        R.plurals.minutes,
+                                        (lockTimeout / 60000).toInt(),
+                                        (lockTimeout / 60000).toInt()
                                     )
-                            ) {
-                                Text(
-                                    text = when (lockTimeout) {
-                                        0.toLong() -> context.getString(R.string.immediately)
-                                        (-1).toLong() -> context.getString(R.string.never)
-                                        (-2).toLong() -> context.getString(R.string.on_restart)
-                                        else -> when {
-                                            lockTimeout < 3600000 -> context.resources.getQuantityString(
-                                                R.plurals.minutes,
-                                                (lockTimeout / 60000).toInt(),
-                                                (lockTimeout / 60000).toInt()
-                                            )
-                                            else -> context.resources.getQuantityString(
-                                                R.plurals.minutes,
-                                                (lockTimeout / 60000).toInt(),
-                                                (lockTimeout / 3600000).toInt()
-                                            )
-                                        }
-                                    },
-                                    modifier = Modifier.padding(start = 8.dp, end = 16.dp)
-                                )
-
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_round_arrow_drop_up_24),
-                                    contentDescription = "expand_timeout_menu",
-                                    modifier = Modifier.rotate(degrees = angle)
-                                )
-                            }
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = {
-                                    expanded = false
-                                    isRotated = !isRotated
-                                }) {
-                                timeoutOptions.forEach { option ->
-                                    DropdownMenuItem(onClick = {
-                                        isRotated = !isRotated
-                                        expanded = false
-
-                                        viewModel.setLockTimeout(timeout = option)
-                                    }, enabled = lockTimeout != option) {
-                                        Text(
-                                            text = when (option) {
-                                                0.toLong() -> context.getString(R.string.immediately)
-                                                (-1).toLong() -> context.getString(R.string.never)
-                                                (-2).toLong() -> context.getString(R.string.on_restart)
-                                                else -> when {
-                                                    option < 3600000 -> context.resources.getQuantityString(
-                                                        R.plurals.minutes,
-                                                        (option / 60000).toInt(),
-                                                        (option / 60000).toInt()
-                                                    )
-                                                    else -> context.resources.getQuantityString(
-                                                        R.plurals.hours,
-                                                        (option / 3600000).toInt(),
-                                                        (option / 3600000).toInt()
-                                                    )
-                                                }
-                                            },
-                                            color = if (lockTimeout == option) Color.Gray else Color.White
-                                        )
-                                    }
+                                    else -> context.resources.getQuantityString(
+                                        R.plurals.hours,
+                                        (lockTimeout / 3600000).toInt(),
+                                        (lockTimeout / 3600000).toInt()
+                                    )
                                 }
                             }
-                        }
+                        ),
+                        item = {}
+                    ) {
+                        viewModel.showDialog(
+                            title = context.getString(R.string.choose_lock_timeout),
+                            body = {
+                                Column {
+                                    timeoutOptions.forEach { option ->
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { selectedLockTimeout = option }) {
+                                            RadioButton(
+                                                selected = (lockTimeout == option &&
+                                                        lockTimeout == selectedLockTimeout) ||
+                                                        (selectedLockTimeout == option &&
+                                                                lockTimeout != selectedLockTimeout),
+                                                onClick = { selectedLockTimeout = option },
+                                                modifier = Modifier.padding(
+                                                    end = 16.dp,
+                                                    top = 8.dp,
+                                                    bottom = 8.dp
+                                                )
+                                            )
+                                            Text(
+                                                text = when (option) {
+                                                    0.toLong() -> context.getString(R.string.immediately)
+                                                    (-1).toLong() -> context.getString(R.string.never)
+                                                    (-2).toLong() -> context.getString(R.string.on_restart)
+                                                    else -> when {
+                                                        option < 3600000 -> context.resources.getQuantityString(
+                                                            R.plurals.minutes,
+                                                            (option / 60000).toInt(),
+                                                            (option / 60000).toInt()
+                                                        )
+                                                        else -> context.resources.getQuantityString(
+                                                            R.plurals.hours,
+                                                            (option / 3600000).toInt(),
+                                                            (option / 3600000).toInt()
+                                                        )
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            },
+                            confirm = true
+                        ) { viewModel.setLockTimeout(timeout = selectedLockTimeout) }
                     }
                 }
             }
