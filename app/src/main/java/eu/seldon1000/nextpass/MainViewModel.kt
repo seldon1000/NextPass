@@ -521,8 +521,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     ).apply()
                 }
 
-                val cookieManager = CookieManager.getInstance()
-                cookieManager.removeAllCookies {}
+                CookieManager.getInstance().removeAllCookies {}
             }
         }
     }
