@@ -348,47 +348,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun navigate(route: String) {
+        refreshing.value = false
+
         navController.value.navigate(route = route) {
             launchSingleTop = true
             restoreState = true
         }
 
-        if (navController.value.currentDestination?.route == Routes.AccessPin.route ||
-            navController.value.currentDestination?.route == Routes.Welcome.route ||
-            navController.value.currentDestination?.route == Routes.Settings.route ||
-            navController.value.currentDestination?.route == Routes.About.route ||
-            navController.value.currentDestination?.route == Routes.Pin.route
-        ) refreshing.value = false
-
         setKeyboardMode()
     }
 
     fun popBackStack(): Boolean {
-        try {
-            return if ((navController.value.previousBackStackEntry?.destination?.route == Routes.Welcome.route &&
-                        navController.value.currentDestination?.route == Routes.WebView.route) ||
-                navController.value.previousBackStackEntry?.destination?.route == Routes.AccessPin.route ||
-                navController.value.currentDestination?.route == Routes.Welcome.route ||
-                (navController.value.currentDestination?.route == Routes.AccessPin.route && pendingUnlockAction == null) ||
-                navController.value.currentDestination?.route == Routes.Passwords.route
-            )
-                if (currentFolder.value != 0) {
-                    setCurrentFolder()
-
-                    true
-                } else false
-            else {
-                if (navController.value.currentDestination?.route == Routes.NewPassword.route)
-                    nextcloudApi.faviconRequest(data = "")
-
-                navController.value.popBackStack()
-
-                setKeyboardMode()
+        return if (navController.value.previousBackStackEntry?.destination?.route == Routes.AccessPin.route ||
+            navController.value.currentDestination?.route == Routes.Welcome.route ||
+            (navController.value.currentDestination?.route == Routes.AccessPin.route && pendingUnlockAction == null) ||
+            navController.value.currentDestination?.route == Routes.Passwords.route
+        )
+            if (currentFolder.value != 0) {
+                setCurrentFolder()
 
                 true
-            }
-        } catch (e: Exception) {
-            return false
+            } else false
+        else {
+            if (navController.value.currentDestination?.route == Routes.NewPassword.route)
+                nextcloudApi.faviconRequest(data = "")
+
+            navController.value.popBackStack()
+
+            setKeyboardMode()
+
+            true
         }
     }
 
@@ -450,7 +439,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         dialogBody.value = body
         dialogConfirm.value = confirm
         dialogAction.value = action
-
         openDialog.value = true
     }
 
@@ -482,13 +470,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             executeRequest {
                 val response = nextcloudApi.startLogin(url = url.value)
 
-                val login = Uri.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
-                val endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content
-                val token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
+                navigate(
+                    route = Routes.WebView.getRoute(
+                        arg = Uri.encode(response["login"]!!.jsonPrimitive.content, "UTF-8")
+                    )
+                )
 
-                navigate(route = Routes.WebView.getRoute(login))
-
-                val loginResponse = nextcloudApi.loginPolling(endpoint = endpoint, token = token)
+                val loginResponse = nextcloudApi.loginPolling(
+                    endpoint = response["poll"]!!.jsonObject["endpoint"]!!.jsonPrimitive.content,
+                    token = response["poll"]!!.jsonObject["token"]!!.jsonPrimitive.content
+                )
 
                 if (loginResponse.isEmpty()) {
                     popBackStack()
