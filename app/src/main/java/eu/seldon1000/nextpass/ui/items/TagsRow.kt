@@ -84,8 +84,6 @@ fun TagsRow(
                 Crossfade(targetState = selected) { state ->
                     var expanded by remember { mutableStateOf(value = false) }
 
-                    var label by remember { mutableStateOf(value = tag.label) }
-
                     Card(
                         backgroundColor = color.copy(
                             alpha = if ((tags != null && tags.contains(
@@ -125,23 +123,23 @@ fun TagsRow(
                         DropdownMenuItem(onClick = {
                             expanded = false
 
+                            newTagLabel = tag.label
                             newTagColor = tag.color
-                            println("CIAO ${tag.color}")
 
                             viewModel.showDialog(
                                 title = context.getString(R.string.edit_tag),
                                 body = {
                                     Column {
                                         TextFieldItem(
-                                            text = label,
-                                            onTextChanged = { label = it },
+                                            text = newTagLabel,
+                                            onTextChanged = { newTagLabel = it },
                                             label = context.getString(R.string.label),
                                             required = true,
                                             capitalized = true
                                         ) {
                                             CopyButton(
                                                 label = context.getString(R.string.tag_label),
-                                                clip = label,
+                                                clip = newTagLabel,
                                                 viewModel = viewModel
                                             )
                                         }
@@ -152,7 +150,7 @@ fun TagsRow(
                             ) {
                                 val params = mapOf(
                                     "id" to tag.id,
-                                    "label" to label,
+                                    "label" to newTagLabel,
                                     "color" to newTagColor
                                 )
 
@@ -222,6 +220,9 @@ fun TagsRow(
         ) {
             Card(
                 onClick = {
+                    newTagLabel = ""
+                    newTagColor = pickerColors[0]
+
                     viewModel.showDialog(
                         title = context.getString(R.string.new_tag),
                         body = {
@@ -250,9 +251,6 @@ fun TagsRow(
                             viewModel.nextcloudApi.createTagRequest(params = params)
                             viewModel.showSnackbar(message = context.getString(R.string.tag_created_snack))
                         }
-
-                        newTagLabel = ""
-                        newTagColor = pickerColors[0]
                     }
                 },
                 shape = RoundedCornerShape(size = 8.dp),
