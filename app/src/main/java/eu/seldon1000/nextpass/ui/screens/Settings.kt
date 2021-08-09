@@ -225,22 +225,20 @@ fun Settings(viewModel: MainViewModel) {
                     GenericColumnItem(
                         title = context.getString(R.string.lock_timeout),
                         body = context.getString(
-                            R.string.lock_timeout_tip, when (lockTimeout) {
-                                0.toLong() -> context.getString(R.string.immediately)
-                                (-1).toLong() -> context.getString(R.string.never)
-                                (-2).toLong() -> context.getString(R.string.on_restart)
-                                else -> when {
-                                    lockTimeout < 3600000 -> context.resources.getQuantityString(
-                                        R.plurals.minutes,
-                                        (lockTimeout / 60000).toInt(),
-                                        (lockTimeout / 60000).toInt()
-                                    )
-                                    else -> context.resources.getQuantityString(
-                                        R.plurals.hours,
-                                        (lockTimeout / 3600000).toInt(),
-                                        (lockTimeout / 3600000).toInt()
-                                    )
-                                }
+                            R.string.lock_timeout_tip, when {
+                                lockTimeout == 0.toLong() -> context.getString(R.string.immediately)
+                                lockTimeout == (-1).toLong() -> context.getString(R.string.never)
+                                lockTimeout == (-2).toLong() -> context.getString(R.string.on_restart)
+                                lockTimeout < 3600000 -> context.resources.getQuantityString(
+                                    R.plurals.minutes,
+                                    (lockTimeout / 60000).toInt(),
+                                    (lockTimeout / 60000).toInt()
+                                )
+                                else -> context.resources.getQuantityString(
+                                    R.plurals.hours,
+                                    (lockTimeout / 3600000).toInt(),
+                                    (lockTimeout / 3600000).toInt()
+                                )
                             }
                         ),
                         item = {}
@@ -262,28 +260,25 @@ fun Settings(viewModel: MainViewModel) {
                                                                 lockTimeout != selectedLockTimeout),
                                                 onClick = { selectedLockTimeout = option },
                                                 modifier = Modifier.padding(
-                                                    end = 16.dp,
-                                                    top = 8.dp,
-                                                    bottom = 8.dp
+                                                    horizontal = 16.dp,
+                                                    vertical = 10.dp
                                                 )
                                             )
                                             Text(
-                                                text = when (option) {
-                                                    0.toLong() -> context.getString(R.string.immediately)
-                                                    (-1).toLong() -> context.getString(R.string.never)
-                                                    (-2).toLong() -> context.getString(R.string.on_restart)
-                                                    else -> when {
-                                                        option < 3600000 -> context.resources.getQuantityString(
-                                                            R.plurals.minutes,
-                                                            (option / 60000).toInt(),
-                                                            (option / 60000).toInt()
-                                                        )
-                                                        else -> context.resources.getQuantityString(
-                                                            R.plurals.hours,
-                                                            (option / 3600000).toInt(),
-                                                            (option / 3600000).toInt()
-                                                        )
-                                                    }
+                                                text = when {
+                                                    option == 0.toLong() -> context.getString(R.string.immediately)
+                                                    option == (-1).toLong() -> context.getString(R.string.never)
+                                                    option == (-2).toLong() -> context.getString(R.string.on_restart)
+                                                    option < 3600000 -> context.resources.getQuantityString(
+                                                        R.plurals.minutes,
+                                                        (option / 60000).toInt(),
+                                                        (option / 60000).toInt()
+                                                    )
+                                                    else -> context.resources.getQuantityString(
+                                                        R.plurals.hours,
+                                                        (option / 3600000).toInt(),
+                                                        (option / 3600000).toInt()
+                                                    )
                                                 }
                                             )
                                         }

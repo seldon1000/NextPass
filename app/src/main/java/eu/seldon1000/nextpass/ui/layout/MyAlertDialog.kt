@@ -49,8 +49,8 @@ fun MyAlertDialog(viewModel: MainViewModel) {
                 if (dialogConfirm)
                     TextButton(
                         onClick = {
-                            viewModel.dismissDialog()
                             dialogAction()
+                            viewModel.dismissDialog()
                         }
                     ) { Text(text = context.getString(R.string.confirm), color = Orange500) }
             },
