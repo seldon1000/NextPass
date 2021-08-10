@@ -112,10 +112,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         unlocked = !pinProtected.value || lockTimeout.value == (-1).toLong()
 
-        if (autofillManager.hasEnabledAutofillServices()) {
-            if (autostart.value) autofillIntent =
-                Intent(context, NextPassAutofillService::class.java)
-        } else sharedPreferences.edit().remove("autostart").apply()
+        if (autostart.value) startAutofillService()
 
         if (folders.value) setFolderMode(mode = true)
 
@@ -261,14 +258,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         if (unlocked && nextcloudApi.isLogged()) {
             if (shouldRememberScreen && navController.value.previousBackStackEntry != null)
-                navController.value.popBackStack()
+                popBackStack()
             else navigate(route = Routes.Passwords.route)
 
             if (pendingUnlockAction != null) {
                 pendingUnlockAction!!()
                 pendingUnlockAction = null
             } else executeRequest { nextcloudApi.refreshServerList() }
-        } else lock()
+        }
     }
 
     fun changePin() {
@@ -279,12 +276,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setPin(pin: String) {
         sharedPreferences.edit().putString("PIN", pin).apply()
-
-        if (!pinProtected.value) {
-            pinProtected.value = true
-
-            setLockTimeout(timeout = lockTimeout.value)
-        }
+        pinProtected.value = true
     }
 
     fun disablePin() {
@@ -348,12 +340,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun navigate(route: String) {
-        refreshing.value = false
-
         navController.value.navigate(route = route) {
             launchSingleTop = true
             restoreState = true
         }
+
+        refreshing.value = false
 
         setKeyboardMode()
     }

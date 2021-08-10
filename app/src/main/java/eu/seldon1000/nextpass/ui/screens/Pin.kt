@@ -39,7 +39,7 @@ import eu.seldon1000.nextpass.ui.theme.colors
 
 @ExperimentalMaterialApi
 @Composable
-fun ChangePin(viewModel: MainViewModel) {
+fun Pin(viewModel: MainViewModel) {
     val context = LocalContext.current
 
     var pin by remember { mutableStateOf(value = "") }
@@ -63,7 +63,6 @@ fun ChangePin(viewModel: MainViewModel) {
                         confirm = true
                     ) {
                         viewModel.setPin(pin = pin)
-                        viewModel.setLockTimeout(timeout = 0)
                         viewModel.popBackStack()
                         viewModel.showSnackbar(message = context.getString(R.string.pin_changed_snack))
                     }

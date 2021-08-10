@@ -192,7 +192,7 @@ fun Settings(viewModel: MainViewModel) {
                                         },
                                         confirm = true
                                     ) { viewModel.disablePin() }
-                                } else viewModel.navigate(route = Routes.Pin.route)
+                                } else viewModel.changePin()
                             },
                             colors = SwitchDefaults.colors(checkedThumbColor = Orange500),
                             modifier = Modifier.padding(end = 16.dp)

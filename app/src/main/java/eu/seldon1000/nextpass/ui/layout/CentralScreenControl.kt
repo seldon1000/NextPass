@@ -16,7 +16,8 @@
 
 package eu.seldon1000.nextpass.ui.layout
 
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
@@ -27,6 +28,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.seldon1000.nextpass.MainViewModel
@@ -39,7 +43,7 @@ import eu.seldon1000.nextpass.ui.screens.*
 fun CentralScreenControl(viewModel: MainViewModel) {
     val context = LocalContext.current
 
-    val navController = rememberNavController()
+    val navController = rememberAnimatedNavController()
     val scaffoldState = rememberScaffoldState()
 
     viewModel.setNavController(controller = navController)
@@ -65,32 +69,97 @@ fun CentralScreenControl(viewModel: MainViewModel) {
                     currentScreen?.destination?.route == Routes.PasswordDetails.route ||
                     currentScreen?.destination?.route == Routes.FolderDetails.route
         ) {
-            NavHost(
+            AnimatedNavHost(
                 navController = navController,
                 startDestination = when {
-                    (viewModel.pinProtected.value &&
-                            viewModel.lockTimeout.value != (-1).toLong() &&
-                            viewModel.lockTimeout.value != (-2).toLong()) -> Routes.AccessPin.route
+                    viewModel.pinProtected.value && viewModel.lockTimeout.value != (-1).toLong() -> Routes.AccessPin.route
                     context.getSharedPreferences("nextpass", 0)
                         .contains("server") -> Routes.Passwords.route
                     else -> Routes.Welcome.route
                 }
             ) {
-                composable(route = "get_yourself_together_google") {} //TODO: remove when new navigation alpha is out (maybe, I don't know)
+                composable(route = "seldon1000") {} //TODO: remove when new navigation alpha is out (maybe, I don't know)
                 composable(route = Routes.Welcome.route) { WelcomeScreen(viewModel = viewModel) }
                 composable(route = Routes.Search.route) { Search(viewModel = viewModel) }
                 composable(route = Routes.Passwords.route) { PasswordList(viewModel = viewModel) }
-                composable(route = Routes.NewPassword.route) { NewPassword(viewModel = viewModel) }
-                composable(route = Routes.NewFolder.route) { NewFolder(viewModel = viewModel) }
+                composable(
+                    route = Routes.NewPassword.route,
+                    enterTransition = { _, _ ->
+                        slideInVertically(
+                            initialOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    popExitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }) { NewPassword(viewModel = viewModel) }
+                composable(route = Routes.NewFolder.route,
+                    enterTransition = { _, _ ->
+                        slideInVertically(
+                            initialOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    popExitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }) { NewFolder(viewModel = viewModel) }
                 composable(route = Routes.Favorites.route) { Favorites(viewModel = viewModel) }
                 composable(route = Routes.Settings.route) { Settings(viewModel = viewModel) }
-                composable(route = Routes.About.route) { About(viewModel = viewModel) }
-                composable(route = Routes.Pin.route) { ChangePin(viewModel = viewModel) }
+                composable(route = Routes.About.route,
+                    enterTransition = { _, _ ->
+                        slideInVertically(
+                            initialOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    popExitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }) { About(viewModel = viewModel) }
+                composable(route = Routes.Pin.route,
+                    enterTransition = { _, _ ->
+                        slideInVertically(
+                            initialOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    popExitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }) { Pin(viewModel = viewModel) }
                 composable(
                     route = Routes.AccessPin.route,
                     arguments = listOf(element = navArgument(name = "shouldRaiseBiometric") {
                         type = NavType.BoolType
-                    })
+                    }),
+                    enterTransition = { _, _ ->
+                        slideInVertically(
+                            initialOffsetY = { -3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    exitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { -3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    popExitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { -3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }
                 ) {
                     AccessPin(
                         shouldRaiseBiometric = it.arguments?.getBoolean("shouldRaiseBiometric")!!,
@@ -101,7 +170,25 @@ fun CentralScreenControl(viewModel: MainViewModel) {
                     route = Routes.WebView.route,
                     arguments = listOf(element = navArgument(name = "url") {
                         type = NavType.StringType
-                    })
+                    }),
+                    enterTransition = { _, _ ->
+                        slideInVertically(
+                            initialOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    exitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { -3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    popExitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }
                 ) {
                     WebPageVisualizer(
                         urlToRender = it.arguments?.getString("url")!!,
@@ -112,7 +199,19 @@ fun CentralScreenControl(viewModel: MainViewModel) {
                     route = Routes.PasswordDetails.route,
                     arguments = listOf(element = navArgument(name = "data") {
                         type = NavType.IntType
-                    })
+                    }),
+                    enterTransition = { _, _ ->
+                        slideInVertically(
+                            initialOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    popExitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }
                 ) {
                     PasswordDetails(
                         passwordData = storedPasswords[it.arguments?.getInt("data")!!],
@@ -123,7 +222,19 @@ fun CentralScreenControl(viewModel: MainViewModel) {
                     route = Routes.FolderDetails.route,
                     arguments = listOf(element = navArgument(name = "data") {
                         type = NavType.IntType
-                    })
+                    }),
+                    enterTransition = { _, _ ->
+                        slideInVertically(
+                            initialOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    popExitTransition = { _, _ ->
+                        slideOutVertically(
+                            targetOffsetY = { 3000 },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }
                 ) {
                     FolderDetails(
                         folder = storedFolders[it.arguments?.getInt("data")!!],
