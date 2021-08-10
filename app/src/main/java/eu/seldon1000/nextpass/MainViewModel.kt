@@ -231,7 +231,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun lock(shouldRaiseBiometric: Boolean = true) {
         if (pinProtected.value) {
-            unlocked = false
             biometricDismissed.value = false
             dismissDialog()
 
@@ -243,17 +242,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun unlock(pin: String = "") {
-        if (!unlocked && pin.isNotEmpty() &&
-            pin != sharedPreferences.getString("PIN", null)
-        ) showDialog(
-            title = context.getString(R.string.wrong_pin),
-            body = {
-                Text(
-                    text = context.getString(R.string.wrong_pin_body),
-                    fontSize = 14.sp
-                )
-            }
-        )
+        if (pin.isNotEmpty() && pin != sharedPreferences.getString("PIN", null))
+            showDialog(
+                title = context.getString(R.string.wrong_pin),
+                body = {
+                    Text(
+                        text = context.getString(R.string.wrong_pin_body),
+                        fontSize = 14.sp
+                    )
+                }
+            )
 
         unlocked = unlocked || pin == sharedPreferences.getString("PIN", null)
 
@@ -264,7 +262,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 pendingUnlockAction!!()
                 pendingUnlockAction = null
             } else executeRequest { nextcloudApi.refreshServerList() }
-        } else lock()
+        } else if (pin.isEmpty()) lock()
     }
 
     fun changePin() {
