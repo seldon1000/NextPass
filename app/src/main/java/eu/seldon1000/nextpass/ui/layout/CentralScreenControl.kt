@@ -72,7 +72,6 @@ fun CentralScreenControl(viewModel: MainViewModel) {
             AnimatedNavHost(
                 navController = navController,
                 startDestination = when {
-                    viewModel.pinProtected.value && viewModel.lockTimeout.value != (-1).toLong() -> Routes.AccessPin.route
                     context.getSharedPreferences("nextpass", 0)
                         .contains("server") -> Routes.Passwords.route
                     else -> Routes.Welcome.route

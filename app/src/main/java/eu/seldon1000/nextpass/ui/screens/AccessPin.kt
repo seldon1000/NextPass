@@ -99,7 +99,7 @@ fun AccessPin(shouldRaiseBiometric: Boolean, viewModel: MainViewModel) {
                     Box(modifier = Modifier.size(size = 16.dp))
                 }
                 FloatingActionButton(
-                    onClick = { viewModel.unlock(pin = pin, shouldRememberScreen = true) },
+                    onClick = { viewModel.unlock(pin = pin) },
                     modifier = Modifier.padding(bottom = 64.dp)
                 ) {
                     Icon(

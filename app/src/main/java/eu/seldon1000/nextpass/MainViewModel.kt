@@ -242,7 +242,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun unlock(pin: String = "", shouldRememberScreen: Boolean = true) {
+    fun unlock(pin: String = "") {
         if (!unlocked && pin.isNotEmpty() &&
             pin != sharedPreferences.getString("PIN", null)
         ) showDialog(
@@ -258,15 +258,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         unlocked = unlocked || pin == sharedPreferences.getString("PIN", null)
 
         if (unlocked && nextcloudApi.isLogged()) {
-            if (shouldRememberScreen && navController.value.previousBackStackEntry != null)
-                popBackStack()
-            else navigate(route = Routes.Passwords.route)
+            navController.value.popBackStack()
 
             if (pendingUnlockAction != null) {
                 pendingUnlockAction!!()
                 pendingUnlockAction = null
             } else executeRequest { nextcloudApi.refreshServerList() }
-        }
+        } else lock()
     }
 
     fun changePin() {
@@ -276,6 +274,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setPin(pin: String) {
+        if (!pinProtected.value) setLockTimeout(timeout = 0)
+
         sharedPreferences.edit().putString("PIN", pin).apply()
         pinProtected.value = true
     }
@@ -317,7 +317,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         biometricProtected.value = true
                     } else {
                         unlocked = true
-                        unlock(shouldRememberScreen = true)
+                        unlock()
                     }
                 }
 
@@ -492,7 +492,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         appPassword = loginResponse["appPassword"]!!
                     )
 
-                    unlock(shouldRememberScreen = sharedPreferences.contains("server"))
+                    unlock()
                     showSnackbar(
                         message = context.getString(
                             R.string.connected_snack,
