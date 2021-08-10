@@ -242,16 +242,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun unlock(pin: String = "") {
-        if (pin.isNotEmpty() && pin != sharedPreferences.getString("PIN", null))
-            showDialog(
-                title = context.getString(R.string.wrong_pin),
-                body = {
-                    Text(
-                        text = context.getString(R.string.wrong_pin_body),
-                        fontSize = 14.sp
-                    )
-                }
-            )
+        if (pin.isNotEmpty() && pin != sharedPreferences.getString("PIN", null)) showDialog(
+            title = context.getString(R.string.wrong_pin),
+            body = {
+                Text(
+                    text = context.getString(R.string.wrong_pin_body),
+                    fontSize = 14.sp
+                )
+            }
+        )
 
         unlocked = unlocked || pin == sharedPreferences.getString("PIN", null)
 
