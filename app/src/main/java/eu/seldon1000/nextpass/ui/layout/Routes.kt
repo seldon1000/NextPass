@@ -20,10 +20,10 @@ sealed class Routes(val route: String) {
     object Welcome : Routes(route = "welcome")
     object Search : Routes(route = "search")
     object Passwords : Routes(route = "passwords")
-    object NewPassword : Routes(route = "new-password")
-    object NewFolder : Routes(route = "new-folder")
     object Favorites : Routes(route = "favorites")
     object Settings : Routes(route = "settings")
+    object NewPassword : Routes(route = "new-password")
+    object NewFolder : Routes(route = "new-folder")
     object About : Routes(route = "about")
     object Pin : Routes(route = "pin")
 

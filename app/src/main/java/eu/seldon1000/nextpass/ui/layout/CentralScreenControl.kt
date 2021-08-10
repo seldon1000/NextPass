@@ -81,6 +81,8 @@ fun CentralScreenControl(viewModel: MainViewModel) {
                 composable(route = Routes.Welcome.route) { WelcomeScreen(viewModel = viewModel) }
                 composable(route = Routes.Search.route) { Search(viewModel = viewModel) }
                 composable(route = Routes.Passwords.route) { PasswordList(viewModel = viewModel) }
+                composable(route = Routes.Favorites.route) { Favorites(viewModel = viewModel) }
+                composable(route = Routes.Settings.route) { Settings(viewModel = viewModel) }
                 composable(
                     route = Routes.NewPassword.route,
                     enterTransition = { _, _ ->
@@ -108,8 +110,6 @@ fun CentralScreenControl(viewModel: MainViewModel) {
                             animationSpec = tween(durationMillis = 500)
                         )
                     }) { NewFolder(viewModel = viewModel) }
-                composable(route = Routes.Favorites.route) { Favorites(viewModel = viewModel) }
-                composable(route = Routes.Settings.route) { Settings(viewModel = viewModel) }
                 composable(route = Routes.About.route,
                     enterTransition = { _, _ ->
                         slideInVertically(
