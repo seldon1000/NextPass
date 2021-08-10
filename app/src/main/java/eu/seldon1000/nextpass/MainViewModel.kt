@@ -232,7 +232,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun lock(shouldRaiseBiometric: Boolean = true) {
         if (pinProtected.value) {
             unlocked = false
-            refreshing.value = false
             biometricDismissed.value = false
             dismissDialog()
 
@@ -243,8 +242,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun unlock(pin: String = "", shouldRememberScreen: Boolean = false) {
-        if (!unlocked && pin != sharedPreferences.getString("PIN", null)) showDialog(
+    fun unlock(pin: String = "", shouldRememberScreen: Boolean = true) {
+        if (!unlocked && pin.isNotEmpty() &&
+            pin != sharedPreferences.getString("PIN", null)
+        ) showDialog(
             title = context.getString(R.string.wrong_pin),
             body = {
                 Text(

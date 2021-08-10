@@ -54,7 +54,7 @@ class MainActivity : FragmentActivity() {
             }
 
         setContent {
-            rememberCoroutineScope().launch { viewModel.unlock() }
+            rememberCoroutineScope().launch { viewModel.unlock(shouldRememberScreen = false) }
 
             NextPassTheme {
                 Surface {
