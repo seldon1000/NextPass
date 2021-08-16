@@ -243,6 +243,8 @@ fun Settings(viewModel: MainViewModel) {
                         ),
                         item = {}
                     ) {
+                        selectedLockTimeout = lockTimeout
+
                         viewModel.showDialog(
                             title = context.getString(R.string.choose_lock_timeout),
                             body = {
