@@ -360,10 +360,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 true
             } else false
         else {
-            if (navController.value.currentDestination?.route == Routes.NewPassword.route)
-                nextcloudApi.faviconRequest(data = "")
-
             navController.value.popBackStack()
+
+            pendingUnlockAction = null
+
+            nextcloudApi.faviconRequest(data = "")
 
             setKeyboardMode()
 
