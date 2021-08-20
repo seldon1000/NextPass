@@ -77,7 +77,7 @@ fun CentralScreenControl(viewModel: MainViewModel) {
                     else -> Routes.Welcome.route
                 }
             ) {
-                composable(route = "seldon1000") {} //TODO: remove when new navigation alpha is out (maybe, I don't know)
+                composable(route = "seldon1000") {} //TODO: hmm, compose navigation doesn't like 13
                 composable(route = Routes.Welcome.route) { WelcomeScreen(viewModel = viewModel) }
                 composable(route = Routes.Search.route) { Search(viewModel = viewModel) }
                 composable(route = Routes.Passwords.route) { PasswordList(viewModel = viewModel) }
