@@ -41,6 +41,7 @@ import eu.seldon1000.nextpass.services.NextPassAutofillService
 import eu.seldon1000.nextpass.services.StartupBroadcastReceiver
 import eu.seldon1000.nextpass.ui.items.TextFieldItem
 import eu.seldon1000.nextpass.ui.layout.Routes
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.jsonObject
@@ -562,7 +563,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 navController.value.currentDestination?.route == Routes.NewPassword.route ||
                 navController.value.currentDestination?.route == Routes.NewFolder.route
 
-        viewModelScope.launch {
+        viewModelScope.launch(context = Dispatchers.IO) {
             try {
                 request()
 
