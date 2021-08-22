@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -111,20 +111,18 @@ fun PasswordList(viewModel: MainViewModel) {
                                     }
                                 }
                             }
-                            Crossfade(targetState = folderMode) { state ->
-                                Card(
-                                    shape = RoundedCornerShape(size = 8.dp),
-                                    elevation = if (state) 8.dp else 0.dp
-                                ) {
-                                    IconButton(onClick = {
-                                        if (folderMode) viewModel.setCurrentFolder(folder = 0)
-                                        viewModel.setFolderMode()
-                                    }) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_round_folder_24),
-                                            contentDescription = "folder_mode"
-                                        )
-                                    }
+                            Card(
+                                shape = CircleShape,
+                                elevation = if (folderMode) 8.dp else 0.dp
+                            ) {
+                                IconButton(onClick = {
+                                    if (folderMode) viewModel.setCurrentFolder(folder = 0)
+                                    viewModel.setFolderMode()
+                                }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_round_folder_24),
+                                        contentDescription = "folder_mode"
+                                    )
                                 }
                             }
                         }
