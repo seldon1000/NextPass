@@ -235,7 +235,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (pinProtected.value) {
             unlocked = false
             biometricDismissed.value = false
-            dismissDialog()
 
             navigate(route = Routes.AccessPin.getRoute(arg = shouldRaiseBiometric))
         } else {
