@@ -121,6 +121,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .setSubtitle(context.getString(R.string.access_nextpass_body))
             .setNegativeButtonText(context.getString(R.string.cancel))
             .build()
+
+        //nextcloudApi.test()
     }
 
     fun setPrimaryClip(label: String, clip: String) {
@@ -242,8 +244,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun unlock(pin: String = "") {
-        if (pin.isNotEmpty() && pin != sharedPreferences.getString("PIN", null)) showDialog(
+    fun unlock(pin: String? = null) {
+        if (pin != null && pin != sharedPreferences.getString("PIN", null)) showDialog(
             title = context.getString(R.string.wrong_pin),
             body = {
                 Text(
@@ -253,7 +255,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         )
 
-        unlocked = unlocked || pin == sharedPreferences.getString("PIN", null)
+        unlocked = unlocked || (pin != null && pin == sharedPreferences.getString("PIN", null))
 
         if (unlocked) {
             if (navController.value.previousBackStackEntry != null) navController.value.popBackStack()
@@ -261,8 +263,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (pendingUnlockAction != null) {
                 pendingUnlockAction!!()
                 pendingUnlockAction = null
-            } else executeRequest { nextcloudApi.refreshServerList() }
-        } else if (pin.isEmpty()) lock()
+            } else if (nextcloudApi.isLogged()) executeRequest { nextcloudApi.refreshServerList() }
+        } else lock()
     }
 
     fun changePin() {
@@ -339,10 +341,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun navigate(route: String) {
-        navController.value.navigate(route = route) {
-            launchSingleTop = true
-            restoreState = true
-        }
+        if (navController.value.currentDestination?.route?.substringBefore(delimiter = "/") !=
+            route.substringBefore(delimiter = "/")
+        )
+            navController.value.navigate(route = route) {
+                launchSingleTop = true
+                restoreState = true
+            }
 
         refreshing.value = false
 
