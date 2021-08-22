@@ -493,7 +493,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         appPassword = loginResponse["appPassword"]!!
                     )
 
-                    navigate(route = Routes.Passwords.route)
+                    unlock()
                     showSnackbar(
                         message = context.getString(
                             R.string.connected_snack,
