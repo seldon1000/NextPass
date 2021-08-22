@@ -355,7 +355,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun popBackStack(): Boolean {
         return if (navController.value.currentDestination?.route == Routes.Welcome.route ||
-            (navController.value.currentDestination?.route == Routes.AccessPin.route && !unlocked) ||
+            (navController.value.currentDestination?.route == Routes.AccessPin.route && pendingUnlockAction == null && !unlocked) ||
             navController.value.currentDestination?.route == Routes.Passwords.route
         )
             if (currentFolder.value != 0) {
