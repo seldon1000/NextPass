@@ -36,11 +36,11 @@ import eu.seldon1000.nextpass.ui.theme.Orange500
 fun MyAlertDialog(viewModel: MainViewModel) {
     val context = LocalContext.current
 
-    val openDialog by viewModel.openDialog.collectAsState()
     val dialogTitle by viewModel.dialogTitle.collectAsState()
     val dialogBody by viewModel.dialogBody.collectAsState()
     val dialogConfirm by viewModel.dialogConfirm.collectAsState()
     val dialogAction by viewModel.dialogAction.collectAsState()
+    val openDialog by viewModel.openDialog.collectAsState()
 
     if (openDialog) {
         AlertDialog(
@@ -67,7 +67,7 @@ fun MyAlertDialog(viewModel: MainViewModel) {
                 )
             },
             text = dialogBody,
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(size = 10.dp)
         )
     }
 }

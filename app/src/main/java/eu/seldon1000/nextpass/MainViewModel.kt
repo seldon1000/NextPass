@@ -231,6 +231,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun lock(shouldRaiseBiometric: Boolean = true) {
         if (pinProtected.value) {
+            unlocked = false
             biometricDismissed.value = false
             dismissDialog()
 
@@ -254,8 +255,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         unlocked = unlocked || pin == sharedPreferences.getString("PIN", null)
 
-        if (unlocked && nextcloudApi.isLogged()) {
-            navController.value.popBackStack()
+        if (unlocked) {
+            if (navController.value.previousBackStackEntry != null) navController.value.popBackStack()
 
             if (pendingUnlockAction != null) {
                 pendingUnlockAction!!()
@@ -349,9 +350,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun popBackStack(): Boolean {
-        return if (navController.value.previousBackStackEntry?.destination?.route == Routes.AccessPin.route ||
-            navController.value.currentDestination?.route == Routes.Welcome.route ||
-            (navController.value.currentDestination?.route == Routes.AccessPin.route && pendingUnlockAction == null) ||
+        return if (navController.value.currentDestination?.route == Routes.Welcome.route ||
+            (navController.value.currentDestination?.route == Routes.AccessPin.route && !unlocked) ||
             navController.value.currentDestination?.route == Routes.Passwords.route
         )
             if (currentFolder.value != 0) {
@@ -361,8 +361,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } else false
         else {
             navController.value.popBackStack()
-
-            pendingUnlockAction = null
 
             nextcloudApi.faviconRequest(data = "")
 
@@ -490,7 +488,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         appPassword = loginResponse["appPassword"]!!
                     )
 
-                    unlock()
+                    navigate(route = Routes.Passwords.route)
                     showSnackbar(
                         message = context.getString(
                             R.string.connected_snack,
