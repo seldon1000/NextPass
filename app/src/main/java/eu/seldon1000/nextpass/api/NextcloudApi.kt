@@ -29,12 +29,13 @@ import io.ktor.client.features.auth.providers.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.*
 import kotlinx.serialization.serializer
 
 @SuppressLint("StaticFieldLeak")
@@ -163,6 +164,37 @@ class NextcloudApi {
 
         storedPasswords.value = passwords
     }
+
+    /*@kotlin.ExperimentalUnsignedTypes
+    fun test() {
+        coroutineScope.launch {
+            val io = (client.get<JsonObject>(
+                urlString = "$server$endpoint/session/request"
+            ) {})["challenge"]!!.jsonObject["salts"]!!.jsonArray
+
+            LibsodiumInitializer.initialize()
+
+            val salt0 = LibsodiumUtil.fromHex(io[0].jsonPrimitive.content)
+            val salt1 = LibsodiumUtil.fromHex(io[1].jsonPrimitive.content)
+            val salt2 = LibsodiumUtil.fromHex(io[2].jsonPrimitive.content)
+
+            val k = GenericHash.genericHash(
+                message = "***$salt0".encodeToUByteArray(),
+                crypto_generichash_blake2b_BYTES_MAX,
+                key = salt1
+            )
+
+            val g = PasswordHash.pwhash(
+                crypto_box_SEEDBYTES,
+                k.toString(),
+                salt2,
+                crypto_pwhash_OPSLIMIT_INTERACTIVE.toULong(),
+                crypto_pwhash_MEMLIMIT_INTERACTIVE,
+                crypto_pwhash_argon2id_ALG_ARGON2ID13
+            )
+            println("ciao $g")
+        }
+    }*/
 
     private suspend inline fun <reified T> showRequest(id: String): T {
         return json.decodeFromString(
