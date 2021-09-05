@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
+@OptIn(ExperimentalUnsignedTypes::class)
 @SuppressLint("StaticFieldLeak")
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     var nextcloudApi = NextcloudApi()
@@ -122,7 +123,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .setNegativeButtonText(context.getString(R.string.cancel))
             .build()
 
-        //nextcloudApi.test()
+        nextcloudApi.test()
     }
 
     fun setPrimaryClip(label: String, clip: String) {
