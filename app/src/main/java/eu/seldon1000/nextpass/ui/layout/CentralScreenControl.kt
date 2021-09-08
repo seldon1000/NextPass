@@ -27,7 +27,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navArgument
@@ -44,8 +43,6 @@ import eu.seldon1000.nextpass.ui.screens.*
 @ExperimentalMaterialApi
 @Composable
 fun CentralScreenControl(viewModel: MainViewModel) {
-    val context = LocalContext.current
-
     val navController = rememberAnimatedNavController()
     val scaffoldState = rememberScaffoldState()
 
@@ -75,12 +72,10 @@ fun CentralScreenControl(viewModel: MainViewModel) {
             AnimatedNavHost(
                 navController = navController,
                 startDestination = when {
-                    context.getSharedPreferences("nextpass", 0)
-                        .contains("server") -> Routes.Passwords.route
+                    viewModel.nextcloudApi.isLogged() -> Routes.Passwords.route
                     else -> Routes.Welcome.route
                 }
             ) {
-                composable(route = "seldon1000") {} //TODO: hmm, compose navigation doesn't like 13
                 composable(route = Routes.Welcome.route) { WelcomeScreen(viewModel = viewModel) }
                 composable(route = Routes.Search.route) { Search(viewModel = viewModel) }
                 composable(route = Routes.Passwords.route) { PasswordList(viewModel = viewModel) }

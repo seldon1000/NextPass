@@ -123,7 +123,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .setNegativeButtonText(context.getString(R.string.cancel))
             .build()
 
-        nextcloudApi.test()
+        //nextcloudApi.test()
     }
 
     fun setPrimaryClip(label: String, clip: String) {
