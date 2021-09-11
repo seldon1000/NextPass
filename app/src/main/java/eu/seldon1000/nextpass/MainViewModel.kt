@@ -16,7 +16,6 @@
 
 package eu.seldon1000.nextpass
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -47,12 +46,11 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 @OptIn(ExperimentalUnsignedTypes::class)
-@SuppressLint("StaticFieldLeak")
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     var nextcloudApi = NextcloudApi()
         private set
 
-    private val context = getApplication<Application>().applicationContext
+    private val context = getApplication<Application>()
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences("nextpass", 0)
     private val clipboardManager: ClipboardManager =
         context.getSystemService(ClipboardManager::class.java)

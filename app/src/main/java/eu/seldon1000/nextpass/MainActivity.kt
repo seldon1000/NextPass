@@ -39,9 +39,11 @@ class MainActivity : FragmentActivity() {
     private lateinit var viewModel: MainViewModel
     lateinit var autofillSettingsResult: ActivityResultLauncher<Intent>
 
-    @ExperimentalAnimationApi
-    @ExperimentalFoundationApi
-    @ExperimentalMaterialApi
+    @OptIn(
+        ExperimentalAnimationApi::class,
+        ExperimentalFoundationApi::class,
+        ExperimentalMaterialApi::class
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
