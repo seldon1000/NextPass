@@ -43,6 +43,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
     }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ["libs"]
+        }
+    }
     ndkVersion '23.0.7599858'
 }
 
