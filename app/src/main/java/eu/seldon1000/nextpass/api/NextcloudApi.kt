@@ -24,11 +24,9 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.ionspin.kotlin.crypto.box.crypto_box_SEEDBYTES
 import com.ionspin.kotlin.crypto.generichash.GenericHash
+import com.ionspin.kotlin.crypto.generichash.crypto_generichash_BYTES
 import com.ionspin.kotlin.crypto.generichash.crypto_generichash_blake2b_BYTES_MAX
-import com.ionspin.kotlin.crypto.pwhash.PasswordHash
-import com.ionspin.kotlin.crypto.pwhash.crypto_pwhash_MEMLIMIT_INTERACTIVE
-import com.ionspin.kotlin.crypto.pwhash.crypto_pwhash_OPSLIMIT_INTERACTIVE
-import com.ionspin.kotlin.crypto.pwhash.crypto_pwhash_argon2id_ALG_ARGON2ID13
+import com.ionspin.kotlin.crypto.pwhash.*
 import com.ionspin.kotlin.crypto.util.LibsodiumUtil
 import com.ionspin.kotlin.crypto.util.encodeToUByteArray
 import io.ktor.client.*
@@ -44,6 +42,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import kotlinx.serialization.serializer
@@ -63,6 +62,7 @@ class NextcloudApi {
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     private val baseFolder = json.decodeFromString<Folder>(
         string = "{\"id\":\"00000000-0000-0000-0000-000000000000\"," +
                 "\"label\":\"Base\"," +
@@ -184,13 +184,13 @@ class NextcloudApi {
 
             LibsodiumInitializer.initialize()
 
-            val salt0 = LibsodiumUtil.fromHex(io[0].jsonPrimitive.content)
-            val salt1 = LibsodiumUtil.fromHex(io[1].jsonPrimitive.content)
-            val salt2 = LibsodiumUtil.fromHex(io[2].jsonPrimitive.content)
+            val salt0 = LibsodiumUtil.fromHex(data = io[0].jsonPrimitive.content)
+            val salt1 = LibsodiumUtil.fromHex(data = io[1].jsonPrimitive.content)
+            val salt2 = LibsodiumUtil.fromHex(data = io[2].jsonPrimitive.content)
 
             val k = GenericHash.genericHash(
                 message = "***$salt0".encodeToUByteArray(),
-                crypto_generichash_blake2b_BYTES_MAX,
+                requestedHashLength = crypto_generichash_blake2b_BYTES_MAX,
                 key = salt1
             )
 
@@ -200,9 +200,14 @@ class NextcloudApi {
                 salt2,
                 crypto_pwhash_OPSLIMIT_INTERACTIVE.toULong(),
                 crypto_pwhash_MEMLIMIT_INTERACTIVE,
-                crypto_pwhash_argon2id_ALG_ARGON2ID13
+                crypto_pwhash_ALG_DEFAULT
             )
-            println("ciao $g")
+
+            val challenge = LibsodiumUtil.toHex(data = g)
+
+            client.post<JsonObject>(urlString = "$server$endpoint/session/open") {
+                parameter(key = "challenge", value = challenge)
+            }
         }
     }
 
