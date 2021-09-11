@@ -16,7 +16,6 @@
 
 package eu.seldon1000.nextpass.api
 
-import android.annotation.SuppressLint
 import android.graphics.*
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
@@ -24,7 +23,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.ionspin.kotlin.crypto.box.crypto_box_SEEDBYTES
 import com.ionspin.kotlin.crypto.generichash.GenericHash
-import com.ionspin.kotlin.crypto.generichash.crypto_generichash_BYTES
 import com.ionspin.kotlin.crypto.generichash.crypto_generichash_blake2b_BYTES_MAX
 import com.ionspin.kotlin.crypto.pwhash.*
 import com.ionspin.kotlin.crypto.util.LibsodiumUtil
@@ -47,7 +45,6 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.*
 import kotlinx.serialization.serializer
 
-@SuppressLint("StaticFieldLeak")
 class NextcloudApi {
     private val coroutineScope = CoroutineScope(context = Dispatchers.Unconfined)
 
