@@ -74,11 +74,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         disableBiometric()
     }
     private val resetPreferencesAction = {
+        disablePinAction()
         stopAutofillService(showSnackMessage = false)
         disableAutofill()
         disableScreenProtection()
         disableFolders()
-        disableBiometric()
         enableTags()
     }
 
@@ -110,11 +110,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
 
         unlocked = !pinProtected.value || lockTimeout.value == (-1).toLong()
-
         if (autostart.value) startAutofillService()
-
         if (folders.value) setFolderMode(mode = true)
-
         promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(context.getString(R.string.access_nextpass))
             .setSubtitle(context.getString(R.string.access_nextpass_body))
@@ -142,7 +139,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun resetUserPreferences() {
         pendingUnlockAction = {
-            disablePinAction()
             resetPreferencesAction()
 
             showSnackbar(message = context.getString(R.string.preferences_reset_snack))
@@ -532,14 +528,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             pendingUnlockAction = {
                 executeRequest {
                     nextcloudApi.logout()
-
                     nextcloudApi = NextcloudApi()
 
                     navigate(route = Routes.Welcome.route)
-
-                    disablePinAction()
                     resetPreferencesAction()
-
                     showSnackbar(message = context.getString(R.string.disconnected_snack))
 
                     sharedPreferences.edit().remove("server").apply()
