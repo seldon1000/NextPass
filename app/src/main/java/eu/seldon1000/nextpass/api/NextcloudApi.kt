@@ -20,13 +20,13 @@ import android.graphics.*
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.ionspin.kotlin.crypto.LibsodiumInitializer
+/*import com.ionspin.kotlin.crypto.LibsodiumInitializer
 import com.ionspin.kotlin.crypto.box.crypto_box_SEEDBYTES
 import com.ionspin.kotlin.crypto.generichash.GenericHash
 import com.ionspin.kotlin.crypto.generichash.crypto_generichash_blake2b_BYTES_MAX
 import com.ionspin.kotlin.crypto.pwhash.*
 import com.ionspin.kotlin.crypto.util.LibsodiumUtil
-import com.ionspin.kotlin.crypto.util.encodeToUByteArray
+import com.ionspin.kotlin.crypto.util.encodeToUByteArray*/
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
@@ -172,7 +172,7 @@ class NextcloudApi {
         storedPasswords.value = passwords
     }
 
-    @kotlin.ExperimentalUnsignedTypes
+    /*@kotlin.ExperimentalUnsignedTypes
     fun test() {
         coroutineScope.launch {
             val io = (client.get<JsonObject>(
@@ -206,7 +206,7 @@ class NextcloudApi {
                 parameter(key = "challenge", value = challenge)
             }
         }
-    }
+    }*/
 
     private suspend inline fun <reified T> showRequest(id: String): T {
         return json.decodeFromString(
