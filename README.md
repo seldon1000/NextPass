@@ -1,6 +1,6 @@
 ***Development is currently paused***
 
-The app is far from dead, I personally use it and want to improve it further. My main focus is implementing encryption and then make NextPass an official Passwords third party client, however I need some time to do everything. I'm finally graduating 🎉, so I will have little to no free time for different months, then I'll be back.
+The app is far from dead, I personally use it and want to improve it further. My main focus is implementing encryption and then make NextPass an official Passwords third party client, however I need some time to do everything. I'm finally graduating 🎉, so I will have little to no free time for several months, then I'll be back.
 
 
 ![ic_launcher_round](https://user-images.githubusercontent.com/55358113/122177060-8e66b500-ce85-11eb-89d4-ee1b7636bf12.png)
