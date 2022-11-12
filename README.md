@@ -1,6 +1,6 @@
-***Development is currently paused***
+***Development is currently paused, indefinitely***
 
-The app is far from dead, I personally use it and want to improve it further. I don't when I will restart working on NextPass.
+The app is currently dead. I am now focused on the Apple ecosystem and I don't have enough time to dedicate to side projects like this one. You are free to fork the repository and continue the development yourself. I would be so happy to see this app going further, even without me.
 
 
 ![ic_launcher_round](https://user-images.githubusercontent.com/55358113/122177060-8e66b500-ce85-11eb-89d4-ee1b7636bf12.png)
